@@ -1,1 +1,1 @@
-# WanderFun_FE
+This is a repository for Project WanderFun Front-end developing
