@@ -66,31 +66,45 @@ export default {
 			white3: 'var(--white3)',
 			white4: 'var(--white4)',
 			white5: 'var(--white5)',
+
 			black1: 'var(--black1)',
 			black2: 'var(--black2)',
 			black3: 'var(--black3)',
 			black4: 'var(--black4)',
 			black5: 'var(--black5)',
+
 			green1: 'var(--green1)',
 			green2: 'var(--green2)',
 			green3: 'var(--green3)',
 			green4: 'var(--green4)',
 			green5: 'var(--green5)',
+
+			green1o: 'var(--green1o)',
+			green2o: 'var(--green2o)',
+			green_selected: 'var(--green_selected)',
+
 			blue1: 'var(--blue1)',
 			blue2: 'var(--blue2)',
 			blue3: 'var(--blue3)',
 			blue4: 'var(--blue4)',
 			blue5: 'var(--blue5)',
+
+			blue1o: 'var(--blue1o)',
+			blue2o: 'var(--blue2o)',
+			blue_selected: 'var(--blue_selected)',
+
 			red1: 'var(--red1)',
 			red2: 'var(--red2)',
 			red3: 'var(--red3)',
 			red4: 'var(--red4)',
 			red5: 'var(--red5)',
+
 			yellow1: 'var(--yellow1)',
 			yellow2: 'var(--yellow2)',
 			yellow3: 'var(--yellow3)',
 			yellow4: 'var(--yellow4)',
 			yellow5: 'var(--yellow5)',
+
 			orange1: 'var(--orange1)',
 			orange2: 'var(--orange2)',
 			orange3: 'var(--orange3)',
