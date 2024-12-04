@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import banner from '../assets/banner.jpeg'
+import banner from '@/app/assets/banner.jpeg'
 import { LoginForm } from './component/loginForm'
 
 export default function Login() {
