@@ -1,7 +1,6 @@
 "use client"
 
-import { AppSidebar } from "./components/AppSidebar";
-import { usePathname } from 'next/navigation';
+import Providers from "./providers";
 import "./theme/globals.css";
 
 export default function RootLayout({
@@ -10,24 +9,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const pathname = usePathname();
-  const noSidebarRoutes = ['/login'];
-
-  const showSidebar = !noSidebarRoutes.includes(pathname);
 
 
   return (
     <html lang="en">
-      <body className="flex flex-row font-Poppins bg-white2">
-        {
-          showSidebar &&
-          <div className="w-fit shadow-2xl bg-white">
-            <AppSidebar />
-          </div>
-        }
-        <div className="flex-auto h-fit min-h-screen">
-          {children}
-        </div>
+      <body className="font-Poppins bg-white2">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

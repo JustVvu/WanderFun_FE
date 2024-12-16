@@ -4,9 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useUser } from "@/contexts/UserContext"
 
-import { redirect } from "next/navigation"
 import Image from "next/image"
 
 import {
@@ -20,9 +20,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { CheckedState } from '@radix-ui/react-checkbox';
+import { toast } from 'sonner'
+
+import { Eye, EyeClosed } from "lucide-react"
 
 import logo from '@/app/assets/Logo.svg'
-import { login } from "@/services/authServices"
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -31,8 +34,12 @@ const formSchema = z.object({
 
 export function LoginForm() {
 
-    const [loginFailed, setLoginFailed] = useState(false);
+    const { login } = useUser();
 
+    const [loginFailed, setLoginFailed] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isRemembered, setIsRemembered] = useState(false);
+    const [isLoading, setLoadingState] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -43,17 +50,48 @@ export function LoginForm() {
     })
 
     const handleLogin = async (data: z.infer<typeof formSchema>) => {
-        const { email, password } = data;
-        const isLogin = await login(email, password);
-        if (isLogin) {
-            console.log("Login success!, email: ", email, "password: ", password);
-            redirect("/home");
+
+        try {
+            setLoadingState(true);
+            //console.log(data, isRemembered);
+            await login(
+                {
+                    email: data.email,
+                    password: data.password,
+                    rememberMe: isRemembered,
+                }
+            );
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                const formattedErrors: { [key: string]: string } = {};
+                error.errors.forEach((err) => {
+                    if (err.path) {
+                        formattedErrors[err.path[0]] = err.message;
+                    }
+                });
+                toast.error("Thông tin đăng nhập không hợp lệ!" + formattedErrors);
+                setLoginFailed(true);
+            }
+        } finally {
+            setLoginFailed(false);
+            setLoadingState(false);
         }
-        else {
-            console.log("Login failed!");
-            setLoginFailed(true);
+    }
+
+    const handleRememberMe = (checked: CheckedState) => {
+        setIsRemembered(checked === true);
+        if (checked === false) {
+            localStorage.removeItem('rememberedEmail');
         }
     };
+
+    useEffect(() => {
+        const rememberedEmail = localStorage.getItem('rememberedEmail');
+        if (rememberedEmail) {
+            form.setValue("email", rememberedEmail);
+            setIsRemembered(true);
+        }
+    }, []);
 
     return (
         <div className="flex flex-col w-full h-full bg-white1 justify-items-center
@@ -86,7 +124,10 @@ export function LoginForm() {
                             <FormItem className="space-y-0 w-auto min-w-[250px] mt-[20px]">
                                 <FormLabel>Email</FormLabel>
                                 <FormControl className="h-[40px] rounded-[12px] border-none bg-white3 ">
-                                    <Input {...field} />
+                                    <Input
+                                        {...field}
+                                        className="focus-visible:ring-blue2"
+                                    />
                                 </FormControl>
                             </FormItem>
                         )}
@@ -98,7 +139,19 @@ export function LoginForm() {
                             <FormItem className="space-y-0 w-auto min-w-[250px] mt-[20px]">
                                 <FormLabel>Mật khẩu</FormLabel>
                                 <FormControl className="h-[40px] rounded-[12px] bg-white3 border-none">
-                                    <Input type="password" {...field} />
+                                    <div className="relative w-full justify-between items-center">
+                                        <Input
+                                            type={showPassword ? "text" : "password"}
+                                            {...field}
+                                            className="focus-visible:ring-blue2 w-full h-full rounded-[12px]"
+                                        />
+                                        <div className="absolute inset-y-0 right-0 content-center mr-[6px] text-black3">
+                                            {showPassword
+                                                ? <Eye className="size-[20px]" onClick={() => setShowPassword(!showPassword)} />
+                                                : <EyeClosed className="size-[20px]" onClick={() => setShowPassword(!showPassword)} />
+                                            }
+                                        </div>
+                                    </div>
                                 </FormControl>
                             </FormItem>
                         )}
@@ -106,7 +159,11 @@ export function LoginForm() {
 
                     <div className="flex flex-row justify-between space-x-4 mt-[8px]">
                         <div className="flex flex-row items-center space-x-1">
-                            <Checkbox className="border-[2px] rounded-[3px] font-bold data-[state=checked]:border-blue1 data-[state=checked]:bg-blue1 data-[state=checked]:text-white" />
+                            <Checkbox
+                                checked={isRemembered}
+                                id="rememberMe"
+                                onCheckedChange={handleRememberMe}
+                                className="border-[2px] rounded-[3px] font-bold data-[state=checked]:border-blue1 data-[state=checked]:bg-blue1 data-[state=checked]:text-white" />
                             <label htmlFor="remember" className="text-sm font-normal">Ghi nhớ đăng nhập</label>
                         </div>
                         <a href="#" className="text-blue2 text-sm font-normal hover:underline">Quên mật khẩu?</a>

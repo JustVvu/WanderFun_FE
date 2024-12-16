@@ -33,7 +33,7 @@ export function DataTableColumnHeader<TData, TValue>({
                <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-3 h-8 data-[state=open]:bg-accent text-[14px] text-black4"
+                  className="-ml-3 h-8 data-[state=open]:bg-blue2o data-[state=open]:text-blue2 hover:bg-blue2o hover:text-blue2 text-[14px] text-black4"
                >
                   <span>{title}</span>
                   {column.getIsSorted() === "desc" ? (
@@ -45,14 +45,20 @@ export function DataTableColumnHeader<TData, TValue>({
                   )}
                </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-               <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-                  <ArrowUp className="h-3.5 w-3.5 text-muted-foreground/70" />
-                  Asc
+            <DropdownMenuContent align="start" >
+               <DropdownMenuItem
+                  onClick={() => column.toggleSorting(false)}
+                  className="focus:bg-blue2o"
+               >
+                  <ArrowUp className="h-3.5 w-3.5 text-blue2" />
+                  A-Z
                </DropdownMenuItem>
-               <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-                  <ArrowDown className="h-3.5 w-3.5 text-muted-foreground/70" />
-                  Desc
+               <DropdownMenuItem
+                  onClick={() => column.toggleSorting(true)}
+                  className="focus:bg-blue2o"
+               >
+                  <ArrowDown className="h-3.5 w-3.5 text-blue2" />
+                  Z-A
                </DropdownMenuItem>
                <DropdownMenuSeparator />
             </DropdownMenuContent>

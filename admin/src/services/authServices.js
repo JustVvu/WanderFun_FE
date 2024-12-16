@@ -18,22 +18,21 @@ export const login = async (email, password) => {
   try {
     const res = await axios.post(url + "auth/login", data);
 
-    //console.log(res);
+    console.log(res);
     if (res && res.data) {
       const cookieStore = cookies();
-      const { access_token: accessToken, refresh_token: refreshToken } =
-        res.data;
 
-      cookieStore.set("accessToken", accessToken);
-      cookieStore.set("refreshToken", refreshToken);
+      cookieStore.set("accessToken", res.data.access_token);
+      cookieStore.set("refreshToken", res.data.refresh_token);
 
-      return flag;
+      return flag, res.data;
     } else {
       throw new Error("Failed to authorize user.");
     }
   } catch (error) {
     flag = false;
-    throw new Error("Failed to authorize user.");
+    console.log(error);
+    return flag;
   }
 };
 
