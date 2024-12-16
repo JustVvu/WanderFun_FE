@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { columns, type User } from "./columns"
 
@@ -31,19 +30,8 @@ export default async function User() {
     return (
         <div className=' flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
             <div className='flex flex-row justify-between items-center '>
-                <h1 className='text-[24px] text-blue3 font-medium'>Quản lý địa điểm du lịch</h1>
-                <div className='flex flex-row justify-between items-center space-x-[2rem]'>
-                    <Button
-                        className="w-fit h-fit bg-blue2 text-white1 rounded-[8px] font-Poppins hover:bg-blue3"
-                    >
-                        Xem trên bản đồ
-                    </Button>
-                    <Button
-                        className="w-fit h-fit bg-blue2 text-white1 rounded-[8px] font-Poppins hover:bg-blue3"
-                    >
-                        Thêm địa điểm
-                    </Button>
-                </div>
+                <h1 className='text-[24px] text-blue3 font-medium'>Quản lý tài khoản người dùng</h1>
+
             </div>
             <div >
                 <AppDataTable

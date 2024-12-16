@@ -4,10 +4,10 @@ import { AppBarChart } from '../../components/AppBarChart'
 
 export default function Home() {
     return (
-        <div className='justify-items-center'>
-            <h1 className='text-[30px] font-semibold place-self-start'>Dashboard</h1>
+        <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
+            <h1 className='text-[24px] text-blue3 font-medium'>Trang chủ</h1>
 
-            <div className='flex flex-row mt-[3rem] space-x-[20px]'>
+            <div className='flex flex-row w-full mt-[3rem] space-x-[20px]'>
 
                 <AppAreaChart />
                 <AppBarChart />

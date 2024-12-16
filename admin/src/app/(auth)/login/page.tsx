@@ -1,4 +1,3 @@
-import React from 'react'
 import Image from 'next/image'
 import banner from '@/app/assets/banner.jpeg'
 import { LoginForm } from './component/loginForm'

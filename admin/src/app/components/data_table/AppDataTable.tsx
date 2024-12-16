@@ -63,7 +63,7 @@ export function AppDataTable<TData, TValue>({
     })
 
     return (
-        <div className="flex flex-col justify-between mt-[24px]">
+        <div className="flex flex-col justify-between">
             <div className="flex items-center py-4">
                 <Input
                     placeholder={`Tìm kiếm ${filterPlaceholder}...`}
@@ -118,7 +118,7 @@ export function AppDataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    Không có dữ liệu.
                                 </TableCell>
                             </TableRow>
                         )}

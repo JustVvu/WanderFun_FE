@@ -1,11 +1,15 @@
+'use client'
+
 import { MapPinPlus, MapPinned } from "lucide-react"
 
 import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { columns, type Place } from "./columns"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
 
-async function getData(): Promise<Place[]> {
+async function fetchData(): Promise<Place[]> {
     // Fetch data from your API here.
     return [
         { placeName: "Bãi biển Mỹ Khê tuyệt đẹp, mọi người nên đến đây thường xuyên", province: "Đà Nẵng", district: "Sơn Trà", totalCheckin: 1500, avgRating: 4.7 },
@@ -27,9 +31,19 @@ async function getData(): Promise<Place[]> {
     ]
 }
 
-export default async function Place() {
+export default function Place() {
 
-    const data = await getData()
+    const router = useRouter();
+
+    const [data, setData] = useState<Place[]>([]);
+
+    useEffect(() => {
+        const getData = async () => {
+            const fetchedData = await fetchData();
+            setData(fetchedData);
+        };
+        getData();
+    }, []);
 
     return (
         <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
@@ -42,6 +56,7 @@ export default async function Place() {
                         <MapPinned /> Xem trên bản đồ
                     </Button>
                     <Button
+                        onClick={() => router.push('places/add-place')}
                         className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
                     >
                         <MapPinPlus /> Thêm địa điểm
