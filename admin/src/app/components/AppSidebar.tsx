@@ -68,7 +68,7 @@ export function AppSidebar() {
                 className="h-full w-auto py-[20px] px-[16px]" >
                 <SidebarHeader>
                     <div className="flex-col space-y-0 justify-items-center">
-                        <div className="flex flex-row items-center space-x-2">
+                        <div className="flex flex-row items-center space-x-2 overflow-hidden">
                             <Image src={logo} alt='Banner image' unoptimized style={{
                                 width: '60px',
                                 height: '60px',

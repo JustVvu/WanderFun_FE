@@ -1,16 +1,20 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { X } from "lucide-react";
 
-export default function AddImageField() {
-   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+interface AddImageFieldProps {
+   selectedImages: File[];
+   setSelectedImages: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+export default function AddImageField({ selectedImages, setSelectedImages }: AddImageFieldProps) {
 
    const onDrop = useCallback((acceptedFiles: File[]) => {
       // Handle the uploaded files here
       setSelectedImages((prevImages) => [...prevImages, ...acceptedFiles]);
-   }, []);
+   }, [setSelectedImages]);
 
    const { getRootProps, getInputProps } = useDropzone({
       onDrop,
@@ -49,9 +53,8 @@ export default function AddImageField() {
                      <Image
                         src={URL.createObjectURL(file)}
                         alt={`Selected ${index}`}
-                        className="rounded-lg"
-                        layout="fill"
-                        objectFit="cover"
+                        className="rounded-lg object-cover"
+                        fill
                      />
 
                      <X

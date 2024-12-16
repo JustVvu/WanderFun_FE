@@ -23,6 +23,7 @@ export interface UserDto {
 }
 
 export interface RespondDto {
+   statusCode: string;
    message: string;
    data: UserDto;
 }
@@ -34,7 +35,7 @@ interface IUserContext {
    setRefreshToken: (refreshToken: string | null) => void;
    isAuthenticated: boolean;
    userDetails: UserDto | null;
-   login: (loginCreds: LoginCredentials | null) => Promise<void>;
+   login: (loginCreds: LoginCredentials | null) => Promise<boolean>;
    logout: () => void;
 }
 
@@ -50,38 +51,45 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
    const router = useRouter();
 
-   const login = async (loginCreds: LoginCredentials | null): Promise<void> => {
+   const login = async (loginCreds: LoginCredentials | null): Promise<boolean> => {
+
       if (!loginCreds) {
-         throw new Error('Login credentials are required');
+         toast.error('Thông tin đăng nhập không hợp lệ!');
+         return false;
       }
 
-      try {
-         const response = await client<RespondDto>('/auth/login', {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(loginCreds),
-         });
+      const response = await client<RespondDto>('/auth/login', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(loginCreds),
+      });
 
-         if (!response || !response.data.accessToken) {
-            throw new Error('Invalid response from server');
-         }
-
-         if (loginCreds.rememberMe) {
-            localStorage.setItem('userDetails', JSON.stringify(response));
-            localStorage.setItem('rememberedEmail', loginCreds.email);
-         }
-
-         setAccessToken(response.data.accessToken);
-         setRefreshToken(response.data.refreshToken);
-         setIsAuthenticated(true);
-         setUserDetails(response.data);
-         router.push('/');
-      } catch (error) {
-         console.error('Login failed:', error);
-         throw error;
+      if (loginCreds.rememberMe) {
+         localStorage.setItem('userDetails', JSON.stringify(response.data));
+         localStorage.setItem('rememberedEmail', loginCreds.email);
       }
+
+      if (response.statusCode.includes('40')) {
+         toast.error('Đăng nhập thất bại. Mã lỗi: ' + response.statusCode);
+         return false;
+      }
+      if (response.statusCode.includes('50')) {
+         toast.error('Lỗi server. Mã lỗi: ' + response.statusCode);
+         return false;
+      }
+
+      setAccessToken(response.data.accessToken);
+      setRefreshToken(response.data.refreshToken);
+
+      console.log('accessToken:', accessToken);
+      console.log('refreshToken:', refreshToken);
+
+      setIsAuthenticated(true);
+      setUserDetails(response.data);
+      router.push('/');
+      return true;
    };
 
    const logout = (): void => {

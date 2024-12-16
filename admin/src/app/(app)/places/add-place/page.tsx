@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { useForm } from "react-hook-form"
+import { useState } from "react"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -37,6 +38,7 @@ const formSchema = z.object({
 
 export default function AddPlace() {
    const router = useRouter()
+   const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -47,10 +49,15 @@ export default function AddPlace() {
          district: "",
          ward: "",
          address: "",
-         openTime: new Date(),
-         closeTime: new Date(),
+         openTime: new Date(new Date().setHours(0, 0, 0, 0)),
+         closeTime: new Date(new Date().setHours(0, 0, 0, 0)),
       },
    })
+
+   const handleSendData = async (data: z.infer<typeof formSchema>) => {
+      const sendData = { data, images: selectedImages }
+      console.log(sendData)
+   }
 
 
    return (
@@ -73,7 +80,10 @@ export default function AddPlace() {
             <Separator className=" bg-black1" />
 
             <Form {...form}>
-               <form className='flex flex-col w-full h-fit px-[40px] space-y-[24px]'>
+               <form
+                  className='flex flex-col w-full h-fit px-[40px] space-y-[24px]'
+                  onSubmit={form.handleSubmit(handleSendData)}
+               >
                   <div className='grid grid-cols-2 w-full gap-x-[100px] gap-y-[24px] px-[40px]'>
                      <FormFieldInput
                         control={form.control}
@@ -168,14 +178,15 @@ export default function AddPlace() {
 
                   </div>
 
-                  <AddImageField />
+                  <AddImageField selectedImages={selectedImages} setSelectedImages={setSelectedImages} />
+                  <Separator className=" bg-black1" />
+                  <Button
+                     className="h-[40px] w-fit self-center mt-[20px] bg-green3 text-white1 hover:bg-green_selected"
+                     type="submit">
+                     Thêm địa điểm
+                  </Button>
                </form>
-               <Separator className=" bg-black1" />
-               <Button
-                  className="h-[40px] mt-[20px] bg-green3 text-white1 hover:bg-green_selected"
-                  type="submit">
-                  Thêm địa điểm
-               </Button>
+
             </Form>
 
          </div>
