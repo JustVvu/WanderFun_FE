@@ -14,6 +14,10 @@ async function fetchData(): Promise<Place[]> {
         { placeName: "Vịnh Hạ Long", totalCheckin: 3000, avgRating: 4.8 },
         { placeName: "Chợ Bến Thành", totalCheckin: 1800, avgRating: 4.2 },
         { placeName: "Hồ Gươm", totalCheckin: 2500, avgRating: 4.5 },
+        { placeName: "Đà Nẵng", totalCheckin: 2200, avgRating: 4.7 },
+        { placeName: "Sa Pa", totalCheckin: 1700, avgRating: 4.6 },
+        { placeName: "Nha Trang", totalCheckin: 2100, avgRating: 4.4 },
+        { placeName: "Đà Lạt", totalCheckin: 2300, avgRating: 4.3 }
 
     ]
 }

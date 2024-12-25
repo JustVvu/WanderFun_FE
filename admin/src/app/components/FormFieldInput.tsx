@@ -26,7 +26,7 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
             <FormItem className="flex flex-col justify-between focus-within:text-blue2">
                <FormLabel>{label}</FormLabel>
                <FormControl
-                  className="w-auto min-w-[250px] h-[40px] border-none bg-white3
+                  className="w-auto h-[40px] border-none bg-white3
                       focus:bg-white"
                >
                   <Input

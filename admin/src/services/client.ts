@@ -1,6 +1,17 @@
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
+interface IErrorResponse {
+  code: string;
+  description: string
+}
+
+interface ApiResponse {
+  data: IErrorResponse;
+  statusCode: string;
+  message: string;
+}
+
 async function client<T>(
   endpoint: string,
   config: RequestInit = {}
@@ -21,10 +32,19 @@ async function client<T>(
         ...config.headers,
       },
     });
-    console.log(response.status);
 
-    const data = await response.json();
-    return data as T;
+    const contentType = response.headers.get('Content-Type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      const apiResponse: ApiResponse = {
+        data: data.data,
+        statusCode: data.statusCode,
+        message: data.message,
+      };
+      return apiResponse.data as T;
+    }
+
+    return null as T;
   } catch (error) {
     throw error;
   }

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -26,14 +26,18 @@ const options = [
 ];
 
 const formSchema = z.object({
-   placeName: z.string(),
-   altName: z.string(),
-   province: z.string(),
-   district: z.string(),
-   ward: z.string(),
+   name: z.string(),
+   alternativeName: z.string(),
    address: z.string(),
+   category: z.string(),
+   operator: z.string(),
+   longitude: z.number(),
+   latitude: z.number(),
    openTime: z.date(),
    closeTime: z.date(),
+   checkInPoint: z.number(),
+   checkInRange: z.number(),
+   link: z.string(),
 })
 
 export default function AddPlace() {
@@ -43,16 +47,21 @@ export default function AddPlace() {
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-         placeName: "",
-         altName: "",
-         province: "",
-         district: "",
-         ward: "",
+         name: "",
+         alternativeName: "",
          address: "",
+         category: "",
+         operator: "",
+         longitude: 0,
+         latitude: 0,
          openTime: new Date(new Date().setHours(0, 0, 0, 0)),
          closeTime: new Date(new Date().setHours(0, 0, 0, 0)),
+         checkInPoint: 0,
+         checkInRange: 0,
+         link: "",
       },
    })
+
 
    const handleSendData = async (data: z.infer<typeof formSchema>) => {
       const sendData = { data, images: selectedImages }
@@ -84,16 +93,16 @@ export default function AddPlace() {
                   className='flex flex-col w-full h-fit px-[40px] space-y-[24px]'
                   onSubmit={form.handleSubmit(handleSendData)}
                >
-                  <div className='grid grid-cols-2 w-full gap-x-[100px] gap-y-[24px] px-[40px]'>
+                  <div className='grid grid-cols-3 col-auto w-full gap-x-[100px] gap-y-[24px] px-[40px]'>
                      <FormFieldInput
                         control={form.control}
-                        name="placeName"
+                        name="name"
                         label="Tên địa điểm"
                         placeholder="Nhập tên địa điểm"
                      />
                      <FormFieldInput
                         control={form.control}
-                        name="altName"
+                        name="alternativeName"
                         label="Tên gọi khác"
                         placeholder="Nhập tên gọi khác"
                      />
@@ -124,15 +133,13 @@ export default function AddPlace() {
                         label="Địa chỉ"
                         placeholder="Nhập địa chỉ"
                      />
-                  </div>
 
-                  <div className='grid grid-cols-3 w-full gap-x-[100px] gap-y-[24px] px-[40px]'>
                      <FormField
                         control={form.control}
                         name="openTime"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
-                              <FormLabel className="text-left">Giờ mở cửa</FormLabel>
+                              <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
                               <FormControl>
                                  <TimePicker
                                     setDate={field.onChange}
@@ -148,7 +155,7 @@ export default function AddPlace() {
                         name="closeTime"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
-                              <FormLabel className="text-left">Giờ đóng cửa</FormLabel>
+                              <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
                               <FormControl>
                                  <TimePicker
                                     setDate={field.onChange}
@@ -166,6 +173,21 @@ export default function AddPlace() {
                         options={options}
                         placeholder="Loại địa điểm"
                      />
+
+                     <FormFieldInput
+                        control={form.control}
+                        name="checkInRange"
+                        label="Khoảng cách Check-in (m)"
+                        placeholder=""
+                     />
+
+                     <FormFieldInput
+                        control={form.control}
+                        name="checkInPoint"
+                        label="Điểm số Check-in"
+                        placeholder=""
+                     />
+
                   </div>
 
                   <div className="w-full px-[40px] focus-within:text-blue2">

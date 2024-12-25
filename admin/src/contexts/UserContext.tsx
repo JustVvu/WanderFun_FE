@@ -22,12 +22,6 @@ export interface UserDto {
    refreshToken: string;
 }
 
-export interface RespondDto {
-   statusCode: string;
-   message: string;
-   data: UserDto;
-}
-
 interface IUserContext {
    accessToken: string | null;
    refreshToken: string | null;
@@ -57,39 +51,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          toast.error('Thông tin đăng nhập không hợp lệ!');
          return false;
       }
+      try {
+         const response = await client<UserDto>('/auth/login', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginCreds),
+         });
 
-      const response = await client<RespondDto>('/auth/login', {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(loginCreds),
-      });
+         if (loginCreds.rememberMe) {
+            localStorage.setItem('userDetails', JSON.stringify(response));
+            document.cookie = `accessToken=${response.accessToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+         }
+         else {
+            sessionStorage.setItem('userDetails', JSON.stringify(response));
+            document.cookie = `accessToken=${response.accessToken}; path=/; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.refreshToken}; path=/; SameSite=Strict; Secure`;
+         }
 
-      if (loginCreds.rememberMe) {
-         localStorage.setItem('userDetails', JSON.stringify(response.data));
-         localStorage.setItem('rememberedEmail', loginCreds.email);
-      }
+         setAccessToken(response.accessToken);
+         setRefreshToken(response.refreshToken);
+         setIsAuthenticated(true);
+         setUserDetails(response);
+         setLoadingState(true);
+         router.push('/home');
+         return true;
 
-      if (response.statusCode.includes('40')) {
-         toast.error('Đăng nhập thất bại. Mã lỗi: ' + response.statusCode);
+      } catch (error) {
+         console.error('Login failed:', error);
+         toast.error('Đăng nhập thất bại!');
          return false;
       }
-      if (response.statusCode.includes('50')) {
-         toast.error('Lỗi server. Mã lỗi: ' + response.statusCode);
-         return false;
-      }
-
-      setAccessToken(response.data.accessToken);
-      setRefreshToken(response.data.refreshToken);
-
-      console.log('accessToken:', accessToken);
-      console.log('refreshToken:', refreshToken);
-
-      setIsAuthenticated(true);
-      setUserDetails(response.data);
-      router.push('/');
-      return true;
    };
 
    const logout = (): void => {
@@ -97,6 +91,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       try {
          localStorage.removeItem('userDetails');
          localStorage.removeItem('rememberedEmail');
+         sessionStorage.removeItem('userDetails');
+         document.cookie =
+            'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
          setAccessToken(null);
          setRefreshToken(null);
          setIsAuthenticated(false);
@@ -104,14 +101,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          router.push('/login');
       } catch (error) {
          console.error('Logout failed:', error);
-         toast.error('Failed to logout. Please try again.');
+         toast.error('Đăng xuất thất bại!');
       } finally {
          setLoadingState(false);
       }
    };
 
    useEffect(() => {
-      const storedUserDetails = localStorage.getItem('userDetails');
+      const storedUserDetails = localStorage.getItem('userDetails') || sessionStorage.getItem('userDetails');
 
       if (storedUserDetails) {
          try {
@@ -122,12 +119,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                setUserDetails(parsedUserDetails);
             } else {
                localStorage.removeItem('userDetails');
+               sessionStorage.removeItem('userDetails');
                setIsAuthenticated(false);
                setUserDetails(null);
             }
          } catch (error) {
             console.error('Error parsing stored user details:', error);
             localStorage.removeItem('userDetails');
+            sessionStorage.removeItem('userDetails');
             setIsAuthenticated(false);
             setUserDetails(null);
          }

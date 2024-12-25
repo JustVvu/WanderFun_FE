@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '@/contexts/UserContext';
 import { useLoading } from '@/contexts/LoadingContext';
@@ -55,7 +55,7 @@ const ProtectedRoute: React.FC<IProtectedRoute> = ({ children }) => {
     if (isAuthenticated && !appRoutes.includes(pathname)) {
       router.push('/home');
     }
-  }, [isAuthenticated, pathname, router, setLoadingState]);
+  },);
 
   return <>{children}</>;
 };

@@ -33,7 +33,7 @@ export const columnsPlace: ColumnDef<Place>[] = [
    {
       id: "rank",
       header: ({ column }) => (
-         <DataTableColumnHeader className="text-black text-center" column={column} title="Rank" />
+         <DataTableColumnHeader className="text-black text-center font-normal" column={column} title="Hạng" />
       ),
       cell: ({ row }) => {
          const rank = row.index + 1;
@@ -41,19 +41,19 @@ export const columnsPlace: ColumnDef<Place>[] = [
 
          switch (rank) {
             case 1:
-               rankContent = <Badge className=" text-center "> {rank}</Badge>;
+               rankContent = <Badge className=" text-center font-bold border-orange5 border-[2px] text-orange5 bg-[#FFD700]"> {rank}</Badge>;
                break;
             case 2:
-               rankContent = <Badge className="text-center"> {rank}</Badge>;
+               rankContent = <Badge className="text-center font-bold border-blue5 border-[2px] text-blue5 bg-[#C0C0C0]"> {rank}</Badge>;
                break;
             case 3:
-               rankContent = <Badge className="text-center"> {rank}</Badge>;
+               rankContent = <Badge className="text-center font-bold border-red5 border-[2px] text-red5 bg-[#CD7F32]"> {rank}</Badge>;
                break;
             default:
-               rankContent = <Badge className="text-center">{rank}</Badge>;
+               rankContent = <Badge className="text-center font-bold  text-black2 bg-white2">{rank}</Badge>;
          }
 
-         return rankContent;
+         return <div className="flex flex-row justify-center pointer-events-none">{rankContent}</div>;
       },
       enableSorting: false,
       enableHiding: false,

@@ -13,16 +13,9 @@ import {
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DataTableColumnHeader } from "../../components/data_table/DataTableColumnHeader"
+import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColumnHeader"
 
-
-export type Place = {
-   placeName: string
-   province: string
-   district: string
-   totalCheckin: number
-   avgRating: number
-}
+import { Place } from "@/types/place"
 
 export const columns: ColumnDef<Place>[] = [
    {
@@ -50,55 +43,54 @@ export const columns: ColumnDef<Place>[] = [
       enableHiding: false,
    },
    {
-      accessorKey: "placeName",
+      accessorKey: "name",
       header: ({ column }) => (
          <DataTableColumnHeader className="w-[200px]" column={column} title="Tên địa điểm" />
       ),
-      cell: ({ row }) => <div className="w-[200px] truncate ">{row.getValue("placeName")}</div>,
+      cell: ({ row }) => <div className="w-[200px] truncate ">{row.getValue("name")}</div>,
       enableSorting: true,
       enableHiding: false,
    },
    {
-      accessorKey: "province",
+      accessorKey: "address",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Tỉnh/Thành phố" />
+         <DataTableColumnHeader column={column} title="Địa chỉ" />
       ),
-      cell: ({ row }) => <div className="w-fit">{row.getValue("province")}</div>,
+      cell: ({ row }) => <div className="w-fit">{row.getValue("address")}</div>,
       enableSorting: true,
       enableHiding: false,
    },
    {
-      accessorKey: "district",
+      accessorKey: "operator",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Quận/Huyện" />
+         <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Tổ chức sở hữu" />
       ),
-      cell: ({ row }) => <div className="w-fit">{row.getValue("district")}</div>,
+      cell: ({ row }) => <div className="w-full text-center">{row.getValue("operator")}</div>,
       enableSorting: true,
       enableHiding: false,
    },
    {
-      accessorKey: "totalCheckin",
+      accessorKey: "category",
       header: ({ column }) => (
-         <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Tổng lượt check-in" />
+         <DataTableColumnHeader column={column} title="Phân loại" />
       ),
-      cell: ({ row }) => <div className="w-full text-center">{row.getValue("totalCheckin")}</div>,
+      cell: ({ row }) => <div className="w-fit">{row.getValue("category")}</div>,
       enableSorting: true,
       enableHiding: false,
    },
-   {
-      accessorKey: "avgRating",
-      header: ({ column }) => (
-         <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Đánh giá trung bình" />
-      ),
-      cell: ({ row }) => <div className="w-full text-center">{row.getValue("avgRating")}</div>,
-      enableSorting: true,
-      enableHiding: false,
-   },
+   // {
+   //    accessorKey: "avgRating",
+   //    header: ({ column }) => (
+   //       <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Đánh giá trung bình" />
+   //    ),
+   //    cell: ({ row }) => <div className="w-full text-center">{row.getValue("avgRating")}</div>,
+   //    enableSorting: true,
+   //    enableHiding: false,
+   // },
    {
       id: "actions",
       cell: ({ row }) => {
          const place = row.original
-
          return (
             <DropdownMenu>
                <DropdownMenuTrigger asChild>
@@ -109,7 +101,7 @@ export const columns: ColumnDef<Place>[] = [
                </DropdownMenuTrigger>
                <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                     onClick={() => console.log(place)}
+                     onClick={() => console.log("Place", place)}
                   >
                      Copy place ID
                   </DropdownMenuItem>

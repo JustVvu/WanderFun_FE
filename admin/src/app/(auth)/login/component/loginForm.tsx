@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CheckedState } from '@radix-ui/react-checkbox';
 import { toast } from 'sonner'
 
 import { Eye, EyeClosed } from "lucide-react"
@@ -39,7 +38,7 @@ export function LoginForm() {
     const [loginFailed, setLoginFailed] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isRemembered, setIsRemembered] = useState(false);
-    const [isLoading, setLoadingState] = useState(false);
+    const [, setLoadingState] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,33 +49,31 @@ export function LoginForm() {
     })
 
     const handleLogin = async (data: z.infer<typeof formSchema>) => {
-
-        setLoadingState(true);
-        setLoginFailed(false);
-
-        const success = await login({
-            email: data.email,
-            password: data.password,
-            rememberMe: isRemembered,
-        });
-
-        if (!success) {
-            setLoginFailed(true);
-            setLoadingState(false);
-        }
-        else {
-            setLoadingState(false);
+        try {
+            setLoadingState(true);
             setLoginFailed(false);
-            toast.success('Đăng nhập thành công!');
+
+            const success = await login({
+                email: data.email,
+                password: data.password,
+                rememberMe: isRemembered,
+            });
+
+            if (!success) {
+                setLoginFailed(true);
+                toast.error('Đăng nhập thất bại!');
+            } else {
+                setLoginFailed(false);
+                toast.success('Đăng nhập thành công!');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setLoginFailed(true);
+            toast.error('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+        } finally {
+            setLoadingState(false);
         }
     }
-
-    const handleRememberMe = (checked: CheckedState) => {
-        setIsRemembered(checked === true);
-        if (checked === false) {
-            localStorage.removeItem('rememberedEmail');
-        }
-    };
 
     useEffect(() => {
         const rememberedEmail = localStorage.getItem('rememberedEmail');
@@ -155,7 +152,7 @@ export function LoginForm() {
                             <Checkbox
                                 checked={isRemembered}
                                 id="rememberMe"
-                                onCheckedChange={handleRememberMe}
+                                onCheckedChange={() => setIsRemembered((prevState) => !prevState)}
                                 className="border-[2px] rounded-[3px] font-bold data-[state=checked]:border-blue1 data-[state=checked]:bg-blue1 data-[state=checked]:text-white" />
                             <label htmlFor="remember" className="text-sm font-normal">Ghi nhớ đăng nhập</label>
                         </div>
