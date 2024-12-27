@@ -106,32 +106,29 @@ export default function AddPlace() {
                         label="Tên gọi khác"
                         placeholder="Nhập tên gọi khác"
                      />
-                     <FormFieldCombobox
-                        control={form.control}
-                        name="province"
-                        label="Thành phố/Tỉnh"
-                        options={options}
-                        placeholder="Chọn Thành phố/Tỉnh"
-                     />
-                     <FormFieldCombobox
-                        control={form.control}
-                        name="district"
-                        label="Quận/Huyện"
-                        options={options}
-                        placeholder="Chọn Quận/Huyện"
-                     />
-                     <FormFieldCombobox
-                        control={form.control}
-                        name="ward"
-                        label="Phường/Xã"
-                        options={options}
-                        placeholder="Chọn Phường/Xã"
-                     />
                      <FormFieldInput
                         control={form.control}
                         name="address"
                         label="Địa chỉ"
                         placeholder="Nhập địa chỉ"
+                     />
+                     <FormFieldInput
+                        control={form.control}
+                        name="operator"
+                        label="Đại diện quản lý"
+                        placeholder="Nhập đại diện quản lý"
+                     />
+                     <FormFieldInput
+                        control={form.control}
+                        name="longitude"
+                        label="Kinh độ"
+                        placeholder="Nhập Kinh độ"
+                     />
+                     <FormFieldInput
+                        control={form.control}
+                        name="latitude"
+                        label="Vĩ độ"
+                        placeholder="Nhập vĩ độ"
                      />
 
                      <FormField

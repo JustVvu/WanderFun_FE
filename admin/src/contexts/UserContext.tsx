@@ -108,29 +108,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
    };
 
    useEffect(() => {
+      const getCookie = (name: string): string | null => {
+         const value = `; ${document.cookie}`;
+         const parts = value.split(`; ${name}=`);
+         if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+         return null;
+      };
+
+      const accessToken = getCookie('accessToken');
       const storedUserDetails = localStorage.getItem('userDetails') || sessionStorage.getItem('userDetails');
 
-      if (storedUserDetails) {
+      if (accessToken && storedUserDetails) {
          try {
             const parsedUserDetails = JSON.parse(storedUserDetails);
-            if (parsedUserDetails && parsedUserDetails.accessToken) {
-               setAccessToken(parsedUserDetails.accessToken);
-               setIsAuthenticated(true);
-               setUserDetails(parsedUserDetails);
-            } else {
-               localStorage.removeItem('userDetails');
-               sessionStorage.removeItem('userDetails');
-               setIsAuthenticated(false);
-               setUserDetails(null);
-            }
+
+            setAccessToken(parsedUserDetails.accessToken);
+            setIsAuthenticated(true);
+            setUserDetails(parsedUserDetails);
          } catch (error) {
             console.error('Error parsing stored user details:', error);
-            localStorage.removeItem('userDetails');
-            sessionStorage.removeItem('userDetails');
+            setAccessToken(null);
             setIsAuthenticated(false);
             setUserDetails(null);
          }
+
       } else {
+         setAccessToken(null);
          setIsAuthenticated(false);
          setUserDetails(null);
 

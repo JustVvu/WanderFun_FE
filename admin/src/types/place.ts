@@ -14,6 +14,11 @@ export interface PlaceImage {
    placeId: number;
 }
 
+export interface PlaceDescription {
+   title: string;
+   content: string;
+   imageUrl: string;
+}
 export interface Place {
    id: number;
    name: string;
@@ -27,6 +32,9 @@ export interface Place {
    latitude: number;
    checkInPoint: number;
    checkInRange: number;
+   description: PlaceDescription[];
    link: string;
+   iconUrl: string;
+   coverImageUrl: string;
    placeImages: PlaceImage[];
 }
