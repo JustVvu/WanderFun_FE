@@ -31,12 +31,13 @@ export default function Place() {
                 <h1 className='text-[24px] text-blue3 font-medium'>Quản lý địa điểm du lịch</h1>
                 <div className='flex flex-row justify-between items-center space-x-[2rem]'>
                     <Button
+                        onClick={() => router.push('places/map-add')}
                         className="w-fit h-fit bg-white1 text-blue2 border-blue2 border rounded-[8px] hover:bg-white3"
                     >
                         <MapPinned /> Xem trên bản đồ
                     </Button>
                     <Button
-                        onClick={() => router.push('places/add-place')}
+                        onClick={() => router.push('places/add')}
                         className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
                     >
                         <MapPinPlus /> Thêm địa điểm

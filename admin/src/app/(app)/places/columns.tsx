@@ -103,7 +103,7 @@ export const columns: ColumnDef<Place>[] = [
                   <DropdownMenuItem
                      onClick={() => console.log("Place", place)}
                   >
-                     Copy place ID
+                     Chỉnh sửa địa điểm
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Xem chi tiết địa điểm</DropdownMenuItem>

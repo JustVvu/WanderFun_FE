@@ -19,11 +19,11 @@ const ProtectedRoute: React.FC<IProtectedRoute> = ({ children }) => {
   const publicRoutes = ['/login'];
   const appRoutes = [
     '/home',
-    '/places',
-    '/places/add-place',
     '/leaderboard',
     '/users',
-
+    '/places',
+    '/places/add',
+    '/places/map-add',
   ];
 
   useEffect(() => {
