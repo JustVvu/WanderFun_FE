@@ -8,12 +8,6 @@ export enum Category {
    OTHER = "Khác",
  }
 
-export interface PlaceImage {
-   id: number;
-   imageUrl: string;
-   placeId: number;
-}
-
 export interface PlaceDescription {
    title: string;
    content: string;
@@ -28,13 +22,32 @@ export interface Place {
    operator: string;
    openTime: Date;
    closeTime: Date;
-   longitude: number;
-   latitude: number;
-   checkInPoint: number;
-   checkInRange: number;
+   longitude: string;
+   latitude: string;
+   checkInPoint: string;
+   checkInRange: string;
    description: PlaceDescription[];
    link: string;
    iconUrl: string;
    coverImageUrl: string;
-   placeImages: PlaceImage[];
+   placeImages: File[];
+}
+
+export interface AddPlacePayload {
+   name: string;
+   alternativeName?: string;
+   address: string;
+   category: Category;
+   operator?: string;
+   openTime?: Date;
+   closeTime?: Date;
+   longitude: string;
+   latitude: string;
+   checkInPoint: string;
+   checkInRange: string;
+   description?: PlaceDescription[];
+   link?: string;
+   iconUrl?: string;
+   coverImageUrl?: string;
+   placeImages?: File[];
 }

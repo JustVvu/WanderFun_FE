@@ -27,9 +27,7 @@ export const config = {
   matcher: [
     '/',
     '/home',
-    '/places',
-    '/places/add',
-    '/places/map-add',
+    '/places/:path*', // Match all paths under /places
     '/leaderboard',
     '/login',
     '/users',

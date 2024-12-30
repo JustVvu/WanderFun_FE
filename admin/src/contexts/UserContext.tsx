@@ -1,26 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import client from '@/services/client';
 import { useLoading } from './LoadingContext';
+import { UserLogin, LoginCredentials } from '@/types/user';
 import { toast } from 'sonner';
-
-export interface LoginCredentials {
-   email: string;
-   password: string;
-   rememberMe?: boolean;
-}
-
-export interface UserDto {
-   id: number;
-   firstName: string;
-   lastName: string;
-   email: string;
-   accessToken: string;
-   refreshToken: string;
-}
 
 interface IUserContext {
    accessToken: string | null;
@@ -28,7 +14,7 @@ interface IUserContext {
    setAccessToken: (accessToken: string | null) => void;
    setRefreshToken: (refreshToken: string | null) => void;
    isAuthenticated: boolean;
-   userDetails: UserDto | null;
+   userDetails: UserLogin | null;
    login: (loginCreds: LoginCredentials | null) => Promise<boolean>;
    logout: () => void;
 }
@@ -40,7 +26,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
    const [refreshToken, setRefreshToken] = useState<string | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-   const [userDetails, setUserDetails] = useState<UserDto | null>(null);
+   const [userDetails, setUserDetails] = useState<UserLogin | null>(null);
    const { setLoadingState } = useLoading();
 
    const router = useRouter();
@@ -52,7 +38,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          return false;
       }
       try {
-         const response = await client<UserDto>('/auth/login', {
+         const response = await client<UserLogin>('/auth/login', {
             method: 'POST',
             headers: {
                'Content-Type': 'application/json',
@@ -62,21 +48,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
          if (loginCreds.rememberMe) {
             localStorage.setItem('userDetails', JSON.stringify(response));
-            document.cookie = `accessToken=${response.accessToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
-            document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+            document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
          }
          else {
             sessionStorage.setItem('userDetails', JSON.stringify(response));
-            document.cookie = `accessToken=${response.accessToken}; path=/; SameSite=Strict; Secure`;
-            document.cookie = `refreshToken=${response.refreshToken}; path=/; SameSite=Strict; Secure`;
+            document.cookie = `accessToken=${response.data.accessToken}; path=/; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; SameSite=Strict; Secure`;
          }
 
-         setAccessToken(response.accessToken);
-         setRefreshToken(response.refreshToken);
+         setAccessToken(response.data.accessToken);
+         setRefreshToken(response.data.refreshToken);
          setIsAuthenticated(true);
-         setUserDetails(response);
+         setUserDetails(response.data);
          setLoadingState(true);
-         router.push('/home');
+         setTimeout(() => {
+            router.push('/home');
+         }, 2000);
+         setLoadingState(false);
          return true;
 
       } catch (error) {
@@ -93,7 +82,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          localStorage.removeItem('rememberedEmail');
          sessionStorage.removeItem('userDetails');
          document.cookie =
-            'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
+            'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
+         document.cookie =
+            'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
          setAccessToken(null);
          setRefreshToken(null);
          setIsAuthenticated(false);

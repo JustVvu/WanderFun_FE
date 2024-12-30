@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import * as placeAction from '@/app/actions/places-action'
+import { Category } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -12,18 +15,14 @@ import { Separator } from "@/components/ui/separator"
 import { FormFieldInput } from "@/app/components/FormFieldInput"
 import { ChevronLeft } from "lucide-react"
 import { FormFieldCombobox } from "@/app/components/FormFieldComboBox"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import AddImageField from "./components/AddImageField"
-import { useRouter } from "next/navigation"
 import { TimePicker } from "./components/TimePicker/TimePicker"
+import DescriptionInputField from "./components/DescriptionInputField"
 
-const options = [
-   { label: "Option 1", value: "1" },
-   { label: "Option 2", value: "2" },
-   { label: "Option 3", value: "3" },
-   { label: "Option 4", value: "4" },
-];
+const categoryOptions = Object.entries(Category).map(([key, value]) => ({
+   label: value,
+   value: key,
+}));
 
 const formSchema = z.object({
    name: z.string(),
@@ -31,18 +30,28 @@ const formSchema = z.object({
    address: z.string(),
    category: z.string(),
    operator: z.string(),
-   longitude: z.number(),
-   latitude: z.number(),
+   description: z.array(z.object({
+      title: z.string(),
+      content: z.string(),
+      imageUrl: z.string(),
+   })),
+   longitude: z.string(),
+   latitude: z.string(),
    openTime: z.date(),
    closeTime: z.date(),
-   checkInPoint: z.number(),
-   checkInRange: z.number(),
+   checkInPoint: z.string(),
+   checkInRange: z.string(),
    link: z.string(),
 })
 
 export default function AddPlace() {
+   const pathname = usePathname()
+   const searchParams = useSearchParams()
    const router = useRouter()
+   const [isUpdate, setIsUpdate] = useState(false);
    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+   const [title, setTitle] = useState("Thêm địa điểm du lịch");
+   const [descriptions, setDescriptions] = useState([{ title: '', content: '', imageUrl: '' }]);
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -50,22 +59,63 @@ export default function AddPlace() {
          name: "",
          alternativeName: "",
          address: "",
-         category: "",
          operator: "",
-         longitude: 0,
-         latitude: 0,
+         category: "",
+         description: [],
+         longitude: "",
+         latitude: "",
          openTime: new Date(new Date().setHours(0, 0, 0, 0)),
          closeTime: new Date(new Date().setHours(0, 0, 0, 0)),
-         checkInPoint: 0,
-         checkInRange: 0,
+         checkInPoint: "",
+         checkInRange: "",
          link: "",
       },
    })
 
+   useEffect(() => {
+      const id = searchParams.get('id');
+      if (id) {
+         setTitle("Chỉnh sửa địa điểm du lịch");
+         setIsUpdate(true);
+         const fetchData = async () => {
+            const fetchedData = await placeAction.getPlaceById(id);
+            if (fetchedData) {
+               form.reset({
+                  name: fetchedData.name,
+                  alternativeName: fetchedData.alternativeName,
+                  address: fetchedData.address,
+                  category: fetchedData.category,
+                  operator: fetchedData.operator,
+                  description: fetchedData.description,
+                  longitude: fetchedData.longitude,
+                  latitude: fetchedData.latitude,
+                  openTime: new Date(fetchedData.openTime),
+                  closeTime: new Date(fetchedData.closeTime),
+                  checkInPoint: fetchedData.checkInPoint,
+                  checkInRange: fetchedData.checkInRange,
+                  link: fetchedData.link,
+               });
+            }
+         }
+         fetchData();
+      }
+   }, [pathname, searchParams, form])
 
    const handleSendData = async (data: z.infer<typeof formSchema>) => {
       const sendData = { data, images: selectedImages }
-      console.log(sendData)
+      if (isUpdate) {
+         console.log("Update this:", sendData)
+         //await placeAction.updatePlace(sendData);
+      } else {
+         console.log("Add this:", sendData)
+         placeAction.addPlace({
+            ...data,
+            category: data.category as Category,
+            //openTime: data.openTime.toISOString(),
+            //closeTime: data.closeTime.toISOString(),
+            placeImages: selectedImages
+         });
+      }
    }
 
 
@@ -82,7 +132,7 @@ export default function AddPlace() {
                >
                   <ChevronLeft />
                </Button>
-               <h1 className='text-[20px] text-blue3 font-medium'>Thêm địa điểm du lịch</h1>
+               <h1 className='text-[20px] text-blue3 font-medium'>{title}</h1>
             </div>
 
             <h1 className='text-[28px] text-black3 font-semibold'>Nhập thông tin địa điểm</h1>
@@ -167,7 +217,7 @@ export default function AddPlace() {
                         control={form.control}
                         name="category"
                         label="Phân loại địa điểm"
-                        options={options}
+                        options={categoryOptions}
                         placeholder="Loại địa điểm"
                      />
 
@@ -187,22 +237,17 @@ export default function AddPlace() {
 
                   </div>
 
-                  <div className="w-full px-[40px] focus-within:text-blue2">
-                     <Label htmlFor="description">Thông tin giới thiệu</Label>
-                     <Textarea
-                        placeholder="Nhập thông tin giới thiệu địa điểm"
-                        id="description"
-                        className="h-[120px] bg-white3 focus:bg-white focus:border-blue2"
-                     />
-
-                  </div>
+                  <DescriptionInputField
+                     descriptions={descriptions}
+                     setDescriptions={setDescriptions}
+                  />
 
                   <AddImageField selectedImages={selectedImages} setSelectedImages={setSelectedImages} />
                   <Separator className=" bg-black1" />
                   <Button
                      className="h-[40px] w-fit self-center mt-[20px] bg-green3 text-white1 hover:bg-green_selected"
                      type="submit">
-                     Thêm địa điểm
+                     Lưu thông tin
                   </Button>
                </form>
 

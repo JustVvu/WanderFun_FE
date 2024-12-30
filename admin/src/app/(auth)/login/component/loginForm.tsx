@@ -64,6 +64,7 @@ export function LoginForm() {
                 toast.error('Đăng nhập thất bại!');
             } else {
                 setLoginFailed(false);
+                setLoadingState(false);
                 toast.success('Đăng nhập thành công!');
             }
         } catch (error) {

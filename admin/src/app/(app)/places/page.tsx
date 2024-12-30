@@ -4,7 +4,7 @@ import { MapPinPlus, MapPinned } from "lucide-react"
 
 import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
-import { columns } from "./columns"
+import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import type { Place } from "@/types/place"
@@ -13,6 +13,7 @@ import * as placeAction from '@/app/actions/places-action'
 export default function Place() {
 
     const router = useRouter();
+    const columns = useColumns();
 
     const [data, setData] = useState<Place[]>([]);
 
@@ -20,7 +21,6 @@ export default function Place() {
         const getData = async () => {
             const fetchedData = await placeAction.getAllPlaces();
             setData(fetchedData);
-            console.log(fetchedData);
         };
         getData();
     }, []);
