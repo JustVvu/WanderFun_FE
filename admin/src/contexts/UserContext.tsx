@@ -64,7 +64,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          setLoadingState(true);
          setTimeout(() => {
             router.push('/home');
-         }, 2000);
+         }, 1000);
          setLoadingState(false);
          return true;
 

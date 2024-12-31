@@ -46,26 +46,6 @@ export default function AddImageField({ selectedImages, setSelectedImages, updat
 
                </div>
             ) : (<div className="h-full flex flex-row px-[12px] items-center space-x-[12px]">
-               {selectedImages.map((file, index) => (
-                  <div
-                     key={index}
-                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
-                     onClick={(event) => event.stopPropagation()}
-                  >
-                     <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`Selected ${index}`}
-                        className="rounded-lg object-cover"
-                        fill
-                     />
-
-                     <X
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-0 right-0 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
-                     />
-
-                  </div>
-               ))}
                {updateImage && updateImage.map((url, index) => (
                   <div
                      key={index}
@@ -77,6 +57,22 @@ export default function AddImageField({ selectedImages, setSelectedImages, updat
                         alt={`Updated ${index}`}
                         className="rounded-lg object-cover"
                         fill
+                        sizes="(max-width: 600px) 100vw, 50vw"
+                     />
+                  </div>
+               ))}
+               {selectedImages.map((file, index) => (
+                  <div
+                     key={index}
+                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
+                     onClick={(event) => event.stopPropagation()}
+                  >
+                     <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Selected ${index}`}
+                        className="rounded-lg object-cover"
+                        fill
+                        sizes="(max-width: 600px) 100vw, 50vw"
                      />
                      <X
                         onClick={() => handleRemoveImage(index)}
@@ -84,6 +80,7 @@ export default function AddImageField({ selectedImages, setSelectedImages, updat
                      />
                   </div>
                ))}
+
             </div>
             )}
          </div>

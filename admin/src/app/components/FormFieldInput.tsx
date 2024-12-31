@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Control, Controller } from "react-hook-form";
-import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
+import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 interface FormFieldInputProps {
@@ -41,6 +41,7 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
                         className="focus-visible:ring-blue2"
                      />
                   </FormControl>
+                  <FormMessage />
                </FormItem>
             )}
          />

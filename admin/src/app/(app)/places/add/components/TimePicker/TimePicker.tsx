@@ -19,6 +19,13 @@ export function TimePicker({ date, setDate }: TimePickerProps) {
    const secondRef = React.useRef<HTMLInputElement>(null);
    const periodRef = React.useRef<HTMLButtonElement>(null);
 
+   React.useEffect(() => {
+      if (date) {
+         const hours = date.getHours();
+         setPeriod(hours >= 12 ? "PM" : "AM");
+      }
+   }, [date]);
+
    return (
       <div className="flex items-end gap-2">
          <div className="grid gap-1 text-center">

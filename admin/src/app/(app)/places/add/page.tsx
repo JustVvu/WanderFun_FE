@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import * as placeAction from '@/app/actions/places-action'
-import { Category, PlaceImage } from "@/types/place"
+import { Category, PlaceDescription, PlaceImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -52,7 +52,7 @@ export default function AddPlace() {
    const [selectedImages, setSelectedImages] = useState<File[]>([]);
    const [updateImages, setUpdateImages] = useState<PlaceImage[]>([]);
    const [title, setTitle] = useState("Thêm địa điểm du lịch");
-   const [descriptions, setDescriptions] = useState([{ title: '', content: '', imageUrl: '' }]);
+   const [descriptions, setDescriptions] = useState<PlaceDescription[]>([{ title: '', content: '', imageUrl: '' }]);
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -80,7 +80,7 @@ export default function AddPlace() {
          setIsUpdate(true);
          const fetchData = async () => {
             const fetchedData = await placeAction.getPlaceById(id);
-            console.log(fetchedData);
+            //console.log(fetchedData);
             if (fetchedData) {
                form.reset({
                   name: fetchedData.name,
@@ -89,12 +89,12 @@ export default function AddPlace() {
                   category: fetchedData.category,
                   operator: fetchedData.operator,
                   description: fetchedData.description,
-                  longitude: fetchedData.longitude,
-                  latitude: fetchedData.latitude,
-                  openTime: new Date(fetchedData.openTime),
-                  closeTime: new Date(fetchedData.closeTime),
-                  checkInPoint: fetchedData.checkInPoint,
-                  checkInRange: fetchedData.checkInRange,
+                  longitude: fetchedData.longitude.toString(),
+                  latitude: fetchedData.latitude.toString(),
+                  openTime: fetchedData.openTime ? new Date(fetchedData.openTime) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  closeTime: fetchedData.closeTime ? new Date(fetchedData.closeTime) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  checkInPoint: fetchedData.checkInPoint.toString(),
+                  checkInRange: fetchedData.checkInRange.toString(),
                   link: fetchedData.link,
                });
                setUpdateImages(fetchedData.placeImages);
@@ -105,18 +105,33 @@ export default function AddPlace() {
       }
    }, [pathname, searchParams, form])
 
+   useEffect(() => {
+      form.setValue('description', descriptions);
+   }, [descriptions, form]);
+
    const handleSendData = async (data: z.infer<typeof formSchema>) => {
-      const sendData = { data, images: selectedImages }
+      console.log("Form data: ", data);
       if (isUpdate) {
-         console.log("Update this:", sendData)
-         //await placeAction.updatePlace(sendData);
+         await placeAction.updatePlace(
+            searchParams.get('id') as string,
+            {
+               ...data,
+               category: data.category as Category,
+               //openTime: data.openTime.toISOString(),
+               //closeTime: data.closeTime.toISOString(),
+            },
+            selectedImages
+         );
+         router.push('/places');
       } else {
          await placeAction.addPlace({
             ...data,
             category: data.category as Category,
             //openTime: data.openTime.toISOString(),
             //closeTime: data.closeTime.toISOString(),
-         }, selectedImages);
+         },
+            selectedImages
+         );
          router.push('/places');
       }
    }

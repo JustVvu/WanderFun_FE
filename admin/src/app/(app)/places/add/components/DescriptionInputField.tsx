@@ -66,6 +66,7 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
          <Button
             variant="outline"
             onClick={addDescription}
+            type="button"
             className="w-fit mt-4 hover:bg-blue2o hover:text-blue2 border-black2"
          >
             <PlusIcon className="w-6 h-6" />

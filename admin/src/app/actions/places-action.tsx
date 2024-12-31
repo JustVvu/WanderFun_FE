@@ -37,7 +37,7 @@ export const getPlaceById = async (id: string): Promise<Place> => {
    );
    return {
       ...response.data,
-      category: mapCategoryToEnum(response.data.category as unknown as string),
+      //category: mapCategoryToEnum(response.data.category as unknown as string),
    };
 }
 
@@ -76,6 +76,7 @@ export const addPlace = async (data: AddPlacePayload, dataImage: File[]): Promis
 
 export const updatePlace = async (id: string, data: AddPlacePayload, dataImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
+   console.log("data: ", data);
    try {
       if (dataImage.length > 0) {
 
