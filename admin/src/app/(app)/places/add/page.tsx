@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import * as placeAction from '@/app/actions/places-action'
-import { Category } from "@/types/place"
+import { Category, PlaceImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -50,6 +50,7 @@ export default function AddPlace() {
    const router = useRouter()
    const [isUpdate, setIsUpdate] = useState(false);
    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+   const [updateImages, setUpdateImages] = useState<PlaceImage[]>([]);
    const [title, setTitle] = useState("Thêm địa điểm du lịch");
    const [descriptions, setDescriptions] = useState([{ title: '', content: '', imageUrl: '' }]);
 
@@ -79,6 +80,7 @@ export default function AddPlace() {
          setIsUpdate(true);
          const fetchData = async () => {
             const fetchedData = await placeAction.getPlaceById(id);
+            console.log(fetchedData);
             if (fetchedData) {
                form.reset({
                   name: fetchedData.name,
@@ -95,6 +97,8 @@ export default function AddPlace() {
                   checkInRange: fetchedData.checkInRange,
                   link: fetchedData.link,
                });
+               setUpdateImages(fetchedData.placeImages);
+               setDescriptions(fetchedData.description);
             }
          }
          fetchData();
@@ -107,14 +111,13 @@ export default function AddPlace() {
          console.log("Update this:", sendData)
          //await placeAction.updatePlace(sendData);
       } else {
-         console.log("Add this:", sendData)
-         placeAction.addPlace({
+         await placeAction.addPlace({
             ...data,
             category: data.category as Category,
             //openTime: data.openTime.toISOString(),
             //closeTime: data.closeTime.toISOString(),
-            placeImages: selectedImages
-         });
+         }, selectedImages);
+         router.push('/places');
       }
    }
 
@@ -242,7 +245,11 @@ export default function AddPlace() {
                      setDescriptions={setDescriptions}
                   />
 
-                  <AddImageField selectedImages={selectedImages} setSelectedImages={setSelectedImages} />
+                  <AddImageField
+                     selectedImages={selectedImages}
+                     setSelectedImages={setSelectedImages}
+                     updateImage={updateImages.map((image) => image.imageUrl)}
+                  />
                   <Separator className=" bg-black1" />
                   <Button
                      className="h-[40px] w-fit self-center mt-[20px] bg-green3 text-white1 hover:bg-green_selected"

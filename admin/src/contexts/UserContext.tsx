@@ -48,8 +48,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
          if (loginCreds.rememberMe) {
             localStorage.setItem('userDetails', JSON.stringify(response));
-            document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
-            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; max-age=604800; SameSite=Strict; Secure`;
+            document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=86400; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; max-age=86400; SameSite=Strict; Secure`;
          }
          else {
             sessionStorage.setItem('userDetails', JSON.stringify(response));

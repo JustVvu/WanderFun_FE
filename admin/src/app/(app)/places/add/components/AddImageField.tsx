@@ -7,9 +7,10 @@ import { X } from "lucide-react";
 interface AddImageFieldProps {
    selectedImages: File[];
    setSelectedImages: React.Dispatch<React.SetStateAction<File[]>>;
+   updateImage?: string[];
 }
 
-export default function AddImageField({ selectedImages, setSelectedImages }: AddImageFieldProps) {
+export default function AddImageField({ selectedImages, setSelectedImages, updateImage }: AddImageFieldProps) {
 
    const onDrop = useCallback((acceptedFiles: File[]) => {
       // Handle the uploaded files here
@@ -37,7 +38,8 @@ export default function AddImageField({ selectedImages, setSelectedImages }: Add
                overflow-auto overscroll-x-auto}`}
          >
             <input {...getInputProps()} />
-            {selectedImages.length === 0 ? (
+
+            {selectedImages.length === 0 && (!updateImage || updateImage.length === 0) ? (
                <div className="flex items-center justify-center h-full text-muted-foreground">
 
                   <span>Chọn hoặc kéo thả hình ảnh vào đây</span>
@@ -62,6 +64,24 @@ export default function AddImageField({ selectedImages, setSelectedImages }: Add
                         className="absolute top-0 right-0 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
                      />
 
+                  </div>
+               ))}
+               {updateImage && updateImage.map((url, index) => (
+                  <div
+                     key={index}
+                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
+                     onClick={(event) => event.stopPropagation()}
+                  >
+                     <Image
+                        src={url}
+                        alt={`Updated ${index}`}
+                        className="rounded-lg object-cover"
+                        fill
+                     />
+                     <X
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-0 right-0 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
+                     />
                   </div>
                ))}
             </div>
