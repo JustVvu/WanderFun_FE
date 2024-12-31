@@ -15,6 +15,7 @@ import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColu
 
 import { Place } from "@/types/place"
 import { useRouter } from "next/navigation"
+import { deletePlace } from "@/app/actions/places-action"
 
 export function useColumns(): ColumnDef<Place>[] {
    const router = useRouter();
@@ -109,7 +110,14 @@ export function useColumns(): ColumnDef<Place>[] {
                         Chỉnh sửa địa điểm
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem>Xem chi tiết địa điểm</DropdownMenuItem>
+                     <DropdownMenuItem
+                        onClick={() => {
+                           deletePlace(place.id.toString());
+                           router.refresh();
+                        }}
+                     >
+                        Xóa địa điểm
+                     </DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>
             )

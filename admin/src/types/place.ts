@@ -15,6 +15,7 @@ export interface PlaceDescription {
 }
 export interface PlaceImage {
    imageUrl: string;
+   imagePublicId: string;
  }
 export interface Place {
    id: number;

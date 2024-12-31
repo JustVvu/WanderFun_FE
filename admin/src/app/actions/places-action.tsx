@@ -46,7 +46,10 @@ export const addPlace = async (data: AddPlacePayload, dataImage: File[]): Promis
    try {
       if (dataImage.length > 0) {
          const uploadResult = await cloudinaryAction.UploadImage(dataImage, data.name);
-         data.placeImages = uploadResult.map((result) => ({ imageUrl: result.secure_url }));
+         data.placeImages = uploadResult.map((result) => ({
+            imageUrl: result.secure_url,
+            imagePublicId: result.public_id
+         }));
          console.log(data);
       }
       const response = await client<void>('/place',
@@ -81,7 +84,10 @@ export const updatePlace = async (id: string, data: AddPlacePayload, dataImage: 
       if (dataImage.length > 0) {
 
          const uploadResult = await cloudinaryAction.UploadImage(dataImage, data.name);
-         data.placeImages = uploadResult.map((result) => ({ imageUrl: result.secure_url }));
+         data.placeImages = uploadResult.map((result) => ({
+            imageUrl: result.secure_url,
+            imagePublicId: result.public_id
+         }));
       }
       const response = await client<void>(`/place/${id}`,
          {
@@ -110,6 +116,18 @@ export const updatePlace = async (id: string, data: AddPlacePayload, dataImage: 
 export const deletePlace = async (id: string): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    try {
+      const place = await getPlaceById(id);
+      if (place.placeImages) {
+         for (let i = 0; i < place.placeImages.length; i++) {
+            try {
+               const response = await cloudinaryAction.DeleteImage(place.placeImages[i].imagePublicId);
+               console.log(response);
+            }
+            catch (error) {
+               toast.error('Error deleting image: ' + error);
+            }
+         }
+      }
       const response = await client<void>(`/place/${id}`,
          {
             method: 'DELETE',
