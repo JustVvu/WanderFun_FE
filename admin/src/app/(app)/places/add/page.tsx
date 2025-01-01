@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import * as placeAction from '@/app/actions/places-action'
-import { Category, PlaceDescription, PlaceImage } from "@/types/place"
+import { Category, PlaceDescription, NewImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,7 @@ const formSchema = z.object({
       title: z.string(),
       content: z.string(),
       imageUrl: z.string(),
+      imagePublicId: z.string(),
    })),
    longitude: z.string(),
    latitude: z.string(),
@@ -50,9 +51,10 @@ export default function AddPlace() {
    const router = useRouter()
    const [isUpdate, setIsUpdate] = useState(false);
    const [selectedImages, setSelectedImages] = useState<File[]>([]);
-   const [updateImages, setUpdateImages] = useState<PlaceImage[]>([]);
+   const [updateImages, setUpdateImages] = useState<NewImage[]>([]);
    const [title, setTitle] = useState("Thêm địa điểm du lịch");
-   const [descriptions, setDescriptions] = useState<PlaceDescription[]>([{ title: '', content: '', imageUrl: '' }]);
+   const [descriptions, setDescriptions] = useState<PlaceDescription[]>([{ title: '', content: '', imageUrl: '', imagePublicId: '' }]);
+   const [descriptionImages, setDescriptionImages] = useState<File[]>([]);
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -61,7 +63,7 @@ export default function AddPlace() {
          alternativeName: "",
          address: "",
          operator: "",
-         category: "",
+         category: Category.OTHER,
          description: [],
          longitude: "",
          latitude: "",
@@ -110,7 +112,8 @@ export default function AddPlace() {
    }, [descriptions, form]);
 
    const handleSendData = async (data: z.infer<typeof formSchema>) => {
-      console.log("Form data: ", data);
+      //console.log("Form data: ", data);
+
       if (isUpdate) {
          await placeAction.updatePlace(
             searchParams.get('id') as string,
@@ -120,7 +123,8 @@ export default function AddPlace() {
                //openTime: data.openTime.toISOString(),
                //closeTime: data.closeTime.toISOString(),
             },
-            selectedImages
+            selectedImages,
+            descriptionImages
          );
          router.push('/places');
       } else {
@@ -130,7 +134,8 @@ export default function AddPlace() {
             //openTime: data.openTime.toISOString(),
             //closeTime: data.closeTime.toISOString(),
          },
-            selectedImages
+            selectedImages,
+            descriptionImages
          );
          router.push('/places');
       }
@@ -258,6 +263,7 @@ export default function AddPlace() {
                   <DescriptionInputField
                      descriptions={descriptions}
                      setDescriptions={setDescriptions}
+                     setDescriptionImages={setDescriptionImages}
                   />
 
                   <AddImageField

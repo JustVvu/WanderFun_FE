@@ -41,17 +41,31 @@ export const getPlaceById = async (id: string): Promise<Place> => {
    };
 }
 
-export const addPlace = async (data: AddPlacePayload, dataImage: File[]): Promise<void> => {
+export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
+   //console.log("data: ", data);
+   //console.log("dataPlaceImage: ", dataPlaceImage);
+   //console.log("dataDescriptionImage: ", dataDescriptionImage);
    try {
-      if (dataImage.length > 0) {
-         const uploadResult = await cloudinaryAction.UploadImage(dataImage, data.name);
+      if (dataPlaceImage.length > 0) {
+         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/cover");
          data.placeImages = uploadResult.map((result) => ({
             imageUrl: result.secure_url,
             imagePublicId: result.public_id
          }));
          console.log(data);
       }
+      if (dataDescriptionImage.length > 0) {
+         for (let index = 0; index < data.description.length; index++) {
+            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
+            data.description[index] = {
+               ...data.description[index],
+               imageUrl: uploadResult[0].secure_url,
+               imagePublicId: uploadResult[0].public_id
+            };
+         }
+      }
+      console.log(data);
       const response = await client<void>('/place',
          {
             method: 'POST',
@@ -77,17 +91,27 @@ export const addPlace = async (data: AddPlacePayload, dataImage: File[]): Promis
    }
 }
 
-export const updatePlace = async (id: string, data: AddPlacePayload, dataImage: File[]): Promise<void> => {
+export const updatePlace = async (id: string, data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    console.log("data: ", data);
    try {
-      if (dataImage.length > 0) {
+      if (dataPlaceImage.length > 0) {
 
-         const uploadResult = await cloudinaryAction.UploadImage(dataImage, data.name);
+         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name);
          data.placeImages = uploadResult.map((result) => ({
             imageUrl: result.secure_url,
             imagePublicId: result.public_id
          }));
+      }
+      if (dataDescriptionImage.length > 0) {
+         for (let index = 0; index < data.description.length; index++) {
+            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
+            data.description[index] = {
+               ...data.description[index],
+               imageUrl: uploadResult[0].secure_url,
+               imagePublicId: uploadResult[0].public_id
+            };
+         }
       }
       const response = await client<void>(`/place/${id}`,
          {

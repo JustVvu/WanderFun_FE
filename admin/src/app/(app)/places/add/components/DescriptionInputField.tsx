@@ -1,31 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PlaceDescription } from '@/types/place';
 import { PlusIcon } from 'lucide-react';
+import SingleImageField from './SingleImageField';
 
 interface DescriptionInputFieldProps {
    descriptions: PlaceDescription[];
    setDescriptions: React.Dispatch<React.SetStateAction<PlaceDescription[]>>;
-
+   setDescriptionImages: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
 const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
-   { descriptions, setDescriptions },
+   { descriptions, setDescriptions, setDescriptionImages },
 ) => {
+   const [selectedImages, setSelectedImages] = useState<(File | null)[]>(descriptions.map(() => null));
+
+   useEffect(() => {
+      const images = selectedImages.filter((image): image is File => image !== null);
+      setDescriptionImages(images);
+   }, [selectedImages, setDescriptionImages]);
+
    const addDescription = () => {
-      setDescriptions([...descriptions, { title: '', content: '', imageUrl: '' }]);
+      setDescriptions([...descriptions, { title: '', content: '', imageUrl: '', imagePublicId: '' }]);
+      setSelectedImages([...selectedImages, null]);
    };
 
    const removeDescription = (index: number) => {
       setDescriptions(descriptions.filter((_, i) => i !== index));
+      setSelectedImages(selectedImages.filter((_, i) => i !== index));
    };
 
    const handleDescriptionChange = (index: number, field: keyof PlaceDescription, value: string) => {
       const newDescriptions = [...descriptions];
-      newDescriptions[index][field] = value;
+      (newDescriptions[index][field] as typeof value) = value;
+      setDescriptions(newDescriptions);
+   };
+
+   const handleImageChange = (index: number, file: File | null) => {
+      const newSelectedImages = [...selectedImages];
+      newSelectedImages[index] = file;
+      setSelectedImages(newSelectedImages);
+
+      const newDescriptions = [...descriptions];
       setDescriptions(newDescriptions);
    };
 
@@ -41,19 +60,20 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
                   value={description.title}
                   onChange={(e) => handleDescriptionChange(index, 'title', e.target.value)}
                />
-               <Textarea
-                  placeholder="Nhập nội dung"
-                  value={description.content}
-                  onChange={(e) => handleDescriptionChange(index, 'content', e.target.value)}
-                  className="h-[120px] bg-white3 focus:bg-white focus:border-blue2"
-               />
-               <FormFieldInput
-                  name={`descriptions[${index}].imageUrl`}
-                  //label="URL hình ảnh"
-                  placeholder="Nhập URL hình ảnh"
-                  value={description.imageUrl}
-                  onChange={(e) => handleDescriptionChange(index, 'imageUrl', e.target.value)}
-               />
+               <div className='flex flex-row space-x-[12px]'>
+                  <Textarea
+                     placeholder="Nhập nội dung"
+                     value={description.content}
+                     onChange={(e) => handleDescriptionChange(index, 'content', e.target.value)}
+                     className="h-auto bg-white3 focus:bg-white focus:border-blue2 flex-grow-[3]"
+                  />
+                  <div className="flex-grow">
+                     <SingleImageField
+                        selectedImage={selectedImages[index]}
+                        setSelectedImage={(file) => handleImageChange(index, file)}
+                     />
+                  </div>
+               </div>
                <Button
                   variant="outline"
                   onClick={() => removeDescription(index)}
