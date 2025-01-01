@@ -1,4 +1,4 @@
-import { mapCategoryToEnum } from "@/helper/mapper";
+import { mapCategoryToEnum } from "@/utils/mapper";
 import client from "@/services/client";
 import { AddPlacePayload, Place } from "@/types/place";
 import * as utils from "@/app/actions/utils";
@@ -113,18 +113,30 @@ export const updatePlace = async (id: string, data: AddPlacePayload, dataImage: 
    }
 }
 
-export const deletePlace = async (id: string): Promise<void> => {
+export const deletePlace = async (id: string, callback: () => void): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
+
    try {
       const place = await getPlaceById(id);
       if (place.placeImages) {
          for (let i = 0; i < place.placeImages.length; i++) {
             try {
-               const response = await cloudinaryAction.DeleteImage(place.placeImages[i].imagePublicId);
-               console.log(response);
+               const response = await client<void>(`/cloudinary?publicId=${place.placeImages[i].imagePublicId}`,
+                  {
+                     method: 'DELETE',
+                     headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                     }
+                  }
+               );
+               if (response.error) {
+                  throw new Error();
+               }
             }
             catch (error) {
-               toast.error('Error deleting image: ' + error);
+               toast.error('Xóa ảnh thất bại, lỗi: ' + error);
+               throw new Error('Error deleting image');
             }
          }
       }
@@ -139,6 +151,7 @@ export const deletePlace = async (id: string): Promise<void> => {
       );
       if (response.error == false) {
          toast.success('Xóa địa điểm thành công');
+         callback();
       }
       else {
          toast.error('Xóa địa điểm thất bại, lỗi: ' + response.message);

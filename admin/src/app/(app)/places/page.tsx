@@ -6,24 +6,27 @@ import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { Place } from "@/types/place"
 import * as placeAction from '@/app/actions/places-action'
 
 export default function Place() {
 
     const router = useRouter();
-    const columns = useColumns();
 
     const [data, setData] = useState<Place[]>([]);
 
-    useEffect(() => {
-        const getData = async () => {
-            const fetchedData = await placeAction.getAllPlaces();
-            setData(fetchedData);
-        };
-        getData();
+    const getData = useCallback(async () => {
+        const fetchedData = await placeAction.getAllPlaces();
+        setData(fetchedData);
     }, []);
+
+    useEffect(() => {
+        getData();
+    }, [getData]);
+
+
+    const columns = useColumns(getData);
 
     return (
         <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>

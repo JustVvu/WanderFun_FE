@@ -21,7 +21,7 @@ async function client<T>(
 
   // Check if endpoint starts with '/'
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
+  console.log(`${baseURL}${normalizedEndpoint}`);
   try {
     const response = await fetch(`${baseURL}${normalizedEndpoint}`, {
       ...config,

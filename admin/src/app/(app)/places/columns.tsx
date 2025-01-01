@@ -17,7 +17,7 @@ import { Place } from "@/types/place"
 import { useRouter } from "next/navigation"
 import { deletePlace } from "@/app/actions/places-action"
 
-export function useColumns(): ColumnDef<Place>[] {
+export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
    const router = useRouter();
    return [
       {
@@ -112,8 +112,7 @@ export function useColumns(): ColumnDef<Place>[] {
                      <DropdownMenuSeparator />
                      <DropdownMenuItem
                         onClick={() => {
-                           deletePlace(place.id.toString());
-                           router.refresh();
+                           deletePlace(place.id.toString(), refetchData);
                         }}
                      >
                         Xóa địa điểm
