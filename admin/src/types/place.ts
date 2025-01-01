@@ -12,8 +12,9 @@ export interface PlaceDescription {
    title: string;
    content: string;
    imageUrl: string;
+   imagePublicId: string;
 }
-export interface PlaceImage {
+export interface NewImage {
    imageUrl: string;
    imagePublicId: string;
  }
@@ -34,7 +35,7 @@ export interface Place {
    link: string;
    iconUrl: string;
    coverImageUrl: string;
-   placeImages: PlaceImage[];
+   placeImages: NewImage[];
 }
 
 export interface AddPlacePayload {
@@ -53,5 +54,5 @@ export interface AddPlacePayload {
    link?: string;
    iconUrl?: string;
    coverImageUrl?: string;
-   placeImages?: PlaceImage[];
+   placeImages?: NewImage[];
 }
