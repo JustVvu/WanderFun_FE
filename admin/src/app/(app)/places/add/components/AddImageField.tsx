@@ -1,16 +1,21 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { X } from "lucide-react";
 
-export default function AddImageField() {
-   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+interface AddImageFieldProps {
+   selectedImages: File[];
+   setSelectedImages: React.Dispatch<React.SetStateAction<File[]>>;
+   updateImage?: string[];
+}
+
+export default function AddImageField({ selectedImages, setSelectedImages, updateImage }: AddImageFieldProps) {
 
    const onDrop = useCallback((acceptedFiles: File[]) => {
       // Handle the uploaded files here
       setSelectedImages((prevImages) => [...prevImages, ...acceptedFiles]);
-   }, []);
+   }, [setSelectedImages]);
 
    const { getRootProps, getInputProps } = useDropzone({
       onDrop,
@@ -33,13 +38,29 @@ export default function AddImageField() {
                overflow-auto overscroll-x-auto}`}
          >
             <input {...getInputProps()} />
-            {selectedImages.length === 0 ? (
+
+            {selectedImages.length === 0 && (!updateImage || updateImage.length === 0) ? (
                <div className="flex items-center justify-center h-full text-muted-foreground">
 
                   <span>Chọn hoặc kéo thả hình ảnh vào đây</span>
 
                </div>
             ) : (<div className="h-full flex flex-row px-[12px] items-center space-x-[12px]">
+               {updateImage && updateImage.map((url, index) => (
+                  <div
+                     key={index}
+                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
+                     onClick={(event) => event.stopPropagation()}
+                  >
+                     <Image
+                        src={url}
+                        alt={`Updated ${index}`}
+                        className="rounded-lg object-cover"
+                        fill
+                        sizes="(max-width: 600px) 100vw, 50vw"
+                     />
+                  </div>
+               ))}
                {selectedImages.map((file, index) => (
                   <div
                      key={index}
@@ -49,18 +70,17 @@ export default function AddImageField() {
                      <Image
                         src={URL.createObjectURL(file)}
                         alt={`Selected ${index}`}
-                        className="rounded-lg"
-                        layout="fill"
-                        objectFit="cover"
+                        className="rounded-lg object-cover"
+                        fill
+                        sizes="(max-width: 600px) 100vw, 50vw"
                      />
-
                      <X
                         onClick={() => handleRemoveImage(index)}
                         className="absolute top-0 right-0 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
                      />
-
                   </div>
                ))}
+
             </div>
             )}
          </div>

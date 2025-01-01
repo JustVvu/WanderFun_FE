@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CheckedState } from '@radix-ui/react-checkbox';
 import { toast } from 'sonner'
 
 import { Eye, EyeClosed } from "lucide-react"
@@ -39,7 +38,7 @@ export function LoginForm() {
     const [loginFailed, setLoginFailed] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isRemembered, setIsRemembered] = useState(false);
-    const [isLoading, setLoadingState] = useState(false);
+    const [, setLoadingState] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,40 +49,32 @@ export function LoginForm() {
     })
 
     const handleLogin = async (data: z.infer<typeof formSchema>) => {
-
         try {
             setLoadingState(true);
-            //console.log(data, isRemembered);
-            await login(
-                {
-                    email: data.email,
-                    password: data.password,
-                    rememberMe: isRemembered,
-                }
-            );
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                const formattedErrors: { [key: string]: string } = {};
-                error.errors.forEach((err) => {
-                    if (err.path) {
-                        formattedErrors[err.path[0]] = err.message;
-                    }
-                });
-                toast.error("Thông tin đăng nhập không hợp lệ!" + formattedErrors);
-                setLoginFailed(true);
-            }
-        } finally {
             setLoginFailed(false);
+
+            const success = await login({
+                email: data.email,
+                password: data.password,
+                rememberMe: isRemembered,
+            });
+
+            if (!success) {
+                setLoginFailed(true);
+                toast.error('Đăng nhập thất bại!');
+            } else {
+                setLoginFailed(false);
+                setLoadingState(false);
+                toast.success('Đăng nhập thành công!');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setLoginFailed(true);
+            toast.error('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+        } finally {
             setLoadingState(false);
         }
     }
-
-    const handleRememberMe = (checked: CheckedState) => {
-        setIsRemembered(checked === true);
-        if (checked === false) {
-            localStorage.removeItem('rememberedEmail');
-        }
-    };
 
     useEffect(() => {
         const rememberedEmail = localStorage.getItem('rememberedEmail');
@@ -91,7 +82,7 @@ export function LoginForm() {
             form.setValue("email", rememberedEmail);
             setIsRemembered(true);
         }
-    }, []);
+    }, [form]);
 
     return (
         <div className="flex flex-col w-full h-full bg-white1 justify-items-center
@@ -122,8 +113,8 @@ export function LoginForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem className="space-y-0 w-auto min-w-[250px] mt-[20px]">
-                                <FormLabel>Email</FormLabel>
-                                <FormControl className="h-[40px] rounded-[12px] border-none bg-white3 ">
+                                <FormLabel className={loginFailed ? "text-red4" : ""}>Email</FormLabel>
+                                <FormControl className="h-[40px] rounded-[12px] bg-white2 border-black2">
                                     <Input
                                         {...field}
                                         className="focus-visible:ring-blue2"
@@ -137,13 +128,13 @@ export function LoginForm() {
                         name="password"
                         render={({ field }) => (
                             <FormItem className="space-y-0 w-auto min-w-[250px] mt-[20px]">
-                                <FormLabel>Mật khẩu</FormLabel>
-                                <FormControl className="h-[40px] rounded-[12px] bg-white3 border-none">
+                                <FormLabel className={loginFailed ? "text-red4" : ""}>Mật khẩu</FormLabel>
+                                <FormControl className="h-[40px] rounded-[12px] bg-white2">
                                     <div className="relative w-full justify-between items-center">
                                         <Input
                                             type={showPassword ? "text" : "password"}
                                             {...field}
-                                            className="focus-visible:ring-blue2 w-full h-full rounded-[12px]"
+                                            className={'focus-visible:ring-blue2 border-black2 w-full h-full rounded-[12px]'}
                                         />
                                         <div className="absolute inset-y-0 right-0 content-center mr-[6px] text-black3">
                                             {showPassword
@@ -162,14 +153,14 @@ export function LoginForm() {
                             <Checkbox
                                 checked={isRemembered}
                                 id="rememberMe"
-                                onCheckedChange={handleRememberMe}
+                                onCheckedChange={() => setIsRemembered((prevState) => !prevState)}
                                 className="border-[2px] rounded-[3px] font-bold data-[state=checked]:border-blue1 data-[state=checked]:bg-blue1 data-[state=checked]:text-white" />
                             <label htmlFor="remember" className="text-sm font-normal">Ghi nhớ đăng nhập</label>
                         </div>
                         <a href="#" className="text-blue2 text-sm font-normal hover:underline">Quên mật khẩu?</a>
                     </div>
 
-                    <FormMessage className={`text-[14px] mt-[20px] self-end ${loginFailed ? 'text-red5' : 'text-transparent'}`}>
+                    <FormMessage className={`text-[14px] mt-[20px] select-none self-end ${loginFailed ? 'text-red5' : 'text-transparent'}`}>
                         Thông tin đăng nhập không hợp lệ!
                     </FormMessage>
 

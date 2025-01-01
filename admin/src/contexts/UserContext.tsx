@@ -1,31 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import client from '@/services/client';
 import { useLoading } from './LoadingContext';
+import { UserLogin, LoginCredentials } from '@/types/user';
 import { toast } from 'sonner';
-
-export interface LoginCredentials {
-   email: string;
-   password: string;
-   rememberMe?: boolean;
-}
-
-export interface UserDto {
-   id: number;
-   firstName: string;
-   lastName: string;
-   email: string;
-   accessToken: string;
-   refreshToken: string;
-}
-
-export interface RespondDto {
-   message: string;
-   data: UserDto;
-}
 
 interface IUserContext {
    accessToken: string | null;
@@ -33,8 +14,8 @@ interface IUserContext {
    setAccessToken: (accessToken: string | null) => void;
    setRefreshToken: (refreshToken: string | null) => void;
    isAuthenticated: boolean;
-   userDetails: UserDto | null;
-   login: (loginCreds: LoginCredentials | null) => Promise<void>;
+   userDetails: UserLogin | null;
+   login: (loginCreds: LoginCredentials | null) => Promise<boolean>;
    logout: () => void;
 }
 
@@ -45,18 +26,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
    const [refreshToken, setRefreshToken] = useState<string | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-   const [userDetails, setUserDetails] = useState<UserDto | null>(null);
+   const [userDetails, setUserDetails] = useState<UserLogin | null>(null);
    const { setLoadingState } = useLoading();
 
    const router = useRouter();
 
-   const login = async (loginCreds: LoginCredentials | null): Promise<void> => {
-      if (!loginCreds) {
-         throw new Error('Login credentials are required');
-      }
+   const login = async (loginCreds: LoginCredentials | null): Promise<boolean> => {
 
+      if (!loginCreds) {
+         toast.error('Thông tin đăng nhập không hợp lệ!');
+         return false;
+      }
       try {
-         const response = await client<RespondDto>('/auth/login', {
+         const response = await client<UserLogin>('/auth/login', {
             method: 'POST',
             headers: {
                'Content-Type': 'application/json',
@@ -64,23 +46,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             body: JSON.stringify(loginCreds),
          });
 
-         if (!response || !response.data.accessToken) {
-            throw new Error('Invalid response from server');
-         }
-
          if (loginCreds.rememberMe) {
             localStorage.setItem('userDetails', JSON.stringify(response));
-            localStorage.setItem('rememberedEmail', loginCreds.email);
+            document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=86400; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; max-age=86400; SameSite=Strict; Secure`;
+         }
+         else {
+            sessionStorage.setItem('userDetails', JSON.stringify(response));
+            document.cookie = `accessToken=${response.data.accessToken}; path=/; SameSite=Strict; Secure`;
+            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; SameSite=Strict; Secure`;
          }
 
          setAccessToken(response.data.accessToken);
          setRefreshToken(response.data.refreshToken);
          setIsAuthenticated(true);
          setUserDetails(response.data);
-         router.push('/');
+         setLoadingState(true);
+         setTimeout(() => {
+            router.push('/home');
+         }, 1000);
+         setLoadingState(false);
+         return true;
+
       } catch (error) {
          console.error('Login failed:', error);
-         throw error;
+         toast.error('Đăng nhập thất bại!');
+         return false;
       }
    };
 
@@ -89,6 +80,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       try {
          localStorage.removeItem('userDetails');
          localStorage.removeItem('rememberedEmail');
+         sessionStorage.removeItem('userDetails');
+         document.cookie =
+            'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
+         document.cookie =
+            'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure';
          setAccessToken(null);
          setRefreshToken(null);
          setIsAuthenticated(false);
@@ -96,34 +92,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
          router.push('/login');
       } catch (error) {
          console.error('Logout failed:', error);
-         toast.error('Failed to logout. Please try again.');
+         toast.error('Đăng xuất thất bại!');
       } finally {
          setLoadingState(false);
       }
    };
 
    useEffect(() => {
-      const storedUserDetails = localStorage.getItem('userDetails');
+      const getCookie = (name: string): string | null => {
+         const value = `; ${document.cookie}`;
+         const parts = value.split(`; ${name}=`);
+         if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+         return null;
+      };
 
-      if (storedUserDetails) {
+      const accessToken = getCookie('accessToken');
+      const storedUserDetails = localStorage.getItem('userDetails') || sessionStorage.getItem('userDetails');
+
+      if (accessToken && storedUserDetails) {
          try {
             const parsedUserDetails = JSON.parse(storedUserDetails);
-            if (parsedUserDetails && parsedUserDetails.accessToken) {
-               setAccessToken(parsedUserDetails.accessToken);
-               setIsAuthenticated(true);
-               setUserDetails(parsedUserDetails);
-            } else {
-               localStorage.removeItem('userDetails');
-               setIsAuthenticated(false);
-               setUserDetails(null);
-            }
+
+            setAccessToken(parsedUserDetails.accessToken);
+            setIsAuthenticated(true);
+            setUserDetails(parsedUserDetails);
          } catch (error) {
             console.error('Error parsing stored user details:', error);
-            localStorage.removeItem('userDetails');
+            setAccessToken(null);
             setIsAuthenticated(false);
             setUserDetails(null);
          }
+
       } else {
+         setAccessToken(null);
          setIsAuthenticated(false);
          setUserDetails(null);
 

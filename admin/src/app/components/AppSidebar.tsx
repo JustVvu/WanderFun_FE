@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react"
 
-import { Trophy, Home, MapIcon, User } from "lucide-react"
+import { Trophy, Home, MapIcon, User, LogOut, } from "lucide-react"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import Image from "next/image"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@/contexts/UserContext"
 import logo from '@/app/assets/Logo.svg'
 
 import {
@@ -19,6 +20,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 
 // Menu items.
 const menuItems = [
@@ -51,6 +53,7 @@ const menuItems = [
 export function AppSidebar() {
 
     const pathname = usePathname()
+    const { logout } = useUser()
     const [selectedTab, setSelectedTab] = useState("");
 
     useEffect(() => {
@@ -62,13 +65,20 @@ export function AppSidebar() {
         }
     }, [pathname]);
 
+    const handleLogut = () => {
+        logout()
+    }
+
     return (
         <SidebarProvider>
-            <Sidebar collapsible="none"
-                className="h-full w-auto py-[20px] px-[16px]" >
+            <Sidebar
+                collapsible="none"
+                className="h-full w-auto py-[20px] px-[16px]"
+                variant="floating"
+            >
                 <SidebarHeader>
                     <div className="flex-col space-y-0 justify-items-center">
-                        <div className="flex flex-row items-center space-x-2">
+                        <div className="flex flex-row items-center space-x-2 overflow-hidden">
                             <Image src={logo} alt='Banner image' unoptimized style={{
                                 width: '60px',
                                 height: '60px',
@@ -77,7 +87,8 @@ export function AppSidebar() {
                             }} />
                             <h1 className="text-[45px] font-normal font-Caveat text-black4">WanderFun</h1>
                         </div>
-                        <h1 className="text-lg font-semibold font-Poppins text-black4">Dành cho quản trị viên</h1>
+                        <h1 className="text-lg font-semibold text-black4">Dành cho quản trị viên</h1>
+                        <h1 className="text-[14px] font-normal text-black4">Chào mừng bạn quay trở lại</h1>
                     </div>
                 </SidebarHeader>
                 <SidebarContent>
@@ -86,12 +97,12 @@ export function AppSidebar() {
                             <SidebarMenu>
                                 {menuItems.map((item, index) => (
                                     <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild
-
-                                            className={`flex flex-row items-center h-auto rounded-[8px] text-black3 text-[16px] font-medium 
-                                            font-Poppins hover:bg-blue2o hover:text-blue3 active:bg-blue2o active:text-blue3 ${selectedTab === item.title ? 'bg-blue2o text-blue3' : ''}
-                                            transition duration-100 ease-in-out`}>
-
+                                        <SidebarMenuButton
+                                            asChild
+                                            className={`h-auto rounded-[8px] text-black3 text-[16px] font-medium 
+                                            hover:bg-blue2o hover:text-blue3 active:bg-blue2o active:text-blue3 ${selectedTab === item.title ? 'bg-blue2o text-blue3' : ''}
+                                            transition duration-100 ease-in-out`}
+                                        >
                                             <Link
                                                 key={index}
                                                 onClick={() => {
@@ -104,6 +115,19 @@ export function AppSidebar() {
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        className={`items-center h-auto rounded-[8px] text-black3 text-[16px] font-medium 
+                                            hover:bg-red-200 hover:text-red3 transition duration-100 ease-in-out`}
+                                        onClick={handleLogut}
+                                    >
+                                        <Button variant='ghost' className="bg-white justify-start">
+                                            <LogOut style={{ width: '20px', height: '20px' }} />
+                                            Đăng xuất
+                                        </Button>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>

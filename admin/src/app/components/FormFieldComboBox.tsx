@@ -56,7 +56,7 @@ export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
                            role="combobox"
                            aria-expanded={open}
                            className={cn(
-                              "w-auto min-w-[250px] h-[40px] justify-between border-none bg-white3 hover:bg-blue2o hover:text-blue2",
+                              "w-auto h-[40px] justify-between border-none bg-white3 hover:bg-blue2o hover:text-blue2",
                               !field.value && "text-muted-foreground"
                            )}
                         >
@@ -67,7 +67,7 @@ export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
                         </Button>
                      </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
+                  <PopoverContent className="w-auto p-0">
                      <Command>
                         <CommandInput placeholder="Search..." className="h-9" />
                         <CommandList >
