@@ -35,6 +35,7 @@ export interface Place {
    link: string;
    iconUrl: string;
    coverImageUrl: string;
+   coverPublidId: string;
    placeImages: NewImage[];
 }
 
@@ -54,5 +55,6 @@ export interface AddPlacePayload {
    link?: string;
    iconUrl?: string;
    coverImageUrl?: string;
+   coverImagePublicId?: string;
    placeImages?: NewImage[];
 }
