@@ -48,16 +48,18 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
    //console.log("dataDescriptionImage: ", dataDescriptionImage);
    try {
       if (dataPlaceImage.length > 0) {
-         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/cover");
+         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
          data.placeImages = uploadResult.map((result) => ({
             imageUrl: result.secure_url,
             imagePublicId: result.public_id
          }));
+         data.coverImageUrl = data.placeImages[0].imageUrl;
+         data.coverImagePublicId = data.placeImages[0].imagePublicId;
          console.log(data);
       }
       if (dataDescriptionImage.length > 0) {
          for (let index = 0; index < data.description.length; index++) {
-            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
+            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
             data.description[index] = {
                ...data.description[index],
                imageUrl: uploadResult[0].secure_url,
