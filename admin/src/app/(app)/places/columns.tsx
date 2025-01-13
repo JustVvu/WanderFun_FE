@@ -15,7 +15,7 @@ import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColu
 
 import { Place } from "@/types/place"
 import { useRouter } from "next/navigation"
-import { deletePlace } from "@/app/actions/places-action"
+import { deletePlace } from "@/actions/places-action"
 
 export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
    const router = useRouter();

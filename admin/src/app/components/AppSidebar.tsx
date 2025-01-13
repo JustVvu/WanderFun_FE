@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 
 import { Trophy, Home, MapIcon, User, LogOut, } from "lucide-react"
-import { SidebarProvider } from "@/components/ui/sidebar"
 import Image from "next/image"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,6 +11,7 @@ import logo from '@/app/assets/Logo.svg'
 
 import {
     Sidebar,
+    SidebarProvider,
     SidebarContent,
     SidebarGroup,
     SidebarGroupContent,

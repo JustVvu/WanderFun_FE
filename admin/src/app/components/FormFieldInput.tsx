@@ -10,6 +10,7 @@ interface FormFieldInputProps {
    placeholder: string;
    type?: string;
    value?: string;
+   disabled?: boolean;
    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -20,6 +21,7 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
    placeholder,
    type = "text",
    value,
+   disabled,
    onChange,
 }) => {
    if (control) {
@@ -37,6 +39,7 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
                      <Input
                         {...field}
                         type={type}
+                        disabled={disabled}
                         placeholder={placeholder}
                         className="focus-visible:ring-blue2"
                      />
