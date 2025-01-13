@@ -8,7 +8,7 @@ import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback } from "react"
 import type { Place } from "@/types/place"
-import * as placeAction from '@/app/actions/places-action'
+import * as placeAction from '@/actions/places-action'
 
 export default function Place() {
 
@@ -34,7 +34,7 @@ export default function Place() {
                 <h1 className='text-[24px] text-blue3 font-medium'>Quản lý địa điểm du lịch</h1>
                 <div className='flex flex-row justify-between items-center space-x-[2rem]'>
                     <Button
-                        onClick={() => router.push('places/map-add')}
+                        onClick={() => router.push('maps')}
                         className="w-fit h-fit bg-white1 text-blue2 border-blue2 border rounded-[8px] hover:bg-white3"
                     >
                         <MapPinned /> Xem trên bản đồ

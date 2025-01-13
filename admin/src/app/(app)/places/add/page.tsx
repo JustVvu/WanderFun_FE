@@ -6,7 +6,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import * as placeAction from '@/app/actions/places-action'
+import * as placeAction from '@/actions/places-action'
 import { Category, PlaceDescription, NewImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
@@ -77,6 +77,8 @@ export default function AddPlace() {
 
    useEffect(() => {
       const id = searchParams.get('id');
+      const lat = searchParams.get('lat');
+      const lng = searchParams.get('lng');
       if (id) {
          setTitle("Chỉnh sửa địa điểm du lịch");
          setIsUpdate(true);
@@ -105,7 +107,12 @@ export default function AddPlace() {
          }
          fetchData();
       }
+      if (lat && lng) {
+         form.setValue('longitude', lng);
+         form.setValue('latitude', lat);
+      }
    }, [pathname, searchParams, form])
+
 
    useEffect(() => {
       form.setValue('description', descriptions);
@@ -150,7 +157,7 @@ export default function AddPlace() {
                <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => router.push('/places')}
+                  onClick={() => router.back()}
                   className="border-[2px] rounded-full"
                >
                   <ChevronLeft />
@@ -196,12 +203,14 @@ export default function AddPlace() {
                         name="longitude"
                         label="Kinh độ"
                         placeholder="Nhập Kinh độ"
+                        disabled={searchParams.get('lng') ? true : false}
                      />
                      <FormFieldInput
                         control={form.control}
                         name="latitude"
                         label="Vĩ độ"
                         placeholder="Nhập vĩ độ"
+                        disabled={searchParams.get('lat') ? true : false}
                      />
 
                      <FormField

@@ -1,8 +1,8 @@
 import { mapCategoryToEnum } from "@/utils/mapper";
 import client from "@/services/client";
 import { AddPlacePayload, Place } from "@/types/place";
-import * as utils from "@/app/actions/utils";
-import * as cloudinaryAction from "@/app/actions/cloudinary-action";
+import * as utils from "@/actions/utils";
+import * as cloudinaryAction from "@/actions/cloudinary-action";
 import { toast } from "sonner";
 
 export const getAllPlaces = async (): Promise<Place[]> => {
@@ -43,9 +43,10 @@ export const getPlaceById = async (id: string): Promise<Place> => {
 
 export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   //console.log("data: ", data);
+   console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
    //console.log("dataDescriptionImage: ", dataDescriptionImage);
+   return;
    try {
       if (dataPlaceImage.length > 0) {
          const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
