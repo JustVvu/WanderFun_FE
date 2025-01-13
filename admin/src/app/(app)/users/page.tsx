@@ -1,31 +1,26 @@
-import React from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import { AppDataTable } from '../../components/data_table/AppDataTable'
-import { columns, type User } from "./columns"
+import { useColumns } from "./columns"
+import type { User } from '@/types/user';
+import { getAllUsers } from '@/actions/users-action';
 
 
-async function getData(): Promise<User[]> {
-    // Fetch data from your API here.
-    return [
-        { id: "1", userName: "Nguyễn Văn A", birthday: "1998-01-01", status: "active" },
-        { id: "2", userName: "Nguyễn Văn B", birthday: "1998-01-01", status: "active" },
-        { id: "3", userName: "Nguyễn Văn C", birthday: "1998-01-01", status: "active" },
-        { id: "4", userName: "Nguyễn Văn D", birthday: "1998-01-01", status: "active" },
-        { id: "5", userName: "Nguyễn Văn E", birthday: "1998-01-01", status: "banned" },
-        { id: "6", userName: "Nguyễn Văn F", birthday: "1998-01-01", status: "active" },
-        { id: "7", userName: "Nguyễn Văn G", birthday: "1998-01-01", status: "active" },
-        { id: "8", userName: "Nguyễn Văn H", birthday: "1998-01-01", status: "banned" },
-        { id: "9", userName: "Nguyễn Văn I", birthday: "1998-01-01", status: "active" },
-        { id: "10", userName: "Nguyễn Văn K", birthday: "1998-01-01", status: "active" },
-        { id: "11", userName: "Nguyễn Văn L", birthday: "1998-01-01", status: "active" },
-        { id: "12", userName: "Nguyễn Văn M", birthday: "1998-01-01", status: "banned" },
-        { id: "13", userName: "Nguyễn Văn N", birthday: "1998-01-01", status: "active" },
-    ]
-}
 
-export default async function User() {
+export default function User() {
 
-    const data = await getData()
+    const [data, setData] = useState<User[]>([]);
+
+    const getData = useCallback(async () => {
+        const fetchedData = await getAllUsers();
+        setData(fetchedData);
+    }, []);
+
+    useEffect(() => {
+        getData();
+    }, [getData]);
+
+    const columns = useColumns(getData);
 
     return (
         <div className=' flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
@@ -37,7 +32,7 @@ export default async function User() {
                 <AppDataTable
                     columns={columns}
                     data={data}
-                    filterCritia='userName'
+                    filterCritia='Firstname'
                     filterPlaceholder='Tên người dùng'
                 />
             </div>

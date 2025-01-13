@@ -16,4 +16,11 @@ export interface User {
    firstName: string;
    lastName: string;
    email: string;
+   isVerified: boolean;
+   avatarUrl: string;
+   avatarPublicId: string;
+   dateOfBirth: string;
+   gender: string;
+   phoneNumber: string;
+   point: number;
 }
