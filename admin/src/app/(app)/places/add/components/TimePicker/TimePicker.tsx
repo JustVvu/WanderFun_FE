@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Label } from "@/components/ui/label";
 import { TimePickerInput } from "./TimePickerInput";
 import { TimePeriodSelect } from "./PeriodSelect";
 import { Period } from "./TimePickerUtil";

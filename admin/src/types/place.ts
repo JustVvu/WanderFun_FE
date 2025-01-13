@@ -25,8 +25,8 @@ export interface Place {
    address: string;
    category: Category;
    operator: string;
-   openTime: Date;
-   closeTime: Date;
+   timeOpen: Date;
+   timeClose: Date;
    longitude: string;
    latitude: string;
    checkInPoint: string;
@@ -45,8 +45,8 @@ export interface AddPlacePayload {
    address: string;
    category: Category;
    operator?: string;
-   openTime?: Date;
-   closeTime?: Date;
+   timeOpen?: string;
+   timeClose?: string;
    longitude: string;
    latitude: string;
    checkInPoint: string;

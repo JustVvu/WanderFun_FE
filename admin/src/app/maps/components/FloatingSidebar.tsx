@@ -83,7 +83,7 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                                  </Label>
                                  <Label className="text-sm text-black4">
                                     Thời gian hoạt động:
-                                    {place.openTime && place.closeTime ? `${place.openTime.toDateString()} - ${place.closeTime.toString()}` : ""}
+                                    {place.timeOpen && place.timeClose ? `${place.timeOpen.toDateString()} - ${place.timeClose.toString()}` : ""}
                                  </Label>
                                  <div className="grid grid-cols-4 justify-between space-x-2">
                                     <Label className="col-span-2 text-sm text-black4">

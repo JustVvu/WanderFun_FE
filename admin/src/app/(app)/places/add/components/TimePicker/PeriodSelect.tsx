@@ -40,8 +40,8 @@ export const TimePeriodSelect = React.forwardRef<HTMLButtonElement, PeriodSelect
                <SelectValue />
             </SelectTrigger>
             <SelectContent>
-               <SelectItem className="focus:bg-blue2o focus:text-blue2 " value="AM">SA</SelectItem>
-               <SelectItem className="focus:bg-blue2o focus:text-blue2" value="PM">CH</SelectItem>
+               <SelectItem className="focus:bg-blue2o focus:text-blue2 " value="PM">PM</SelectItem>
+               <SelectItem className="focus:bg-blue2o focus:text-blue2" value="AM">AM</SelectItem>
             </SelectContent>
          </Select>
       </div>
