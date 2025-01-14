@@ -18,6 +18,8 @@ import { FormFieldCombobox } from "@/app/components/FormFieldComboBox"
 import AddImageField from "./components/AddImageField"
 import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
+import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
+import { toast } from "sonner"
 
 const categoryOptions = Object.entries(Category).map(([key, value]) => ({
    label: value,
@@ -108,10 +110,20 @@ export default function AddPlace() {
          fetchData();
       }
       if (lat && lng) {
-         form.setValue('longitude', lng);
-         form.setValue('latitude', lat);
+         const fetchGeocodeData = async () => {
+            try {
+               await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
+                  form.setValue('longitude', lng);
+                  form.setValue('latitude', lat);
+                  form.setValue('address', result[0]?.address || '');
+               });
+            } catch {
+               toast.error('Không thể lấy thông tin địa chỉ từ tọa độ');
+            }
+         };
+         fetchGeocodeData();
       }
-   }, [pathname, searchParams, form])
+   }, [pathname, searchParams, form]);
 
 
    useEffect(() => {
@@ -294,3 +306,5 @@ export default function AddPlace() {
       </div >
    )
 }
+
+

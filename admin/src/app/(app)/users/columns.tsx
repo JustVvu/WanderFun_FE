@@ -46,29 +46,26 @@ export function useColumns(refetchData: () => void): ColumnDef<User>[] {
          enableHiding: false,
       },
       {
-         accessorKey: "id",
+         accessorKey: "firstName",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-fit" column={column} title="ID" />
+            <DataTableColumnHeader className="w-fit" column={column} title="Họ" />
          ),
-         cell: ({ row }) => <div className="w-fit">{row.getValue("id")}</div>,
-         enableSorting: false,
-         enableHiding: false,
-      },
-      {
-         accessorKey: "firstname",
-         header: ({ column }) => (
-            <DataTableColumnHeader className="w-fit" column={column} title="Firstname" />
-         ),
-         cell: ({ row }) => <div className="w-fit">{row.getValue("firstname")}</div>,
+         cell: ({ row }) =>
+            <div className="w-fit">
+               {row.getValue("firstName")}
+            </div>,
          enableSorting: true,
          enableHiding: true,
       },
       {
-         accessorKey: "lastname",
+         accessorKey: "lastName",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-fit" column={column} title="Lastname" />
+            <DataTableColumnHeader className="w-fit" column={column} title="Tên" />
          ),
-         cell: ({ row }) => <div className="w-fit">{row.getValue("lastname")}</div>,
+         cell: ({ row }) =>
+            <div className="w-fit">
+               {row.getValue("lastName")}
+            </div>,
          enableSorting: true,
          enableHiding: true,
       },
@@ -78,6 +75,27 @@ export function useColumns(refetchData: () => void): ColumnDef<User>[] {
             <DataTableColumnHeader className="w-fit" column={column} title="Email" />
          ),
          cell: ({ row }) => <div className="w-fit">{row.getValue("email")}</div>,
+         enableSorting: true,
+         enableHiding: true,
+      },
+      {
+         accessorKey: "isVerified",
+         header: ({ column }) => (
+            <DataTableColumnHeader className="w-fit" column={column} title="Trạng thái" />
+         ),
+         cell: ({ row }) =>
+            <div className="w-fit">
+               {row.getValue("lastName") === "true" ? "Đã xác nhận" : "Chưa xác nhận"}
+            </div>,
+         enableSorting: true,
+         enableHiding: true,
+      },
+      {
+         accessorKey: "point",
+         header: ({ column }) => (
+            <DataTableColumnHeader className="w-fit" column={column} title="Điểm số" />
+         ),
+         cell: ({ row }) => <div className="w-fit ">{row.getValue("point")}</div>,
          enableSorting: true,
          enableHiding: true,
       },
@@ -96,12 +114,18 @@ export function useColumns(refetchData: () => void): ColumnDef<User>[] {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                      <DropdownMenuItem
-                        onClick={() => console.log(user)}
+                        onClick={() => refetchData()}
                      >
                         Copy user ID
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem>Xem chi tiết người dùng</DropdownMenuItem>
+                     <DropdownMenuItem
+                        onClick={() => {
+                           console.log(user)
+                        }}
+                     >
+                        Xem chi tiết người dùng
+                     </DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>
             )

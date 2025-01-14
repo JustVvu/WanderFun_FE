@@ -4,7 +4,6 @@ import client from "@/services/client";
 
 export const getAllUsers = async (): Promise<User[]> => {
    const token = await getAuthTokenFromServerCookies();
-
    try {
       const response = await client<User[]>('/user',
          {
@@ -15,6 +14,7 @@ export const getAllUsers = async (): Promise<User[]> => {
             }
          }
       );
+      console.log("response: ", response);
       if (response.error) {
          throw new Error();
       }

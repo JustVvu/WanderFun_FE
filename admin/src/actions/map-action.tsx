@@ -11,6 +11,10 @@ interface MapPlaceDetailResponse {
    result: MapPlaceDetail;
 }
 
+interface GeocodeResponse {
+   results: MapPlaceDetail[];
+}
+
 export async function fetchDataAutoComplete(
    query: string,
    renderArray: (predictions: Prediction[]) => void
@@ -46,5 +50,26 @@ export async function fetchDataPlaceDetail(
       renderObject(data.result);
    } catch (error) {
       console.error("Error fetching data:", error);
+   }
+}
+
+export async function fetchDataPlaceDetailByCoordinates(
+   lat: string,
+   lng: string,
+   renderArray: (reverseGeocodeResults: MapPlaceDetail[]) => void
+): Promise<void> {
+   const apiLink = goongApiUrl + `/geocode?api_key=${apiKey}&latlng=${lat},${lng}`;
+   try {
+      const response = await fetch(apiLink);
+      const data: GeocodeResponse = await response.json();
+      //console.log("Data from fetchDataPlaceDetailByCoordinates:", data);
+      if (data.results) {
+         renderArray(data.results);
+      } else {
+         renderArray([]);
+      }
+   } catch (error) {
+      console.error("Error fetching data:", error);
+      renderArray([]);
    }
 }

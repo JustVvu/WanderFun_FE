@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState, useCallback } from 'react'
 
 import { AppDataTable } from '../../components/data_table/AppDataTable'
@@ -6,13 +8,13 @@ import type { User } from '@/types/user';
 import { getAllUsers } from '@/actions/users-action';
 
 
-
 export default function User() {
 
     const [data, setData] = useState<User[]>([]);
 
     const getData = useCallback(async () => {
         const fetchedData = await getAllUsers();
+        console.log(fetchedData);
         setData(fetchedData);
     }, []);
 
@@ -32,7 +34,7 @@ export default function User() {
                 <AppDataTable
                     columns={columns}
                     data={data}
-                    filterCritia='Firstname'
+                    filterCritia='firstName'
                     filterPlaceholder='Tên người dùng'
                 />
             </div>
