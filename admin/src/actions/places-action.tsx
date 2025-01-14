@@ -43,10 +43,9 @@ export const getPlaceById = async (id: string): Promise<Place> => {
 
 export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   console.log("data: ", data);
+   //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
    //console.log("dataDescriptionImage: ", dataDescriptionImage);
-   return;
    try {
       if (dataPlaceImage.length > 0) {
          const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
@@ -68,7 +67,7 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
             };
          }
       }
-      console.log(data);
+      console.log("Data before API calling:", data);
       const response = await client<void>('/place',
          {
             method: 'POST',
@@ -96,7 +95,7 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
 
 export const updatePlace = async (id: string, data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   console.log("data: ", data);
+
    try {
       if (dataPlaceImage.length > 0) {
 
@@ -116,6 +115,7 @@ export const updatePlace = async (id: string, data: AddPlacePayload, dataPlaceIm
             };
          }
       }
+      console.log("Data before API calling: ", data);
       const response = await client<void>(`/place/${id}`,
          {
             method: 'PUT',

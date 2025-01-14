@@ -18,6 +18,8 @@ import { FormFieldCombobox } from "@/app/components/FormFieldComboBox"
 import AddImageField from "./components/AddImageField"
 import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
+import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
+import { toast } from "sonner"
 
 const categoryOptions = Object.entries(Category).map(([key, value]) => ({
    label: value,
@@ -38,8 +40,8 @@ const formSchema = z.object({
    })),
    longitude: z.string(),
    latitude: z.string(),
-   openTime: z.date(),
-   closeTime: z.date(),
+   timeOpen: z.date(),
+   timeClose: z.date(),
    checkInPoint: z.string(),
    checkInRange: z.string(),
    link: z.string(),
@@ -67,8 +69,8 @@ export default function AddPlace() {
          description: [],
          longitude: "",
          latitude: "",
-         openTime: new Date(new Date().setHours(0, 0, 0, 0)),
-         closeTime: new Date(new Date().setHours(0, 0, 0, 0)),
+         timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
+         timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
          checkInPoint: "",
          checkInRange: "",
          link: "",
@@ -95,8 +97,8 @@ export default function AddPlace() {
                   description: fetchedData.description,
                   longitude: fetchedData.longitude.toString(),
                   latitude: fetchedData.latitude.toString(),
-                  openTime: fetchedData.openTime ? new Date(fetchedData.openTime) : new Date(new Date().setHours(0, 0, 0, 0)),
-                  closeTime: fetchedData.closeTime ? new Date(fetchedData.closeTime) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeOpen: fetchedData.timeOpen ? new Date(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeClose: fetchedData.timeClose ? new Date(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
                   checkInPoint: fetchedData.checkInPoint.toString(),
                   checkInRange: fetchedData.checkInRange.toString(),
                   link: fetchedData.link,
@@ -108,10 +110,20 @@ export default function AddPlace() {
          fetchData();
       }
       if (lat && lng) {
-         form.setValue('longitude', lng);
-         form.setValue('latitude', lat);
+         const fetchGeocodeData = async () => {
+            try {
+               await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
+                  form.setValue('longitude', lng);
+                  form.setValue('latitude', lat);
+                  form.setValue('address', result[0]?.address || '');
+               });
+            } catch {
+               toast.error('Không thể lấy thông tin địa chỉ từ tọa độ');
+            }
+         };
+         fetchGeocodeData();
       }
-   }, [pathname, searchParams, form])
+   }, [pathname, searchParams, form]);
 
 
    useEffect(() => {
@@ -127,8 +139,8 @@ export default function AddPlace() {
             {
                ...data,
                category: data.category as Category,
-               //openTime: data.openTime.toISOString(),
-               //closeTime: data.closeTime.toISOString(),
+               timeOpen: data.timeOpen.toLocaleTimeString(),
+               timeClose: data.timeClose.toLocaleTimeString(),
             },
             selectedImages,
             descriptionImages
@@ -138,8 +150,8 @@ export default function AddPlace() {
          await placeAction.addPlace({
             ...data,
             category: data.category as Category,
-            //openTime: data.openTime.toISOString(),
-            //closeTime: data.closeTime.toISOString(),
+            timeOpen: data.timeOpen.toLocaleTimeString(),
+            timeClose: data.timeClose.toLocaleTimeString(),
          },
             selectedImages,
             descriptionImages
@@ -215,7 +227,7 @@ export default function AddPlace() {
 
                      <FormField
                         control={form.control}
-                        name="openTime"
+                        name="timeOpen"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
                               <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
@@ -231,7 +243,7 @@ export default function AddPlace() {
 
                      <FormField
                         control={form.control}
-                        name="closeTime"
+                        name="timeClose"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
                               <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
@@ -294,3 +306,5 @@ export default function AddPlace() {
       </div >
    )
 }
+
+
