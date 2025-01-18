@@ -20,6 +20,7 @@ import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
 import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
 import { toast } from "sonner"
+import { parseTimeString } from "@/utils/helper"
 
 const categoryOptions = Object.entries(Category).map(([key, value]) => ({
    label: value,
@@ -86,7 +87,7 @@ export default function AddPlace() {
          setIsUpdate(true);
          const fetchData = async () => {
             const fetchedData = await placeAction.getPlaceById(id);
-            //console.log(fetchedData);
+            console.log("fetchedData: ", parseTimeString(fetchedData.timeOpen));
             if (fetchedData) {
                form.reset({
                   name: fetchedData.name,
@@ -97,12 +98,13 @@ export default function AddPlace() {
                   description: fetchedData.description,
                   longitude: fetchedData.longitude.toString(),
                   latitude: fetchedData.latitude.toString(),
-                  timeOpen: fetchedData.timeOpen ? new Date(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
-                  timeClose: fetchedData.timeClose ? new Date(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeOpen: fetchedData.timeOpen ? parseTimeString(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeClose: fetchedData.timeClose ? parseTimeString(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
                   checkInPoint: fetchedData.checkInPoint.toString(),
                   checkInRange: fetchedData.checkInRange.toString(),
                   link: fetchedData.link,
                });
+               //console.log("form:", form.getValues());
                setUpdateImages(fetchedData.placeImages);
                setDescriptions(fetchedData.description);
             }

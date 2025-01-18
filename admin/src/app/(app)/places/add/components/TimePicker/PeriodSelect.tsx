@@ -30,6 +30,7 @@ export const TimePeriodSelect = React.forwardRef<HTMLButtonElement, PeriodSelect
          const tempDate = new Date(date);
          const hours = display12HourValue(date.getHours());
          setDate(setDateByType(tempDate, hours.toString(), "12hours", period === "AM" ? "PM" : "AM"));
+         console.log("date", setDateByType(tempDate, hours.toString(), "12hours", period === "AM" ? "PM" : "AM"));
       }
    };
 

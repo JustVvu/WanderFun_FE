@@ -1,4 +1,4 @@
-import { mapCategoryToEnum } from "@/utils/mapper";
+import { mapCategoryToEnum } from "@/utils/helper";
 import client from "@/services/client";
 import { AddPlacePayload, Place } from "@/types/place";
 import * as utils from "@/actions/utils";
