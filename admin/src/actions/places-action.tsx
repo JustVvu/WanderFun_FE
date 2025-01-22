@@ -67,7 +67,6 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
             };
          }
       }
-      console.log("Data before API calling:", data);
       const response = await client<void>('/place',
          {
             method: 'POST',
@@ -78,7 +77,7 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
             body: JSON.stringify(data),
          }
       );
-      console.log(response.data);
+      console.log(response);
       if (response.error == false) {
          toast.success('Thêm địa điểm thành công');
       }

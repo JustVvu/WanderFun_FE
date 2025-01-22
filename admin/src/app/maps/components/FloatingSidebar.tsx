@@ -13,7 +13,7 @@ import Image from "next/image";
 import { Place } from "@/types/place";
 import placeholderImage from "@/app/assets/banner.png";
 import { Label } from "@/components/ui/label";
-import { mapCategoryToEnum } from "@/utils/mapper";
+import { mapCategoryToEnum } from "@/utils/helper";
 import { PlaceImagesCarousel } from "./PlaceImagesCarousel";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
@@ -83,7 +83,12 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                                  </Label>
                                  <Label className="text-sm text-black4">
                                     Thời gian hoạt động:
-                                    {place.timeOpen && place.timeClose ? `${place.timeOpen.toString()} - ${place.timeClose.toString()}` : ""}
+                                    {place.openAllDay ? " Hoạt động cả ngày" : (place.timeOpen && place.timeClose ? ` ${place.timeOpen.toString()} - ${place.timeClose.toString()}` : "")}
+                                 </Label>
+                                 <Label className="text-sm text-black4">
+                                    Tình trạng: {place.closing
+                                       ? <a className="text-red4">Đang đóng cửa</a>
+                                       : <a className="text-blue2">Đang hoạt động</a>}
                                  </Label>
                                  <div className="grid grid-cols-4 justify-between space-x-2">
                                     <Label className="col-span-2 text-sm text-black4">
@@ -101,6 +106,9 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                                        Điểm Check-in: {place.checkInRange}
                                     </Label>
                                  </div>
+                                 <Label className="text-sm text-black4">
+                                    Link website: <a href={place.link} target="_blank" rel="noopener noreferrer" className="text-blue2 underline">{place.link}</a>
+                                 </Label>
                               </SidebarGroupContent>
                            </CollapsibleContent>
                         </SidebarGroup>
@@ -122,9 +130,9 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                               </CollapsibleTrigger>
                            </SidebarGroupLabel>
                            <CollapsibleContent>
-                              <SidebarGroupContent>
+                              <SidebarGroupContent className="px-2 self-center w-full space-y-[40px]">
                                  {place.description.map((desc, index) => (
-                                    <div key={index} className="flex flex-col px-2 w-full h-fit space-y-2">
+                                    <div key={index} className="flex flex-col px-2 w-full h-fit">
                                        <Label className="text-lg font-semibold text-black4">
                                           {desc.title}
                                        </Label>

@@ -21,6 +21,7 @@ import DescriptionInputField from "./components/DescriptionInputField"
 import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
 import { toast } from "sonner"
 import { parseTimeString } from "@/utils/helper"
+import { Switch } from "@/components/ui/switch"
 
 const categoryOptions = Object.entries(Category).map(([key, value]) => ({
    label: value,
@@ -43,6 +44,8 @@ const formSchema = z.object({
    latitude: z.string(),
    timeOpen: z.date(),
    timeClose: z.date(),
+   isOpenAllDay: z.boolean(),
+   isClosing: z.boolean(),
    checkInPoint: z.string(),
    checkInRange: z.string(),
    link: z.string(),
@@ -72,6 +75,8 @@ export default function AddPlace() {
          latitude: "",
          timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
          timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
+         isOpenAllDay: true,
+         isClosing: false,
          checkInPoint: "",
          checkInRange: "",
          link: "",
@@ -100,11 +105,13 @@ export default function AddPlace() {
                   latitude: fetchedData.latitude.toString(),
                   timeOpen: fetchedData.timeOpen ? parseTimeString(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
                   timeClose: fetchedData.timeClose ? parseTimeString(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  isOpenAllDay: fetchedData.openAllDay,
+                  isClosing: fetchedData.closing,
                   checkInPoint: fetchedData.checkInPoint.toString(),
                   checkInRange: fetchedData.checkInRange.toString(),
                   link: fetchedData.link,
                });
-               //console.log("form:", form.getValues());
+               console.log("form:", form.getValues());
                setUpdateImages(fetchedData.placeImages);
                setDescriptions(fetchedData.description);
             }
@@ -227,38 +234,6 @@ export default function AddPlace() {
                         disabled={searchParams.get('lat') ? true : false}
                      />
 
-                     <FormField
-                        control={form.control}
-                        name="timeOpen"
-                        render={({ field }) => (
-                           <FormItem className="flex flex-col">
-                              <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
-                              <FormControl>
-                                 <TimePicker
-                                    setDate={field.onChange}
-                                    date={field.value}
-                                 />
-                              </FormControl>
-                           </FormItem>
-                        )}
-                     />
-
-                     <FormField
-                        control={form.control}
-                        name="timeClose"
-                        render={({ field }) => (
-                           <FormItem className="flex flex-col">
-                              <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
-                              <FormControl>
-                                 <TimePicker
-                                    setDate={field.onChange}
-                                    date={field.value}
-                                 />
-                              </FormControl>
-                           </FormItem>
-                        )}
-                     />
-
                      <FormFieldCombobox
                         control={form.control}
                         name="category"
@@ -280,6 +255,81 @@ export default function AddPlace() {
                         label="Điểm số Check-in"
                         placeholder=""
                      />
+
+                     <div className="flex flex-row grid-cols-subgrid col-span-3 justify-between">
+                        <FormField
+                           control={form.control}
+                           name="isClosing"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Đang đóng của</FormLabel>
+                                 <FormControl>
+                                    <Switch
+                                       className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
+                                       checked={field.value}
+                                       onCheckedChange={field.onChange}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )} />
+                        <FormField
+                           control={form.control}
+                           name="isOpenAllDay"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Mở cửa cả ngày</FormLabel>
+                                 <FormControl>
+                                    <Switch
+                                       className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
+                                       checked={field.value}
+                                       onCheckedChange={field.onChange}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )} />
+
+                        <FormField
+                           control={form.control}
+                           name="timeOpen"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
+                                 <FormControl>
+                                    <TimePicker
+                                       setDate={field.onChange}
+                                       date={field.value}
+                                       disabled={form.watch('isOpenAllDay')}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )}
+                        />
+
+                        <FormField
+                           control={form.control}
+                           name="timeClose"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
+                                 <FormControl>
+                                    <TimePicker
+                                       setDate={field.onChange}
+                                       date={field.value}
+                                       disabled={form.watch('isOpenAllDay')}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )}
+                        />
+                     </div>
+                     <div className="grid-cols-subgrid col-span-2">
+                        <FormFieldInput
+                           control={form.control}
+                           name="link"
+                           label="Đường dẫn đến trang địa điểm"
+                           placeholder=""
+                        />
+                     </div>
 
                   </div>
 

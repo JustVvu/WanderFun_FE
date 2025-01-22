@@ -2,16 +2,15 @@
 
 import * as React from "react";
 import { TimePickerInput } from "./TimePickerInput";
-import { TimePeriodSelect } from "./PeriodSelect";
 import { Period } from "./TimePickerUtil";
-import { Label } from "@/components/ui/label";
 
 interface TimePickerProps {
    date: Date | undefined;
    setDate: (date: Date | undefined) => void;
+   disabled?: boolean;
 }
 
-export function TimePicker({ date, setDate }: TimePickerProps) {
+export function TimePicker({ date, setDate, disabled }: TimePickerProps) {
    const [period, setPeriod] = React.useState<Period>("PM");
 
    const minuteRef = React.useRef<HTMLInputElement>(null);
@@ -21,7 +20,6 @@ export function TimePicker({ date, setDate }: TimePickerProps) {
 
    React.useEffect(() => {
       if (date) {
-         console.log("date", date);
          const hours = date.getHours();
          setPeriod(hours >= 12 ? "PM" : "AM");
       }
@@ -39,6 +37,7 @@ export function TimePicker({ date, setDate }: TimePickerProps) {
                ref={hourRef}
                onRightFocus={() => minuteRef.current?.focus()}
                onLeftFocus={() => minuteRef.current?.focus()}
+               disabled={disabled}
             />
          </div>
          <div className="text-center self-center font-bold">
@@ -53,6 +52,7 @@ export function TimePicker({ date, setDate }: TimePickerProps) {
                ref={minuteRef}
                onLeftFocus={() => hourRef.current?.focus()}
                onRightFocus={() => hourRef.current?.focus()}
+               disabled={disabled}
             />
          </div>
          {/* <div className="grid gap-1 text-center">
