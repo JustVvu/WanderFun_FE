@@ -46,18 +46,18 @@ const formSchema = z.object({
       content: z.string(),
       imageUrl: z.string(),
       imagePublicId: z.string(),
-    })
-  ),
-  longitude: z.string(),
-  latitude: z.string(),
-  timeOpen: z.date(),
-  timeClose: z.date(),
-  isOpenAllDay: z.boolean(),
-  isClosing: z.boolean(),
-  checkInPoint: z.string(),
-  checkInRange: z.string(),
-  link: z.string(),
-});
+
+   })),
+   longitude: z.string(),
+   latitude: z.string(),
+   timeOpen: z.date(),
+   timeClose: z.date(),
+   openAllDay: z.boolean(),
+   closing: z.boolean(),
+   checkInPoint: z.string(),
+   checkInRange: z.string(),
+   link: z.string(),
+})
 
 export default function AddPlace() {
   const pathname = usePathname();
@@ -72,81 +72,77 @@ export default function AddPlace() {
   ]);
   const [descriptionImages, setDescriptionImages] = useState<File[]>([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      alternativeName: "",
-      address: "",
-      operator: "",
-      category: Category.OTHER,
-      description: [],
-      longitude: "",
-      latitude: "",
-      timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
-      timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
-      isOpenAllDay: true,
-      isClosing: false,
-      checkInPoint: "",
-      checkInRange: "",
-      link: "",
-    },
-  });
+   const form = useForm<z.infer<typeof formSchema>>({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+         name: "",
+         alternativeName: "",
+         address: "",
+         operator: "",
+         category: Category.OTHER,
+         description: [],
+         longitude: "",
+         latitude: "",
+         timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
+         timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
+         openAllDay: true,
+         closing: false,
+         checkInPoint: "",
+         checkInRange: "",
+         link: "",
+      },
+   })
 
-  useEffect(() => {
-    const id = searchParams.get("id");
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
-    if (id) {
-      setTitle("Chỉnh sửa địa điểm du lịch");
-      setIsUpdate(true);
-      const fetchData = async () => {
-        const fetchedData = await placeAction.getPlaceById(id);
-        console.log("fetchedData: ", parseTimeString(fetchedData.timeOpen));
-        if (fetchedData) {
-          form.reset({
-            name: fetchedData.name,
-            alternativeName: fetchedData.alternativeName,
-            address: fetchedData.address,
-            category: fetchedData.category,
-            operator: fetchedData.operator,
-            description: fetchedData.description,
-            longitude: fetchedData.longitude.toString(),
-            latitude: fetchedData.latitude.toString(),
-            timeOpen: fetchedData.timeOpen
-              ? parseTimeString(fetchedData.timeOpen)
-              : new Date(new Date().setHours(0, 0, 0, 0)),
-            timeClose: fetchedData.timeClose
-              ? parseTimeString(fetchedData.timeClose)
-              : new Date(new Date().setHours(0, 0, 0, 0)),
-            isOpenAllDay: fetchedData.openAllDay,
-            isClosing: fetchedData.closing,
-            checkInPoint: fetchedData.checkInPoint.toString(),
-            checkInRange: fetchedData.checkInRange.toString(),
-            link: fetchedData.link,
-          });
-          console.log("form:", form.getValues());
-          setUpdateImages(fetchedData.placeImages);
-          setDescriptions(fetchedData.description);
-        }
-      };
-      fetchData();
-    }
-    if (lat && lng) {
-      const fetchGeocodeData = async () => {
-        try {
-          await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
-            form.setValue("longitude", lng);
-            form.setValue("latitude", lat);
-            form.setValue("address", result[0]?.address || "");
-          });
-        } catch {
-          toast.error("Không thể lấy thông tin địa chỉ từ tọa độ");
-        }
-      };
-      fetchGeocodeData();
-    }
-  }, [pathname, searchParams, form]);
+   useEffect(() => {
+      const id = searchParams.get('id');
+      const lat = searchParams.get('lat');
+      const lng = searchParams.get('lng');
+      if (id) {
+         setTitle("Chỉnh sửa địa điểm du lịch");
+         setIsUpdate(true);
+         const fetchData = async () => {
+            const fetchedData = await placeAction.getPlaceById(id);
+            console.log("fetchedData: ", parseTimeString(fetchedData.timeOpen));
+            if (fetchedData) {
+               form.reset({
+                  name: fetchedData.name,
+                  alternativeName: fetchedData.alternativeName,
+                  address: fetchedData.address,
+                  category: fetchedData.category,
+                  operator: fetchedData.operator,
+                  description: fetchedData.description,
+                  longitude: fetchedData.longitude.toString(),
+                  latitude: fetchedData.latitude.toString(),
+                  timeOpen: fetchedData.timeOpen ? parseTimeString(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeClose: fetchedData.timeClose ? parseTimeString(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
+                  openAllDay: fetchedData.openAllDay,
+                  closing: fetchedData.closing,
+                  checkInPoint: fetchedData.checkInPoint.toString(),
+                  checkInRange: fetchedData.checkInRange.toString(),
+                  link: fetchedData.link,
+               });
+               console.log("form:", form.getValues());
+               setUpdateImages(fetchedData.placeImages);
+               setDescriptions(fetchedData.description);
+            }
+         }
+         fetchData();
+      }
+      if (lat && lng) {
+         const fetchGeocodeData = async () => {
+            try {
+               await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
+                  form.setValue('longitude', lng);
+                  form.setValue('latitude', lat);
+                  form.setValue('address', result[0]?.address || '');
+               });
+            } catch {
+               toast.error('Không thể lấy thông tin địa chỉ từ tọa độ');
+            }
+         };
+         fetchGeocodeData();
+      }
+   }, [pathname, searchParams, form]);
 
   useEffect(() => {
     form.setValue("description", descriptions);
@@ -202,21 +198,40 @@ export default function AddPlace() {
       router.push("/places");
     }
   };
-
-  return (
-    <div className="m-[24px] p-[20px] rounded-2xl bg-white">
-      <div className="flex flex-col justify-between items-center space-y-[24px] ">
-        <div className="flex flex-row self-start items-center space-x-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.back()}
-            className="border-[2px] rounded-full"
-          >
-            <ChevronLeft />
-          </Button>
-          <h1 className="text-[20px] text-blue3 font-medium">{title}</h1>
-        </div>
+      if (isUpdate) {
+         await placeAction.updatePlace(
+            searchParams.get('id') as string,
+            {
+               ...data,
+               category: data.category as Category,
+               timeOpen: data.timeOpen.toLocaleTimeString(
+                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+               ),
+               timeClose: data.timeClose.toLocaleTimeString(
+                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+               ),
+            },
+            selectedImages,
+            descriptionImages
+         );
+         router.push('/places');
+      } else {
+         await placeAction.addPlace({
+            ...data,
+            category: data.category as Category,
+            timeOpen: data.timeOpen.toLocaleTimeString(
+               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+            ),
+            timeClose: data.timeClose.toLocaleTimeString(
+               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+            ),
+         },
+            selectedImages,
+            descriptionImages
+         );
+         router.push('/places');
+      }
+   }
 
         <h1 className="text-[28px] text-black3 font-semibold">
           Nhập thông tin địa điểm
@@ -282,26 +297,84 @@ export default function AddPlace() {
                 label="Khoảng cách Check-in (m)"
                 placeholder=""
               />
+                     <FormFieldInput
+                        control={form.control}
+                        name="checkInRange"
+                        label="Khoảng cách Check-in (m)"
+                        placeholder=""
+                     />
 
-              <FormFieldInput
-                control={form.control}
-                name="checkInPoint"
-                label="Điểm số Check-in"
-                placeholder=""
-              />
+                     <FormFieldInput
+                        control={form.control}
+                        name="checkInPoint"
+                        label="Điểm số Check-in"
+                        placeholder=""
+                     />
 
-              <div className="flex flex-row grid-cols-subgrid col-span-3 justify-between">
-                <FormField
-                  control={form.control}
-                  name="isClosing"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-left">Đang đóng của</FormLabel>
-                      <FormControl>
-                        <Switch
-                          className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+                     <div className="flex flex-row grid-cols-subgrid col-span-3 justify-between">
+                        <FormField
+                           control={form.control}
+                           name="closing"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Đang đóng của</FormLabel>
+                                 <FormControl>
+                                    <Switch
+                                       className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
+                                       checked={field.value}
+                                       onCheckedChange={field.onChange}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )} />
+                        <FormField
+                           control={form.control}
+                           name="openAllDay"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Mở cửa cả ngày</FormLabel>
+                                 <FormControl>
+                                    <Switch
+                                       className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
+                                       checked={field.value}
+                                       onCheckedChange={field.onChange}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )} />
+
+                        <FormField
+                           control={form.control}
+                           name="timeOpen"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
+                                 <FormControl>
+                                    <TimePicker
+                                       setDate={field.onChange}
+                                       date={field.value}
+                                       disabled={form.watch('openAllDay')}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )}
+                        />
+
+                        <FormField
+                           control={form.control}
+                           name="timeClose"
+                           render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                 <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
+                                 <FormControl>
+                                    <TimePicker
+                                       setDate={field.onChange}
+                                       date={field.value}
+                                       disabled={form.watch('openAllDay')}
+                                    />
+                                 </FormControl>
+                              </FormItem>
+                           )}
                         />
                       </FormControl>
                     </FormItem>
