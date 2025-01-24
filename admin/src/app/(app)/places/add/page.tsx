@@ -44,8 +44,8 @@ const formSchema = z.object({
    latitude: z.string(),
    timeOpen: z.date(),
    timeClose: z.date(),
-   isOpenAllDay: z.boolean(),
-   isClosing: z.boolean(),
+   openAllDay: z.boolean(),
+   closing: z.boolean(),
    checkInPoint: z.string(),
    checkInRange: z.string(),
    link: z.string(),
@@ -75,8 +75,8 @@ export default function AddPlace() {
          latitude: "",
          timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
          timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
-         isOpenAllDay: true,
-         isClosing: false,
+         openAllDay: true,
+         closing: false,
          checkInPoint: "",
          checkInRange: "",
          link: "",
@@ -105,8 +105,8 @@ export default function AddPlace() {
                   latitude: fetchedData.latitude.toString(),
                   timeOpen: fetchedData.timeOpen ? parseTimeString(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
                   timeClose: fetchedData.timeClose ? parseTimeString(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
-                  isOpenAllDay: fetchedData.openAllDay,
-                  isClosing: fetchedData.closing,
+                  openAllDay: fetchedData.openAllDay,
+                  closing: fetchedData.closing,
                   checkInPoint: fetchedData.checkInPoint.toString(),
                   checkInRange: fetchedData.checkInRange.toString(),
                   link: fetchedData.link,
@@ -267,7 +267,7 @@ export default function AddPlace() {
                      <div className="flex flex-row grid-cols-subgrid col-span-3 justify-between">
                         <FormField
                            control={form.control}
-                           name="isClosing"
+                           name="closing"
                            render={({ field }) => (
                               <FormItem className="flex flex-col">
                                  <FormLabel className="text-left">Đang đóng của</FormLabel>
@@ -282,7 +282,7 @@ export default function AddPlace() {
                            )} />
                         <FormField
                            control={form.control}
-                           name="isOpenAllDay"
+                           name="openAllDay"
                            render={({ field }) => (
                               <FormItem className="flex flex-col">
                                  <FormLabel className="text-left">Mở cửa cả ngày</FormLabel>
@@ -306,7 +306,7 @@ export default function AddPlace() {
                                     <TimePicker
                                        setDate={field.onChange}
                                        date={field.value}
-                                       disabled={form.watch('isOpenAllDay')}
+                                       disabled={form.watch('openAllDay')}
                                     />
                                  </FormControl>
                               </FormItem>
@@ -323,7 +323,7 @@ export default function AddPlace() {
                                     <TimePicker
                                        setDate={field.onChange}
                                        date={field.value}
-                                       disabled={form.watch('isOpenAllDay')}
+                                       disabled={form.watch('openAllDay')}
                                     />
                                  </FormControl>
                               </FormItem>
