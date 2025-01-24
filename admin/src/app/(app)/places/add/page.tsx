@@ -148,8 +148,12 @@ export default function AddPlace() {
             {
                ...data,
                category: data.category as Category,
-               timeOpen: data.timeOpen.toLocaleTimeString(),
-               timeClose: data.timeClose.toLocaleTimeString(),
+               timeOpen: data.timeOpen.toLocaleTimeString(
+                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+               ),
+               timeClose: data.timeClose.toLocaleTimeString(
+                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+               ),
             },
             selectedImages,
             descriptionImages
@@ -159,8 +163,12 @@ export default function AddPlace() {
          await placeAction.addPlace({
             ...data,
             category: data.category as Category,
-            timeOpen: data.timeOpen.toLocaleTimeString(),
-            timeClose: data.timeClose.toLocaleTimeString(),
+            timeOpen: data.timeOpen.toLocaleTimeString(
+               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+            ),
+            timeClose: data.timeClose.toLocaleTimeString(
+               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+            ),
          },
             selectedImages,
             descriptionImages
