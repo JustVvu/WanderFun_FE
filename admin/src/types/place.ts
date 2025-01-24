@@ -27,6 +27,8 @@ export interface Place {
    operator: string;
    timeOpen: Date;
    timeClose: Date;
+   openAllDay: boolean;
+   closing: boolean;
    longitude: string;
    latitude: string;
    checkInPoint: string;

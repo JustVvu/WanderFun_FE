@@ -37,7 +37,7 @@ export async function UploadImage(imageFiles: File[], path: string): Promise<Clo
     formData.append('file', imageFiles[i]);
     formData.append('upload_preset', 'unsigned_preset');
     formData.append('folder', `/wanderfun/places/${path}`);
-    console.log("path", path);
+    //console.log("path", path);
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

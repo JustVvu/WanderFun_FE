@@ -18,6 +18,7 @@ export interface TimePickerInputProps
    period?: Period;
    onRightFocus?: () => void;
    onLeftFocus?: () => void;
+   disabled?: boolean;
 }
 
 const TimePickerInput = React.forwardRef<
@@ -39,6 +40,7 @@ const TimePickerInput = React.forwardRef<
          period,
          onLeftFocus,
          onRightFocus,
+         disabled,
          ...props
       },
       ref
@@ -120,6 +122,7 @@ const TimePickerInput = React.forwardRef<
                onKeyDown?.(e);
                handleKeyDown(e);
             }}
+            disabled={disabled}
             {...props}
          />
       );
