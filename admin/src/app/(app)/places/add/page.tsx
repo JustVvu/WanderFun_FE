@@ -20,7 +20,7 @@ import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
 import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action"
 import { toast } from "sonner"
-import { parseTimeString } from "@/utils/helper"
+import { parseTimeString } from "@/utils/convertHelper"
 import { Switch } from "@/components/ui/switch"
 import { useLoading } from "@/contexts/LoadingContext"
 
