@@ -13,7 +13,7 @@ import Image from "next/image";
 import { Place } from "@/types/place";
 import placeholderImage from "@/app/assets/banner.png";
 import { Label } from "@/components/ui/label";
-import { mapCategoryToEnum } from "@/utils/helper";
+import { mapCategoryToEnum } from "@/utils/convertHelper";
 import { PlaceImagesCarousel } from "./PlaceImagesCarousel";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
