@@ -1,8 +1,8 @@
 import { mapCategoryToEnum } from "@/utils/helper";
 import client from "@/services/client";
 import { AddPlacePayload, Place } from "@/types/place";
-import * as utils from "@/actions/utils";
-import * as cloudinaryAction from "@/actions/cloudinary-action";
+import * as utils from "@/app/actions/utils";
+import * as cloudinaryAction from "@/app/actions/cloudinary-action";
 import { toast } from "sonner";
 
 export const getAllPlaces = async (): Promise<Place[]> => {

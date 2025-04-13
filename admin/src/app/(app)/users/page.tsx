@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { useColumns } from "./columns"
 import type { User } from '@/types/user';
-import { getAllUsers } from '@/actions/users-action';
+import { getAllUsers } from '@/app/actions/users-action';
 
 
 export default function User() {

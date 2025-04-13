@@ -8,7 +8,7 @@ import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback } from "react"
 import type { Place } from "@/types/place"
-import * as placeAction from '@/actions/places-action'
+import * as placeAction from '@/app/actions/places-action'
 
 export default function Place() {
 

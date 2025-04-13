@@ -15,10 +15,27 @@ import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColu
 
 import { Place } from "@/types/place"
 import { useRouter } from "next/navigation"
-import { deletePlace } from "@/actions/places-action"
+import { deletePlace } from "@/app/actions/places-action"
+import { useLoading } from "@/contexts/LoadingContext"
 
 export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
    const router = useRouter();
+   const { setLoadingState } = useLoading();
+
+   const handleDeletePlace = async (placeId: number) => {
+      try {
+         setLoadingState(true);
+         await deletePlace(placeId.toString(), refetchData);
+      }
+      catch (err) {
+         console.log(err);
+      }
+      finally {
+         refetchData();
+         setLoadingState(false);
+      }
+   }
+
    return [
       {
          id: "select",
@@ -112,7 +129,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
                      <DropdownMenuSeparator />
                      <DropdownMenuItem
                         onClick={() => {
-                           deletePlace(place.id.toString(), refetchData);
+                           handleDeletePlace(place.id);
                         }}
                      >
                         Xóa địa điểm

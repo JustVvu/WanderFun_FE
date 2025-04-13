@@ -6,7 +6,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import * as placeAction from '@/actions/places-action'
+import * as placeAction from '@/app/actions/places-action'
 import { Category, PlaceDescription, NewImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
@@ -18,10 +18,11 @@ import { FormFieldCombobox } from "@/app/components/FormFieldComboBox"
 import AddImageField from "./components/AddImageField"
 import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
-import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
+import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action"
 import { toast } from "sonner"
 import { parseTimeString } from "@/utils/helper"
 import { Switch } from "@/components/ui/switch"
+import { useLoading } from "@/contexts/LoadingContext"
 
 const categoryOptions = Object.entries(Category).map(([key, value]) => ({
    label: value,
@@ -52,6 +53,7 @@ const formSchema = z.object({
 })
 
 export default function AddPlace() {
+   const { setLoadingState } = useLoading()
    const pathname = usePathname()
    const searchParams = useSearchParams()
    const router = useRouter()
@@ -141,11 +143,31 @@ export default function AddPlace() {
 
    const handleSendData = async (data: z.infer<typeof formSchema>) => {
       //console.log("Form data: ", data);
-
-      if (isUpdate) {
-         await placeAction.updatePlace(
-            searchParams.get('id') as string,
-            {
+      setLoadingState(true);
+      if (data.openAllDay) {
+         data.timeOpen = new Date(new Date().setHours(0, 0, 0, 0));
+         data.timeClose = new Date(new Date().setHours(23, 59, 59, 0));
+      }
+      try {
+         if (isUpdate) {
+            await placeAction.updatePlace(
+               searchParams.get('id') as string,
+               {
+                  ...data,
+                  category: data.category as Category,
+                  timeOpen: data.timeOpen.toLocaleTimeString(
+                     'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+                  ),
+                  timeClose: data.timeClose.toLocaleTimeString(
+                     'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+                  ),
+               },
+               selectedImages,
+               descriptionImages
+            );
+            router.push('/places');
+         } else {
+            await placeAction.addPlace({
                ...data,
                category: data.category as Category,
                timeOpen: data.timeOpen.toLocaleTimeString(
@@ -155,25 +177,17 @@ export default function AddPlace() {
                   'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
                ),
             },
-            selectedImages,
-            descriptionImages
-         );
-         router.push('/places');
-      } else {
-         await placeAction.addPlace({
-            ...data,
-            category: data.category as Category,
-            timeOpen: data.timeOpen.toLocaleTimeString(
-               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-            ),
-            timeClose: data.timeClose.toLocaleTimeString(
-               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-            ),
-         },
-            selectedImages,
-            descriptionImages
-         );
-         router.push('/places');
+               selectedImages,
+               descriptionImages
+            );
+            router.push('/places');
+         }
+      }
+      catch {
+         toast.error('Có lỗi xảy ra!');
+      }
+      finally {
+         setLoadingState(false);
       }
    }
 
