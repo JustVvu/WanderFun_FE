@@ -30,6 +30,20 @@ export const readExcelFile = (file: File): Promise<unknown[][]> => {
    });
 };
 
+export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unknown>[] => {
+   if (data.length === 0) return [];
+
+   const headers = data[0].map(header => String(header));
+
+   return data.slice(1).map((row) => {
+      const obj: Record<string, unknown> = {};
+      headers.forEach((header, i) => {
+         obj[header] = row[i];
+      });
+      return obj;
+   });
+};
+
 export const processExcelDataByColumnNames = (
    data: unknown[][],
    columnsToMerge: string[]

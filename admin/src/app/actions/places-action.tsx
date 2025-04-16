@@ -58,13 +58,15 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
          console.log(data);
       }
       if (dataDescriptionImage.length > 0) {
-         for (let index = 0; index < data.description.length; index++) {
+         for (let index = 0; index < (data.description?.length || 0); index++) {
             const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
-            data.description[index] = {
-               ...data.description[index],
-               imageUrl: uploadResult[0].secure_url,
-               imagePublicId: uploadResult[0].public_id
-            };
+            if (data.description && data.description[index]) {
+               data.description[index] = {
+                  ...data.description[index],
+                  imageUrl: uploadResult[0].secure_url,
+                  imagePublicId: uploadResult[0].public_id
+               };
+            }
          }
       }
       const response = await client<void>('/place',
@@ -105,12 +107,14 @@ export const updatePlace = async (id: string, data: AddPlacePayload, dataPlaceIm
          }));
       }
       if (dataDescriptionImage.length > 0) {
-         for (let index = 0; index < data.description.length; index++) {
+         for (let index = 0; index < (data.description?.length || 0); index++) {
             const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
-            data.description[index] = {
-               ...data.description[index],
-               imageUrl: uploadResult[0].secure_url,
-               imagePublicId: uploadResult[0].public_id
+            if (data.description && data.description[index]) {
+               data.description[index] = {
+                  ...data.description[index],
+                  imageUrl: uploadResult[0].secure_url,
+                  imagePublicId: uploadResult[0].public_id
+               };
             };
          }
       }

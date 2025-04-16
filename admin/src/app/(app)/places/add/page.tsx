@@ -126,7 +126,7 @@ export default function AddPlace() {
                await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
                   form.setValue('longitude', lng);
                   form.setValue('latitude', lat);
-                  form.setValue('address', result[0]?.address || '');
+                  form.setValue('address', result[0]?.formatted_address || '');
                });
             } catch {
                toast.error('Không thể lấy thông tin địa chỉ từ tọa độ');
