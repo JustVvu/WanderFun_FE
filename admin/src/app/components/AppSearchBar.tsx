@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import * as mapAction from "../../actions/map-action";
+import * as mapAction from "../actions/map-action";
 import { MapPlaceDetail, Prediction } from "@/types/map";
 
 interface AppSearchBarProps {

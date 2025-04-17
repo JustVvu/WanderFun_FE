@@ -7,7 +7,7 @@ interface FormFieldInputProps {
    control?: Control<any>;
    name: string;
    label?: string;
-   placeholder: string;
+   placeholder?: string;
    type?: string;
    value?: string;
    disabled?: boolean;

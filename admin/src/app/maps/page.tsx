@@ -11,7 +11,7 @@ import { MapPlaceDetail } from "@/types/map";
 import maplibreGl from 'maplibre-gl';
 import FloatingSidebar from "./components/FloatingSidebar";
 import { Place } from "@/types/place";
-import { getPlaceById } from "../../actions/places-action";
+import { getPlaceById } from "../actions/places-action";
 
 export default function MapAdd() {
 

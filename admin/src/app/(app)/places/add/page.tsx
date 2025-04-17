@@ -6,27 +6,26 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import * as placeAction from '@/actions/places-action'
-import { Category, PlaceDescription, NewImage } from "@/types/place"
+import * as placeAction from '@/app/actions/places-action'
+import { PlaceDescription, NewImage } from "@/types/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { FormFieldInput } from "@/app/components/FormFieldInput"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, PlusCircle } from "lucide-react"
 import { FormFieldCombobox } from "@/app/components/FormFieldComboBox"
 import AddImageField from "./components/AddImageField"
 import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
-import { fetchDataPlaceDetailByCoordinates } from "@/actions/map-action"
+import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action"
 import { toast } from "sonner"
-import { parseTimeString } from "@/utils/helper"
+import { parseTimeString } from "@/utils/convertHelper"
 import { Switch } from "@/components/ui/switch"
-
-const categoryOptions = Object.entries(Category).map(([key, value]) => ({
-   label: value,
-   value: key,
-}));
+import { useLoading } from "@/contexts/LoadingContext"
+import CreateCategoryModal from "./components/CreateCategoryModal"
+import { PlaceCategory } from "@/types/placeCategory"
+import { getAllPlaceCategories } from "@/app/actions/place-categories-action"
 
 const formSchema = z.object({
    name: z.string(),
@@ -51,7 +50,10 @@ const formSchema = z.object({
    link: z.string(),
 })
 
+
+
 export default function AddPlace() {
+   const { setLoadingState } = useLoading()
    const pathname = usePathname()
    const searchParams = useSearchParams()
    const router = useRouter()
@@ -61,6 +63,8 @@ export default function AddPlace() {
    const [title, setTitle] = useState("Thêm địa điểm du lịch");
    const [descriptions, setDescriptions] = useState<PlaceDescription[]>([{ title: '', content: '', imageUrl: '', imagePublicId: '' }]);
    const [descriptionImages, setDescriptionImages] = useState<File[]>([]);
+   const [categoryList, setCategoryList] = useState<PlaceCategory[]>([]);
+   const [isModalOpen, setModalOpen] = useState(false);
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -69,7 +73,7 @@ export default function AddPlace() {
          alternativeName: "",
          address: "",
          operator: "",
-         category: Category.OTHER,
+         category: "",
          description: [],
          longitude: "",
          latitude: "",
@@ -82,6 +86,19 @@ export default function AddPlace() {
          link: "",
       },
    })
+
+   useEffect(() => {
+      const fetchCategories = async () => {
+         try {
+            const fetchedCategories = await getAllPlaceCategories();
+            setCategoryList(fetchedCategories);
+         } catch (error) {
+            toast.error(error + " :Không thể tải danh sách phân loại địa điểm");
+         }
+      };
+
+      fetchCategories(); // Fetch categories when the page loads
+   }, []);
 
    useEffect(() => {
       const id = searchParams.get('id');
@@ -98,7 +115,7 @@ export default function AddPlace() {
                   name: fetchedData.name,
                   alternativeName: fetchedData.alternativeName,
                   address: fetchedData.address,
-                  category: fetchedData.category,
+                  category: fetchedData.category.name,
                   operator: fetchedData.operator,
                   description: fetchedData.description,
                   longitude: fetchedData.longitude.toString(),
@@ -124,7 +141,7 @@ export default function AddPlace() {
                await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
                   form.setValue('longitude', lng);
                   form.setValue('latitude', lat);
-                  form.setValue('address', result[0]?.address || '');
+                  form.setValue('address', result[0]?.formatted_address || '');
                });
             } catch {
                toast.error('Không thể lấy thông tin địa chỉ từ tọa độ');
@@ -139,43 +156,55 @@ export default function AddPlace() {
       form.setValue('description', descriptions);
    }, [descriptions, form]);
 
-   const handleSendData = async (data: z.infer<typeof formSchema>) => {
-      //console.log("Form data: ", data);
-
-      if (isUpdate) {
-         await placeAction.updatePlace(
-            searchParams.get('id') as string,
-            {
-               ...data,
-               category: data.category as Category,
-               timeOpen: data.timeOpen.toLocaleTimeString(
-                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-               ),
-               timeClose: data.timeClose.toLocaleTimeString(
-                  'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-               ),
-            },
-            selectedImages,
-            descriptionImages
-         );
-         router.push('/places');
-      } else {
-         await placeAction.addPlace({
-            ...data,
-            category: data.category as Category,
-            timeOpen: data.timeOpen.toLocaleTimeString(
-               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-            ),
-            timeClose: data.timeClose.toLocaleTimeString(
-               'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
-            ),
-         },
-            selectedImages,
-            descriptionImages
-         );
-         router.push('/places');
-      }
-   }
+   // const handleSendData = async (data: z.infer<typeof formSchema>) => {
+   //    //console.log("Form data: ", data);
+   //    setLoadingState(true);
+   //    if (data.openAllDay) {
+   //       data.timeOpen = new Date(new Date().setHours(0, 0, 0, 0));
+   //       data.timeClose = new Date(new Date().setHours(23, 59, 59, 0));
+   //    }
+   //    try {
+   //       if (isUpdate) {
+   //          await placeAction.updatePlace(
+   //             searchParams.get('id') as string,
+   //             {
+   //                ...data,
+   //                categoryId: data.category,
+   //                // timeOpen: data.timeOpen.toLocaleTimeString(
+   //                //    'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+   //                // ),
+   //                // timeClose: data.timeClose.toLocaleTimeString(
+   //                //    'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+   //                // ),
+   //             },
+   //             //selectedImages,
+   //             //descriptionImages
+   //          );
+   //          router.push('/places');
+   //       } else {
+   //          await placeAction.addPlace({
+   //             ...data,
+   //             categoryId: 1,
+   //             timeOpen: data.timeOpen.toLocaleTimeString(
+   //                'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+   //             ),
+   //             timeClose: data.timeClose.toLocaleTimeString(
+   //                'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+   //             ),
+   //          },
+   //             //selectedImages,
+   //             //descriptionImages
+   //          );
+   //          router.push('/places');
+   //       }
+   //    }
+   //    catch {
+   //       toast.error('Có lỗi xảy ra!');
+   //    }
+   //    finally {
+   //       setLoadingState(false);
+   //    }
+   // }
 
 
    return (
@@ -200,7 +229,7 @@ export default function AddPlace() {
             <Form {...form}>
                <form
                   className='flex flex-col w-full h-fit px-[40px] space-y-[24px]'
-                  onSubmit={form.handleSubmit(handleSendData)}
+               //onSubmit={form.handleSubmit(handleSendData)}
                >
                   <div className='grid grid-cols-3 col-auto w-full gap-x-[100px] gap-y-[24px] px-[40px]'>
                      <FormFieldInput
@@ -242,13 +271,36 @@ export default function AddPlace() {
                         disabled={searchParams.get('lat') ? true : false}
                      />
 
-                     <FormFieldCombobox
-                        control={form.control}
-                        name="category"
-                        label="Phân loại địa điểm"
-                        options={categoryOptions}
-                        placeholder="Loại địa điểm"
-                     />
+                     <div className="flex flex-row justify-between space-x-3">
+                        <div className="flex-1">
+                           <FormFieldCombobox
+                              control={form.control}
+                              name="category"
+                              label="Phân loại địa điểm"
+                              options={categoryList.map((category) => ({
+                                 label: category.name,
+                                 value: category.id.toString(),
+                              }))}
+                              placeholder="Loại địa điểm"
+                           />
+                        </div>
+                        <Button
+                           onClick={() => {
+                              setModalOpen(true)
+                           }}
+                           type="button"
+                           variant="outline"
+                           size="icon"
+                           className="flex-2 self-end mb-1 shadow-none
+                              text-blue2 border-none hover:bg-blue2 hover:text-white hover:border-none"
+                        >
+                           <PlusCircle />
+                        </Button>
+                        <CreateCategoryModal
+                           isOpen={isModalOpen}
+                           onChange={setModalOpen}
+                        />
+                     </div>
 
                      <FormFieldInput
                         control={form.control}
