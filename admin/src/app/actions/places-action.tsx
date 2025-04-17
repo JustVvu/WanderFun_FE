@@ -1,4 +1,3 @@
-import { mapCategoryToEnum } from "@/utils/convertHelper";
 import client from "@/services/client";
 import { AddPlacePayload, Place } from "@/types/place";
 import * as utils from "@/app/actions/utils";
@@ -16,12 +15,9 @@ export const getAllPlaces = async (): Promise<Place[]> => {
          },
       }
    );
-   const transformedResponse = response.data.map((place) => ({
-      ...place,
-      category: mapCategoryToEnum(place.category as unknown as string),
-   }));
-
-   return transformedResponse;
+   return {
+      ...response.data
+   };
 }
 
 export const getPlaceById = async (id: string): Promise<Place> => {
@@ -36,39 +32,38 @@ export const getPlaceById = async (id: string): Promise<Place> => {
       }
    );
    return {
-      ...response.data,
-      //category: mapCategoryToEnum(response.data.category as unknown as string),
+      ...response.data
    };
 }
 
-export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
+export const addPlace = async (data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
    //console.log("dataDescriptionImage: ", dataDescriptionImage);
    try {
-      if (dataPlaceImage.length > 0) {
-         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
-         data.placeImages = uploadResult.map((result) => ({
-            imageUrl: result.secure_url,
-            imagePublicId: result.public_id
-         }));
-         data.coverImageUrl = data.placeImages[0].imageUrl;
-         data.coverImagePublicId = data.placeImages[0].imagePublicId;
-         console.log(data);
-      }
-      if (dataDescriptionImage.length > 0) {
-         for (let index = 0; index < (data.description?.length || 0); index++) {
-            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
-            if (data.description && data.description[index]) {
-               data.description[index] = {
-                  ...data.description[index],
-                  imageUrl: uploadResult[0].secure_url,
-                  imagePublicId: uploadResult[0].public_id
-               };
-            }
-         }
-      }
+      // if (dataPlaceImage.length > 0) {
+      //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
+      //    data.placeImages = uploadResult.map((result) => ({
+      //       imageUrl: result.secure_url,
+      //       imagePublicId: result.public_id
+      //    }));
+      //    data.coverImageUrl = data.placeImages[0].imageUrl;
+      //    data.coverImagePublicId = data.placeImages[0].imagePublicId;
+      //    console.log(data);
+      // }
+      // if (dataDescriptionImage.length > 0) {
+      //    for (let index = 0; index < (data.description?.length || 0); index++) {
+      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
+      //       if (data.description && data.description[index]) {
+      //          data.description[index] = {
+      //             ...data.description[index],
+      //             imageUrl: uploadResult[0].secure_url,
+      //             imagePublicId: uploadResult[0].public_id
+      //          };
+      //       }
+      //    }
+      // }
       const response = await client<void>('/place',
          {
             method: 'POST',
@@ -94,30 +89,85 @@ export const addPlace = async (data: AddPlacePayload, dataPlaceImage: File[], da
    }
 }
 
-export const updatePlace = async (id: string, data: AddPlacePayload, dataPlaceImage: File[], dataDescriptionImage: File[]): Promise<void> => {
+export const addListPlace = async (data: AddPlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+   const token = await utils.getAuthTokenFromServerCookies();
+   //console.log("data: ", data);
+   //console.log("dataPlaceImage: ", dataPlaceImage);
+   //console.log("dataDescriptionImage: ", dataDescriptionImage);
+   try {
+      // if (dataPlaceImage.length > 0) {
+      //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
+      //    data.placeImages = uploadResult.map((result) => ({
+      //       imageUrl: result.secure_url,
+      //       imagePublicId: result.public_id
+      //    }));
+      //    data.coverImageUrl = data.placeImages[0].imageUrl;
+      //    data.coverImagePublicId = data.placeImages[0].imagePublicId;
+      //    console.log(data);
+      // }
+      // if (dataDescriptionImage.length > 0) {
+      //    for (let index = 0; index < (data.description?.length || 0); index++) {
+      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
+      //       if (data.description && data.description[index]) {
+      //          data.description[index] = {
+      //             ...data.description[index],
+      //             imageUrl: uploadResult[0].secure_url,
+      //             imagePublicId: uploadResult[0].public_id
+      //          };
+      //       }
+      //    }
+      // }
+      const response = await client<void>('/place/all',
+         {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+         }
+      );
+      console.log(response);
+      if (response.error == false) {
+         toast.success('Thêm địa điểm thành công');
+      }
+      else {
+         toast.error('Thêm địa điểm thất bại, lỗi: ' + response.message);
+         throw new Error('Error adding place');
+      }
+      return response.data;
+   }
+   catch (error) {
+      console.error('', error);
+   }
+}
+
+
+
+export const updatePlace = async (id: string, data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
 
    try {
-      if (dataPlaceImage.length > 0) {
+      // if (dataPlaceImage.length > 0) {
 
-         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name);
-         data.placeImages = uploadResult.map((result) => ({
-            imageUrl: result.secure_url,
-            imagePublicId: result.public_id
-         }));
-      }
-      if (dataDescriptionImage.length > 0) {
-         for (let index = 0; index < (data.description?.length || 0); index++) {
-            const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
-            if (data.description && data.description[index]) {
-               data.description[index] = {
-                  ...data.description[index],
-                  imageUrl: uploadResult[0].secure_url,
-                  imagePublicId: uploadResult[0].public_id
-               };
-            };
-         }
-      }
+      //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name);
+      //    data.placeImages = uploadResult.map((result) => ({
+      //       imageUrl: result.secure_url,
+      //       imagePublicId: result.public_id
+      //    }));
+      // }
+      // if (dataDescriptionImage.length > 0) {
+      //    for (let index = 0; index < (data.description?.length || 0); index++) {
+      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
+      //       if (data.description && data.description[index]) {
+      //          data.description[index] = {
+      //             ...data.description[index],
+      //             imageUrl: uploadResult[0].secure_url,
+      //             imagePublicId: uploadResult[0].public_id
+      //          };
+      //       };
+      //    }
+      // }
       console.log("Data before API calling: ", data);
       const response = await client<void>(`/place/${id}`,
          {

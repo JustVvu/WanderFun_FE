@@ -80,7 +80,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Cache for autocomplete results to avoid duplicate API calls
 const autoCompleteCache = new Map<string, Prediction | null>();
 
-export async function fetchLatLngFromCSV(
+export async function fetchLatLngFromList(
    queries: string[]
 ): Promise<MapPlaceDetail[]> {
    const DELAY_MS = 200; // Increase delay (e.g., 1 second) to reduce rate limit issues

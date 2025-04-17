@@ -10,9 +10,9 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import type { AddPlacePayload, Place } from "@/types/place"
 import * as placeAction from '@/app/actions/places-action'
 import { Input } from "@/components/ui/input"
-import { convertExcelArrayToJSON, exportDataToExcel, processExcelDataByColumnNames, readExcelFile } from "@/utils/excelHelper"
+import { convertExcelArrayToJSON, mapToAddPlacePayload, /*exportDataToExcel, processExcelDataByColumnNames,*/ readExcelFile } from "@/utils/excelHelper"
 import { toast } from "sonner"
-import { fetchLatLngFromCSV } from "@/app/actions/map-action"
+//import { fetchLatLngFromList } from "@/app/actions/map-action"
 
 export default function Place() {
 
@@ -42,7 +42,7 @@ export default function Place() {
     //         const rawData = await readExcelFile(file);
     //         // Process the raw data to merge column 2 and column 4 from each row
     //         const processedData = processExcelDataByColumnNames(rawData, ["Tên địa điểm", "Vị trí"]);
-    //         const fetchExcelData = await fetchLatLngFromCSV(processedData);
+    //         const fetchExcelData = await fetchLatLngFromList(processedData);
     //         console.log('Fetched Excel results:', fetchExcelData);
     //         const exportData = fetchExcelData.map((result) => ({
     //             Name: result.name,
@@ -69,18 +69,28 @@ export default function Place() {
         try {
             // Read the Excel file to get the raw data
             const rawData = await readExcelFile(file);
-            //console.log('Raw Data:', rawData);
             const jsonData = convertExcelArrayToJSON(rawData);
-            console.log('JSON Data:', jsonData);
-            jsonData.forEach((item) => {
-                placeAction.addPlace({
-                    name: item.name as string,
-                    address: item.address as string,
-                    longitude: item.longitude as string,
-                    latitude: item.latitude as string,
-                } as AddPlacePayload, [], [])
+            //console.log('JSON Data:', jsonData);
+            const payload = mapToAddPlacePayload(jsonData);
+            console.log('Payload:', payload);
+            // jsonData.forEach((item) => {
+            //     placeAction.addPlace({
+            //         name: item.name as string,
+            //         address: item.address as string,
+            //         longitude: item.longitude as string,
+            //         latitude: item.latitude as string,
+            //     } as AddPlacePayload, [], [])
+            placeAction.addListPlace(payload)
+                .then(() => {
+                    toast.success('Thêm địa điểm thành công!');
+                    getData();
+                })
+                .catch((error) => {
+                    console.error('Error adding place:', error);
+                    toast.error(`Error adding place: ${String(error)}`);
+                })
 
-            })
+            // })
         } catch (err) {
             //console.error('Error processing Excel file:', err);
             toast.error(`Error processing Excel file: ${String(err)}`);

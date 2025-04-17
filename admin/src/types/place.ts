@@ -1,12 +1,4 @@
-export enum Category {
-   MUSEUM = "Bảo tàng",
-   HOTEL = "Khách sạn",
-   ENTERTAINMENT = "Giải trí",
-   PARK = "Công viên",
-   RESTAURANT = "Nhà hàng",
-   SHOPPING = "Mua sắm",
-   OTHER = "Khác",
- }
+import { PlaceCategory } from "./placeCategory";
 
 export interface PlaceDescription {
    title: string;
@@ -23,7 +15,7 @@ export interface Place {
    name: string;
    alternativeName: string;
    address: string;
-   category: Category;
+   category: PlaceCategory;
    operator: string;
    timeOpen: Date;
    timeClose: Date;
@@ -43,20 +35,17 @@ export interface Place {
 
 export interface AddPlacePayload {
    name: string;
-   alternativeName?: string;
-   address: string;
-   category?: Category;
-   operator?: string;
-   timeOpen?: string;
-   timeClose?: string;
+   address: {
+      provinceCode: string;
+      districtCode: string;
+      wardCode: string;
+      street: string;
+   };
+   categoryId: string;
    longitude: string;
    latitude: string;
-   checkInPoint?: string;
-   checkInRange?: string;
-   description?: PlaceDescription[];
-   link?: string;
-   iconUrl?: string;
-   coverImageUrl?: string;
-   coverImagePublicId?: string;
-   placeImages?: NewImage[];
+   coverImage: {
+      imageUrl: string;
+      imagePublicId: string;
+   }
 }

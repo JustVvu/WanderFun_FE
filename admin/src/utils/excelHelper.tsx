@@ -1,4 +1,5 @@
 // helpers/excelReaderHelper.ts
+import { AddPlacePayload } from '@/types/place';
 import * as XLSX from 'xlsx';
 
 export const readExcelFile = (file: File): Promise<unknown[][]> => {
@@ -33,7 +34,8 @@ export const readExcelFile = (file: File): Promise<unknown[][]> => {
 export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unknown>[] => {
    if (data.length === 0) return [];
 
-   const headers = data[0].map(header => String(header));
+   const rawHeaders = data[0].map((h) => String(h));
+   const headers = rawHeaders.map((h) => h.charAt(0).toLowerCase() + h.slice(1));
 
    return data.slice(1).map((row) => {
       const obj: Record<string, unknown> = {};
@@ -42,6 +44,27 @@ export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unkno
       });
       return obj;
    });
+};
+
+export const mapToAddPlacePayload = (
+   items: Record<string, unknown>[]
+): AddPlacePayload[] => {
+   return items.map((item) => ({
+      name: String(item.name ?? ''),
+      address: {
+         provinceCode: String(item.provinceCode ?? ''),
+         districtCode: String(item.districtCode ?? ''),
+         wardCode: String(item.wardCode ?? ''),
+         street: String(item.street ?? ''),
+      },
+      categoryId: String(item.categoryId ?? ''),
+      longitude: String(item.longitude ?? ''),
+      latitude: String(item.latitude ?? ''),
+      coverImage: {
+         imageUrl: String(item.imageUrl ?? ''),
+         imagePublicId: String(item.imagePublicId ?? ''),
+      },
+   }));
 };
 
 export const processExcelDataByColumnNames = (
