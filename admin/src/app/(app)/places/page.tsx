@@ -14,6 +14,7 @@ import { convertExcelArrayToJSON, mapToAddPlacePayload, /*exportDataToExcel, pro
 import { toast } from "sonner"
 //import { fetchLatLngFromList } from "@/app/actions/map-action"
 
+
 export default function Place() {
 
     const router = useRouter();
@@ -22,52 +23,19 @@ export default function Place() {
     const [data, setData] = useState<Place[]>([]);
 
     const getData = useCallback(async () => {
-        console.log('Starting data fetch...');
         const fetchedData = await placeAction.getAllPlaces();
-        console.log('Raw fetched data:', fetchedData);
-        console.log('Fetched data type:', typeof fetchedData);
-        console.log('Fetched data length:', fetchedData?.length);
-
         setData(fetchedData);
-        console.log('State updated with data');
     }, []);
 
     useEffect(() => {
         getData();
     }, [getData]);
 
-    // After getting columns
+    useEffect(() => {
+        console.log('Data state updated:', data);
+    }, [data]);
+
     const columns = useColumns(getData);
-    console.log('Column definitions:', columns);
-
-    // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-    //     console.log('Uploading file:', file.name);
-
-    //     try {
-    //         // Read the Excel file to get the raw data
-    //         const rawData = await readExcelFile(file);
-    //         // Process the raw data to merge column 2 and column 4 from each row
-    //         const processedData = processExcelDataByColumnNames(rawData, ["Tên địa điểm", "Vị trí"]);
-    //         const fetchExcelData = await fetchLatLngFromList(processedData);
-    //         console.log('Fetched Excel results:', fetchExcelData);
-    //         const exportData = fetchExcelData.map((result) => ({
-    //             Name: result.name,
-    //             //Address: result.formatted_address,
-    //             Commune: result.compound.commune,
-    //             District: result.compound.district,
-    //             Province: result.compound.province,
-    //             Latitude: result.geometry.location.lat,
-    //             Longitude: result.geometry.location.lng,
-    //         }));
-
-    //         exportDataToExcel(exportData, 'exported_place_results.xlsx');
-    //     } catch (err) {
-    //         //console.error('Error processing Excel file:', err);
-    //         toast.error(`Error processing Excel file: ${String(err)}`);
-    //     }
-    // };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

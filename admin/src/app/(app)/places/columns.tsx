@@ -71,41 +71,60 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          enableHiding: false,
       },
       {
-         accessorKey: "longitude",
+         id: "address",
          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Địa chỉ" />
+            <DataTableColumnHeader className="w-[200px]" column={column} title="Địa chỉ" />
          ),
-         cell: ({ row }) => <div className="w-fit">{row.getValue("address")}</div>,
+         cell: ({ row }) => {
+            const place = row.original;
+            // Format address if available
+            const address = place.address ?
+               `${place.address.district.name || ''}, ${place.address.province.name || ''}`.trim() :
+               '';
+            return <div className="w-[200px] truncate">{address}</div>;
+         },
          enableSorting: true,
          enableHiding: false,
       },
       {
-         accessorKey: "latitude",
-         header: ({ column }) => (
-            <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Tổ chức sở hữu" />
-         ),
-         cell: ({ row }) => <div className="w-full text-center">{row.getValue("operator")}</div>,
-         enableSorting: true,
-         enableHiding: false,
-      },
-      {
-         accessorKey: "category",
+         id: "category",
          header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Phân loại" />
          ),
-         cell: ({ row }) => <div className="w-fit">{row.getValue("category")}</div>,
+         cell: ({ row }) => {
+            const place = row.original;
+            return <div className="w-[200px]">{place.category?.name || ''}</div>;
+         },
          enableSorting: true,
          enableHiding: false,
       },
-      // {
-      //    accessorKey: "avgRating",
-      //    header: ({ column }) => (
-      //       <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Đánh giá trung bình" />
-      //    ),
-      //    cell: ({ row }) => <div className="w-full text-center">{row.getValue("avgRating")}</div>,
-      //    enableSorting: true,
-      //    enableHiding: false,
-      // },
+      {
+         accessorKey: "rating",
+         header: ({ column }) => (
+            <DataTableColumnHeader className="w-[100px] " column={column} title="Điểm đánh giá" />
+         ),
+         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("rating")}</div>,
+         enableSorting: true,
+         enableHiding: false,
+      },
+      {
+         accessorKey: "totalRating",
+         header: ({ column }) => (
+            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt đánh giá" />
+         ),
+         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalRating")}</div>,
+         enableSorting: true,
+         enableHiding: false,
+      },
+      {
+         accessorKey: "totalFeedback",
+         header: ({ column }) => (
+            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt nhận xét" />
+         ),
+         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalFeedback")}</div>,
+         enableSorting: true,
+         enableHiding: false,
+      },
       {
          id: "actions",
          cell: ({ row }) => {

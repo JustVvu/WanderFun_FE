@@ -3,7 +3,7 @@ import maplibreGl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPlaceDetail } from '@/models/map';
 import * as placeAction from '@/app/actions/places-action';
-import { Place } from '@/models/place';
+import { Place } from '@/models/places/place';
 import placeHolderImage from '@/app/assets/banner.png';
 
 const goongApiKey = process.env.NEXT_PUBLIC_GOONG_MAP_KEY;
@@ -93,7 +93,7 @@ export default function AppMap({ mapPlaceDetail, onMarkerClick, handlePlaceMarke
         const latitude = parseFloat(place.latitude);
 
         const customMarker = document.createElement("img");
-        customMarker.src = place.coverImageUrl || placeHolderImage.src;
+        customMarker.src = place.coverImage.imageUrl || placeHolderImage.src;
         customMarker.style.width = "40px";
         customMarker.style.height = "40px";
         customMarker.style.borderRadius = "50%";

@@ -5,7 +5,7 @@ import {
    CarouselContent,
    CarouselItem,
 } from "@/components/ui/carousel"
-import { NewImage } from "@/models/place"
+import { NewImage } from "@/models/places/place"
 import Image from "next/image"
 
 

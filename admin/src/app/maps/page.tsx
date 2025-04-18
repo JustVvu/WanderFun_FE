@@ -10,7 +10,7 @@ import AppSeachBar from "../components/AppSearchBar";
 import { MapPlaceDetail } from "@/models/map";
 import maplibreGl from 'maplibre-gl';
 import FloatingSidebar from "./components/FloatingSidebar";
-import { Place } from "@/models/place";
+import { Place } from "@/models/places/place";
 import { getPlaceById } from "../actions/places-action";
 
 export default function MapAdd() {
