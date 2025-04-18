@@ -229,24 +229,24 @@ export const deletePlace = async (id: string, callback: () => void): Promise<voi
          //       throw new Error('Error deleting image');
          //    }
          // }
-         try {
-            const response = await client<void>(`/cloudinary?publicId=${place.coverImage.imagePublicId}`,
-               {
-                  method: 'DELETE',
-                  headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${token}`,
-                  }
-               }
-            );
-            if (response.error) {
-               throw new Error();
-            }
-         }
-         catch (error) {
-            toast.error('Xóa ảnh thất bại, lỗi: ' + error);
-            throw new Error('Error deleting image');
-         }
+         // try {
+         //    const response = await client<void>(`/cloudinary?publicId=${place.coverImage.imagePublicId}`,
+         //       {
+         //          method: 'DELETE',
+         //          headers: {
+         //             'Content-Type': 'application/json',
+         //             'Authorization': `Bearer ${token}`,
+         //          }
+         //       }
+         //    );
+         //    if (response.error) {
+         //       throw new Error();
+         //    }
+         // }
+         // catch (error) {
+         //    toast.error('Xóa ảnh thất bại, lỗi: ' + error);
+         //    throw new Error('Error deleting image');
+         // }
       }
       const response = await client<void>(`/place/${id}`,
          {

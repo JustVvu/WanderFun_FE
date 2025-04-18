@@ -29,6 +29,7 @@ interface FormFieldComboboxProps {
    label: string;
    options: { label: string; value: string }[];
    placeholder?: string;
+   disabled?: boolean;
 }
 
 export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
@@ -37,6 +38,7 @@ export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
    label,
    options,
    placeholder = "Select an option",
+   disabled
 }) => {
 
    const [open, setOpen] = useState(false)
@@ -52,6 +54,7 @@ export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
                   <PopoverTrigger asChild>
                      <FormControl>
                         <Button
+                           disabled={disabled}
                            variant="outline"
                            role="combobox"
                            aria-expanded={open}

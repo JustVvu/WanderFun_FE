@@ -14,6 +14,7 @@ export interface Place {
    totalRating: string;
    totalFeedback: string;
    coverImage: Image;
+   placeDetail: PlaceDetail;
 }
 
 export interface CreatePlacePayload {
@@ -27,9 +28,6 @@ export interface CreatePlacePayload {
    categoryId: string;
    longitude: string;
    latitude: string;
-   coverImage: {
-      imageUrl: string;
-      imagePublicId: string;
-   };
+   coverImage?: Image;
    placeDetail?: PlaceDetail;
 }

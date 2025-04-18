@@ -1,8 +1,8 @@
 import { Section } from "./section";
 
 export interface PlaceDetail {
-   id: number;
-   placeId: number;
+   id?: number;
+   placeId?: number;
    description: string;
    checkInPoint: number;
    checkInRangeMeter: number;
