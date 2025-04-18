@@ -14,7 +14,7 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "../../components/data_table/DataTableColumnHeader"
-import { User } from "@/types/user"
+import { User } from "@/models/user"
 //import { useRouter } from "next/router"
 
 

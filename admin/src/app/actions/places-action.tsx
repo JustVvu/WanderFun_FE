@@ -1,5 +1,5 @@
 import client from "@/services/client";
-import { AddPlacePayload, Place } from "@/types/place";
+import { CreatePlacePayload, Place } from "@/models/place";
 import * as utils from "@/app/actions/utils";
 import * as cloudinaryAction from "@/app/actions/cloudinary-action";
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ export const getPlaceById = async (id: string): Promise<Place> => {
    };
 }
 
-export const addPlace = async (data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const addPlace = async (data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
@@ -89,7 +89,7 @@ export const addPlace = async (data: AddPlacePayload, /* dataPlaceImage: File[],
    }
 }
 
-export const addListPlace = async (data: AddPlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const addListPlace = async (data: CreatePlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
@@ -144,7 +144,7 @@ export const addListPlace = async (data: AddPlacePayload[], /* dataPlaceImage: F
 
 
 
-export const updatePlace = async (id: string, data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const updatePlace = async (id: string, data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
 
    try {

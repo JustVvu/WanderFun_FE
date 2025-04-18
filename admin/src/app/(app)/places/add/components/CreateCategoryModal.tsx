@@ -18,7 +18,7 @@ import {
 import { Form } from "@/components/ui/form"
 import { FormFieldInput } from "@/app/components/FormFieldInput"
 import { Loader2 } from "lucide-react"
-import { PlaceCategoryPayload } from "@/types/placeCategory"
+import { PlaceCategoryPayload } from "@/models/placeCategory"
 import { createPlaceCategory } from "@/app/actions/place-categories-action"
 import { Separator } from "@/components/ui/separator"
 

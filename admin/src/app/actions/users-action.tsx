@@ -1,4 +1,4 @@
-import { User } from "@/types/user";
+import { User } from "@/models/user";
 import { getAuthTokenFromServerCookies } from "./utils";
 import client from "@/services/client";
 

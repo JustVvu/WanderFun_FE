@@ -41,9 +41,7 @@ export function AppDataTable<TData, TValue>({
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 
     const table = useReactTable({
         data,

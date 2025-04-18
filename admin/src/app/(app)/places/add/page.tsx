@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import * as placeAction from '@/app/actions/places-action'
-import { PlaceDescription, NewImage } from "@/types/place"
+import { PlaceDescription, NewImage } from "@/models/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -20,11 +20,11 @@ import { TimePicker } from "./components/TimePicker/TimePicker"
 import DescriptionInputField from "./components/DescriptionInputField"
 import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action"
 import { toast } from "sonner"
-import { parseTimeString } from "@/utils/convertHelper"
+import { parseTimeString } from "@/helpers/convertHelper"
 import { Switch } from "@/components/ui/switch"
 import { useLoading } from "@/contexts/LoadingContext"
 import CreateCategoryModal from "./components/CreateCategoryModal"
-import { PlaceCategory } from "@/types/placeCategory"
+import { PlaceCategory } from "@/models/placeCategory"
 import { getAllPlaceCategories } from "@/app/actions/place-categories-action"
 
 const formSchema = z.object({

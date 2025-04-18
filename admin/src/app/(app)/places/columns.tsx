@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColumnHeader"
 
-import { Place } from "@/types/place"
+import { Place } from "@/models/places/place"
 import { useRouter } from "next/navigation"
 import { deletePlace } from "@/app/actions/places-action"
 import { useLoading } from "@/contexts/LoadingContext"
@@ -71,7 +71,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          enableHiding: false,
       },
       {
-         accessorKey: "address",
+         accessorKey: "longitude",
          header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Địa chỉ" />
          ),
@@ -80,7 +80,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          enableHiding: false,
       },
       {
-         accessorKey: "operator",
+         accessorKey: "latitude",
          header: ({ column }) => (
             <DataTableColumnHeader className="w-fit place-self-center" column={column} title="Tổ chức sở hữu" />
          ),

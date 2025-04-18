@@ -7,10 +7,10 @@ import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
-import type { AddPlacePayload, Place } from "@/types/place"
+import type { CreatePlacePayload, Place } from "@/models/places/place"
 import * as placeAction from '@/app/actions/places-action'
 import { Input } from "@/components/ui/input"
-import { convertExcelArrayToJSON, mapToAddPlacePayload, /*exportDataToExcel, processExcelDataByColumnNames,*/ readExcelFile } from "@/utils/excelHelper"
+import { convertExcelArrayToJSON, mapToAddPlacePayload, /*exportDataToExcel, processExcelDataByColumnNames,*/ readExcelFile } from "@/helpers/excelHelper"
 import { toast } from "sonner"
 //import { fetchLatLngFromList } from "@/app/actions/map-action"
 
@@ -22,15 +22,23 @@ export default function Place() {
     const [data, setData] = useState<Place[]>([]);
 
     const getData = useCallback(async () => {
+        console.log('Starting data fetch...');
         const fetchedData = await placeAction.getAllPlaces();
+        console.log('Raw fetched data:', fetchedData);
+        console.log('Fetched data type:', typeof fetchedData);
+        console.log('Fetched data length:', fetchedData?.length);
+
         setData(fetchedData);
+        console.log('State updated with data');
     }, []);
 
     useEffect(() => {
         getData();
     }, [getData]);
 
+    // After getting columns
     const columns = useColumns(getData);
+    console.log('Column definitions:', columns);
 
     // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     //     const file = e.target.files?.[0];
@@ -73,13 +81,6 @@ export default function Place() {
             //console.log('JSON Data:', jsonData);
             const payload = mapToAddPlacePayload(jsonData);
             console.log('Payload:', payload);
-            // jsonData.forEach((item) => {
-            //     placeAction.addPlace({
-            //         name: item.name as string,
-            //         address: item.address as string,
-            //         longitude: item.longitude as string,
-            //         latitude: item.latitude as string,
-            //     } as AddPlacePayload, [], [])
             placeAction.addListPlace(payload)
                 .then(() => {
                     toast.success('Thêm địa điểm thành công!');

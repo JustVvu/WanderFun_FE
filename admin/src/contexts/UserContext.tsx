@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import client from '@/services/client';
 import { useLoading } from './LoadingContext';
-import { UserLogin, LoginCredentials } from '@/types/user';
+import { UserLogin, LoginCredentials } from '@/models/user';
 import { toast } from 'sonner';
 
 interface IUserContext {

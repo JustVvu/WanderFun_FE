@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { PlaceDescription } from '@/types/place';
+import { PlaceDescription } from '@/models/place';
 import { PlusIcon } from 'lucide-react';
 import SingleImageField from './SingleImageField';
 

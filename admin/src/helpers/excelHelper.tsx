@@ -1,5 +1,5 @@
 // helpers/excelReaderHelper.ts
-import { AddPlacePayload } from '@/types/place';
+import { CreatePlacePayload } from '@/models/place';
 import * as XLSX from 'xlsx';
 
 export const readExcelFile = (file: File): Promise<unknown[][]> => {
@@ -48,7 +48,7 @@ export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unkno
 
 export const mapToAddPlacePayload = (
    items: Record<string, unknown>[]
-): AddPlacePayload[] => {
+): CreatePlacePayload[] => {
    return items.map((item) => ({
       name: String(item.name ?? ''),
       address: {

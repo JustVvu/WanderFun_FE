@@ -1,4 +1,4 @@
-import { PlaceCategory, PlaceCategoryPayload } from "@/types/placeCategory";
+import { PlaceCategory, PlaceCategoryPayload } from "@/models/placeCategory";
 import * as utils from "@/app/actions/utils";
 import client from "@/services/client";
 import { toast } from "sonner";

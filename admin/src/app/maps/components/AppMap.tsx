@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import maplibreGl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { MapPlaceDetail } from '@/types/map';
+import { MapPlaceDetail } from '@/models/map';
 import * as placeAction from '@/app/actions/places-action';
-import { Place } from '@/types/place';
+import { Place } from '@/models/place';
 import placeHolderImage from '@/app/assets/banner.png';
 
 const goongApiKey = process.env.NEXT_PUBLIC_GOONG_MAP_KEY;

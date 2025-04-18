@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import * as mapAction from "../actions/map-action";
-import { MapPlaceDetail, Prediction } from "@/types/map";
+import { MapPlaceDetail, Prediction } from "@/models/map";
 
 interface AppSearchBarProps {
    onPlaceDetailFetched: (mapPlaceDetail: MapPlaceDetail) => void;
