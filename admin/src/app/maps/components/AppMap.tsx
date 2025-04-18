@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import maplibreGl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPlaceDetail } from '@/models/map';
-import * as placeAction from '@/app/actions/places-action';
+import * as placeAction from '@/app/actions/places/places-action';
 import { Place } from '@/models/places/place';
 import placeHolderImage from '@/app/assets/banner.png';
 

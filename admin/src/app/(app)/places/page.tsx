@@ -8,9 +8,9 @@ import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { CreatePlacePayload, Place } from "@/models/places/place"
-import * as placeAction from '@/app/actions/places-action'
+import * as placeAction from '@/app/actions/places/places-action'
 import { Input } from "@/components/ui/input"
-import { convertExcelArrayToJSON, mapToAddPlacePayload, /*exportDataToExcel, processExcelDataByColumnNames,*/ readExcelFile } from "@/helpers/excelHelper"
+import { convertExcelArrayToJSON, adminExcelImportHelper, /*exportDataToExcel, processExcelDataByColumnNames,*/ readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
 import { toast } from "sonner"
 //import { fetchLatLngFromList } from "@/app/actions/map-action"
 
@@ -37,7 +37,33 @@ export default function Place() {
 
     const columns = useColumns(getData);
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        console.log('Uploading file:', file.name);
+
+        try {
+            const rawData = await readExcelFile(file);
+            const jsonData = convertExcelArrayToJSON(rawData);
+            //const payload = adminExcelImportHelper(jsonData);
+            const payload = await excelImportHelper(jsonData);
+            console.log('Payload:', payload);
+            placeAction.addListPlace(payload)
+                .then(() => {
+                    toast.success('Thêm địa điểm thành công!');
+                    getData();
+                })
+                .catch((error) => {
+                    console.error('Error adding place:', error);
+                    toast.error(`Error adding place: ${String(error)}`);
+                })
+        } catch (err) {
+            //console.error('Error processing Excel file:', err);
+            toast.error(`Error processing Excel file: ${String(err)}`);
+        }
+    };
+
+    const handleDataImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         console.log('Uploading file:', file.name);
@@ -47,7 +73,7 @@ export default function Place() {
             const rawData = await readExcelFile(file);
             const jsonData = convertExcelArrayToJSON(rawData);
             //console.log('JSON Data:', jsonData);
-            const payload = mapToAddPlacePayload(jsonData);
+            const payload = adminExcelImportHelper(jsonData);
             console.log('Payload:', payload);
             placeAction.addListPlace(payload)
                 .then(() => {
@@ -88,7 +114,7 @@ export default function Place() {
                         type='file'
                         ref={fileInputRef}
                         accept='.xlsx, .xls, .csv'
-                        onChange={handleFileUpload}
+                        onChange={handleExcelImport}
                         className="hidden"
                     />
                     <Button

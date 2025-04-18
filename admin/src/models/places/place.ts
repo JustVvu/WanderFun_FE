@@ -1,6 +1,7 @@
 import { Address } from "../addresses/address";
 import { Image } from "../images/image";
 import { PlaceCategory } from "./placeCategory";
+import { PlaceDetail } from "./placeDetails";
 
 export interface Place {
    id: number;
@@ -29,5 +30,6 @@ export interface CreatePlacePayload {
    coverImage: {
       imageUrl: string;
       imagePublicId: string;
-   }
+   };
+   placeDetail?: PlaceDetail;
 }

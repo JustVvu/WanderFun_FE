@@ -1,5 +1,6 @@
 // helpers/excelReaderHelper.ts
-import { CreatePlacePayload } from '@/models/place';
+import { getDistrictByNameAndProvinceCode, getProvinceByName } from '@/app/actions/addresses/address-action';
+import { CreatePlacePayload } from '@/models/places/place';
 import * as XLSX from 'xlsx';
 
 export const readExcelFile = (file: File): Promise<unknown[][]> => {
@@ -46,7 +47,7 @@ export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unkno
    });
 };
 
-export const mapToAddPlacePayload = (
+export const adminExcelImportHelper = (
    items: Record<string, unknown>[]
 ): CreatePlacePayload[] => {
    return items.map((item) => ({
@@ -66,6 +67,68 @@ export const mapToAddPlacePayload = (
       },
    }));
 };
+
+export const excelImportHelper = async (
+   items: Record<string, unknown>[]
+): Promise<CreatePlacePayload[]> => {
+   // Process each item sequentially due to API calls
+   const results: CreatePlacePayload[] = [];
+
+   for (const item of items) {
+      try {
+         // Extract province and district names from the Excel data
+         const provinceName = String(item.province ?? '');
+         const districtName = String(item.district ?? '');
+
+         let provinceCode = String(item.provinceCode ?? '');
+         let districtCode = String(item.districtCode ?? '');
+
+         // If provinceCode is missing but we have provinceName, fetch the province code
+         if (!provinceCode && provinceName) {
+            try {
+               const province = await getProvinceByName(provinceName);
+               provinceCode = province.code;
+            } catch (error) {
+               console.error(`Failed to fetch province code for "${provinceName}":`, error);
+            }
+         }
+
+         if (!districtCode && districtName && provinceCode) {
+            try {
+               const district = await getDistrictByNameAndProvinceCode(districtName, provinceCode);
+               districtCode = district.code;
+            } catch (error) {
+               console.error(`Failed to fetch district code for "${districtName}" in province "${provinceCode}":`, error);
+            }
+         }
+
+         // Create the place payload with resolved codes
+         const placePayload: CreatePlacePayload = {
+            name: String(item.name ?? ''),
+            address: {
+               provinceCode,
+               districtCode,
+               wardCode: String(item.wardCode ?? ''),
+               street: String(item.street ?? ''),
+            },
+            categoryId: String(item.categoryId ?? ''),
+            longitude: String(item.longitude ?? ''),
+            latitude: String(item.latitude ?? ''),
+            coverImage: {
+               imageUrl: String(item.imageUrl ?? ''),
+               imagePublicId: String(item.imagePublicId ?? ''),
+            },
+         };
+
+         results.push(placePayload);
+      } catch (error) {
+         console.error('Error processing item:', item, error);
+      }
+   }
+
+   return results;
+};
+
 
 export const processExcelDataByColumnNames = (
    data: unknown[][],

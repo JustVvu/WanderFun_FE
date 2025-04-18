@@ -6,7 +6,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import * as placeAction from '@/app/actions/places-action'
+import * as placeAction from '@/app/actions/places/places-action'
 import { PlaceDescription, NewImage } from "@/models/place"
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"

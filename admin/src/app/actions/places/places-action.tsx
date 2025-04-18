@@ -29,9 +29,21 @@ export const getPlaceById = async (id: string): Promise<Place> => {
          },
       }
    );
-   return {
-      ...response.data
-   };
+   return response.data
+}
+
+export const getPlaceByProvinceName = async (provinceName: string): Promise<Place[]> => {
+   const token = await utils.getAuthTokenFromServerCookies();
+   const response = await client<Place[]>(`/place/search/province/${provinceName}`,
+      {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+         },
+      }
+   );
+   return response.data
 }
 
 export const addPlace = async (data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
