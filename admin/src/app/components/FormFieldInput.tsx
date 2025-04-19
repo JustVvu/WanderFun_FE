@@ -19,7 +19,7 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
    name,
    label,
    placeholder,
-   type = "text",
+   type,
    value,
    disabled,
    onChange,
@@ -29,9 +29,12 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
          <Controller
             control={control}
             name={name}
-            render={({ field }) => (
+            render={({ field, fieldState: { error } }) => (
                <FormItem className="flex flex-col justify-between focus-within:text-blue2">
-                  <FormLabel>{label}</FormLabel>
+                  <div className="flex space-x-2">
+                     <FormLabel>{label}</FormLabel>
+                     <FormMessage>{error?.message}</FormMessage>
+                  </div>
                   <FormControl
                      className="w-auto h-[40px] border-none bg-white3
                         focus:bg-white"
@@ -44,7 +47,6 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
                         className="focus-visible:ring-blue2"
                      />
                   </FormControl>
-                  <FormMessage />
                </FormItem>
             )}
          />

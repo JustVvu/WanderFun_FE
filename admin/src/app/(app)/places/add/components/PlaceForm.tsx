@@ -28,11 +28,12 @@ import {
    PlaceFormValues,
    defaultFormValues,
    mapFormValuesToApiPayload
-} from "../form-schema";
+} from "../components/PlaceFormSchema";
 import * as placeAction from '@/app/actions/places/places-action';
 import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action";
 import { parseTimeString } from "@/helpers/convertHelper";
-import { Section } from "@/models/places/section";
+import { Section, SectionDTO } from "@/models/places/section";
+import { Image } from "@/models/images/image";
 
 interface PlaceFormProps {
    isUpdate?: boolean;
@@ -54,12 +55,12 @@ export default function PlaceForm({
    const { setLoadingState } = useLoading();
    const router = useRouter();
    const [title, setTitle] = useState(isUpdate ? "Chỉnh sửa địa điểm du lịch" : "Thêm địa điểm du lịch");
-   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-   const [updateImages, setUpdateImages] = useState<NewImage[]>([]);
-   const [sections, setSections] = useState<Section[]>([
-      { title: '', content: '', imageUrl: '', imagePublicId: '' }
+   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+   const [updateImages, setUpdateImages] = useState<Image>();
+   const [sections, setSections] = useState<SectionDTO[]>([
+      { title: '', content: '', image: { id: 0, imageUrl: '', imagePublicId: '' } },
    ]);
-   const [sectionImages, setSectionImages] = useState<File[]>([]);
+   const [sectionImages, setSectionImages] = useState<File>();
    const [isModalOpen, setModalOpen] = useState(false);
 
    const form = useForm<PlaceFormValues>({
@@ -83,7 +84,7 @@ export default function PlaceForm({
                         provinceCode: fetchedData.address.province.code || "",
                         districtCode: fetchedData.address.district.code || "",
                         wardCode: fetchedData.address.ward.code || "",
-                        street: fetchedData.address || "",
+                        street: fetchedData.address.street || "",
                      },
                      longitude: fetchedData.longitude.toString(),
                      latitude: fetchedData.latitude.toString(),
@@ -94,9 +95,9 @@ export default function PlaceForm({
                      placeDetail: {
                         description: fetchedData.placeDetail.description || "",
                         checkInPoint: fetchedData.placeDetail.checkInPoint?.toString() || "",
-                        checkInRangeMeter: fetchedData.placeDetail.checkInRangeMeter || "",
-                        timeOpen: fetchedData.placedetimeOpen ? parseTimeString(fetchedData.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
-                        timeClose: fetchedData.timeClose ? parseTimeString(fetchedData.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
+                        checkInRangeMeter: fetchedData.placeDetail.checkInRangeMeter.toString() || "",
+                        timeOpen: fetchedData.placeDetail.timeOpen ? parseTimeString(fetchedData.placeDetail.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
+                        timeClose: fetchedData.placeDetail.timeClose ? parseTimeString(fetchedData.placeDetail.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
                         isClosed: fetchedData.placeDetail.isClosed || false,
                         bestTimeToVisit: fetchedData.placeDetail.bestTimeToVisit || "",
                         priceRangeTop: fetchedData.placeDetail.priceRangeTop?.toString() || "",
@@ -109,8 +110,8 @@ export default function PlaceForm({
                            title: sect.title || "",
                            content: sect.content || "",
                            image: {
-                              imageUrl: sect.image.imageUrl || "",
-                              imagePublicId: sect.image.imagePublicId || "",
+                              imageUrl: sect.image?.imageUrl || "",
+                              imagePublicId: sect.image?.imagePublicId || "",
                            }
                         })) || [],
                      }
@@ -154,8 +155,8 @@ export default function PlaceForm({
          title: sect.title,
          content: sect.content,
          image: {
-            imageUrl: sect.imageUrl,
-            imagePublicId: sect.imagePublicId
+            imageUrl: sect.image?.imageUrl,
+            imagePublicId: sect.image?.imagePublicId
          }
       }));
 
@@ -163,10 +164,12 @@ export default function PlaceForm({
    }, [sections, form]);
 
    const handleSendData = async (data: PlaceFormValues) => {
+      console.log("Form data: ", data);
       setLoadingState(true);
 
       try {
          const payload = mapFormValuesToApiPayload(data);
+         console.log("Sent payload: ", payload);
 
          if (isUpdate && placeId) {
             await placeAction.updatePlace(placeId, payload);
@@ -176,7 +179,7 @@ export default function PlaceForm({
             toast.success('Thêm địa điểm thành công');
          }
 
-         router.push('/places');
+         //router.push('/places');
       } catch (error) {
          toast.error('Có lỗi xảy ra khi lưu thông tin!');
          console.error(error);
@@ -213,7 +216,11 @@ export default function PlaceForm({
             <Form {...form}>
                <form
                   className="flex flex-col w-full h-fit px-[40px] space-y-[24px]"
-                  onSubmit={form.handleSubmit(handleSendData)}
+                  onSubmit={(e) => {
+                     e.preventDefault();
+                     console.log("Form data: ", form.getValues());
+                     form.handleSubmit(handleSendData)();
+                  }}
                >
                   <div className="grid grid-cols-3 col-auto w-full gap-x-[100px] gap-y-[24px] px-[40px]">
                      {/* Basic Information */}
@@ -229,13 +236,6 @@ export default function PlaceForm({
                         name="placeDetail.alternativeName"
                         label="Tên gọi khác"
                         placeholder="Nhập tên gọi khác"
-                     />
-
-                     <FormFieldInput
-                        control={form.control}
-                        name="address.street"
-                        label="Địa chỉ"
-                        placeholder="Nhập địa chỉ"
                      />
 
                      <FormFieldInput
@@ -401,11 +401,14 @@ export default function PlaceForm({
                   />
 
                   {/* Cover Images */}
-                  <AddImageField
-                     selectedImages={selectedImages}
-                     setSelectedImages={setSelectedImages}
-                     updateImage={updateImages.map((image) => image.imageUrl)}
-                  />
+                  <div className="w-full px-[40px] place-content-center bg-red-300">
+                     <AddImageField
+                        selectedImage={selectedImage}
+                        setSelectedImage={setSelectedImage}
+                        updateImageUrl={updateImages?.imageUrl}
+                        label="Ảnh bìa của địa điểm"
+                     />
+                  </div>
 
                   <Separator className="bg-black1" />
 

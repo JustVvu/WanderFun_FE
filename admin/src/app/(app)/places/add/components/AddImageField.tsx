@@ -5,83 +5,87 @@ import Image from "next/image";
 import { X } from "lucide-react";
 
 interface AddImageFieldProps {
-   selectedImages: File[];
-   setSelectedImages: React.Dispatch<React.SetStateAction<File[]>>;
-   updateImage?: string[];
+   selectedImage: File | null;
+   setSelectedImage: React.Dispatch<React.SetStateAction<File | null>>;
+   updateImageUrl?: string;
+   label?: string;
 }
 
-export default function AddImageField({ selectedImages, setSelectedImages, updateImage }: AddImageFieldProps) {
+export default function AddImageField({
+   selectedImage,
+   setSelectedImage,
+   updateImageUrl,
+   label = "Chọn hình ảnh",
+}: AddImageFieldProps) {
 
    const onDrop = useCallback((acceptedFiles: File[]) => {
-      // Handle the uploaded files here
-      setSelectedImages((prevImages) => [...prevImages, ...acceptedFiles]);
-   }, [setSelectedImages]);
+      // Handle the uploaded file here (just take the first one)
+      if (acceptedFiles.length > 0) {
+         setSelectedImage(acceptedFiles[0]);
+      }
+   }, [setSelectedImage]);
 
    const { getRootProps, getInputProps } = useDropzone({
       onDrop,
       accept: {
          "image/*": [".jpeg", ".jpg", ".png", ".gif"],
       },
-      multiple: true, // Allow multiple file uploads
+      multiple: false, // Allow only single file upload
    });
 
-   const handleRemoveImage = (index: number) => {
-      setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
+   const handleRemoveImage = () => {
+      setSelectedImage(null);
    };
 
    return (
-      <div className="w-full px-[40px]">
-         <Label htmlFor="image">Hình ảnh của địa điểm</Label>
+      <div className="w-full px-[40px] bg-blue-300">
+         <Label htmlFor="image">{label}</Label>
          <div
             {...getRootProps()}
-            className={`w-[1000px] w-min-[400px] h-[140px] py-[12px] rounded-lg border-[2px] border-dashed border-black1 cursor-pointer 
-               overflow-auto overscroll-x-auto}`}
+            className={`w-[1600px] w-min-[400px] h-[900px] py-[12px] rounded-lg border-[2px] border-dashed border-black1 cursor-pointer }`}
          >
             <input {...getInputProps()} />
 
-            {selectedImages.length === 0 && (!updateImage || updateImage.length === 0) ? (
+            {!selectedImage && !updateImageUrl ? (
                <div className="flex items-center justify-center h-full text-muted-foreground">
-
                   <span>Chọn hoặc kéo thả hình ảnh vào đây</span>
-
                </div>
-            ) : (<div className="h-full flex flex-row px-[12px] items-center space-x-[12px]">
-               {updateImage && updateImage.map((url, index) => (
-                  <div
-                     key={index}
-                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
-                     onClick={(event) => event.stopPropagation()}
-                  >
-                     <Image
-                        src={url}
-                        alt={`Updated ${index}`}
-                        className="rounded-lg object-cover"
-                        fill
-                        sizes="(max-width: 600px) 100vw, 50vw"
-                     />
-                  </div>
-               ))}
-               {selectedImages.map((file, index) => (
-                  <div
-                     key={index}
-                     className="relative min-w-[100px] h-[100px] flex-shrink-0"
-                     onClick={(event) => event.stopPropagation()}
-                  >
-                     <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`Selected ${index}`}
-                        className="rounded-lg object-cover"
-                        fill
-                        sizes="(max-width: 600px) 100vw, 50vw"
-                     />
-                     <X
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-0 right-0 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
-                     />
-                  </div>
-               ))}
+            ) : (
+               <div className="h-full flex flex-row px-[12px] items-center">
+                  {updateImageUrl && !selectedImage && (
+                     <div
+                        className="relative w-full h-full flex-grow"
+                        onClick={(event) => event.stopPropagation()}
+                     >
+                        <Image
+                           src={updateImageUrl}
+                           alt="Updated image"
+                           className="rounded-lg object-cover"
+                           fill
+                           sizes="(max-width: 600px) 100vw, 50vw"
+                        />
+                     </div>
+                  )}
 
-            </div>
+                  {selectedImage && (
+                     <div
+                        className="relative w-full h-full flex-grow"
+                        onClick={(event) => event.stopPropagation()}
+                     >
+                        <Image
+                           src={URL.createObjectURL(selectedImage)}
+                           alt="Selected image"
+                           className="rounded-lg object-cover"
+                           fill
+                           sizes="(max-width: 600px) 100vw, 50vw"
+                        />
+                        <X
+                           onClick={handleRemoveImage}
+                           className="absolute top-2 right-2 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4"
+                        />
+                     </div>
+                  )}
+               </div>
             )}
          </div>
       </div>

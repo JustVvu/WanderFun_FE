@@ -7,7 +7,7 @@ export interface PlaceCategory {
    iconImage: Image;
 }
 
-export interface PlaceCategoryPayload {
+export interface PlaceCategoryCreatePayload {
    name: string;
    nameEn: string;
    iconImage?: string

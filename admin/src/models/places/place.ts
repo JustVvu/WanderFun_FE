@@ -1,7 +1,7 @@
 import { Address } from "../addresses/address";
-import { Image } from "../images/image";
+import { Image, ImageDTO } from "../images/image";
 import { PlaceCategory } from "./placeCategory";
-import { PlaceDetail } from "./placeDetails";
+import { PlaceDetail, PlaceDetailDTO } from "./placeDetails";
 
 export interface Place {
    id: number;
@@ -22,12 +22,12 @@ export interface CreatePlacePayload {
    address: {
       provinceCode: string;
       districtCode: string;
-      wardCode: string;
-      street: string;
+      wardCode?: string;
+      street?: string;
    };
    categoryId: string;
    longitude: string;
    latitude: string;
-   coverImage?: Image;
-   placeDetail?: PlaceDetail;
+   coverImage?: ImageDTO;
+   placeDetail?: PlaceDetailDTO;
 }

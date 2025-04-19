@@ -18,8 +18,8 @@ import {
 import { Form } from "@/components/ui/form"
 import { FormFieldInput } from "@/app/components/FormFieldInput"
 import { Loader2 } from "lucide-react"
-import { PlaceCategoryPayload } from "@/models/placeCategory"
-import { createPlaceCategory } from "@/app/actions/place-categories-action"
+import { PlaceCategoryCreatePayload } from "@/models/places/placeCategory"
+import { createPlaceCategory } from "@/app/actions/places/place-categories-action"
 import { Separator } from "@/components/ui/separator"
 
 
@@ -27,6 +27,7 @@ interface CreateCategoryModalProps {
    isOpen: boolean;
    onChange: (open: boolean) => void;
    onModalSubmit?: () => void;
+   onSuccess?: () => void; // Callback for successful creation
 }
 
 const formSchema = z.object({
@@ -38,7 +39,8 @@ const formSchema = z.object({
 const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
    isOpen,
    onChange,
-   //onModalSubmit,
+   onModalSubmit,
+   onSuccess,
 }) => {
    const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -50,28 +52,27 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
       },
    });
 
-   const onSubmit = async (data: PlaceCategoryPayload) => {
+   const onSubmit = async (data: PlaceCategoryCreatePayload) => {
       setIsSubmitting(true); // Start loading spinner
       try {
-         // if (selectedFile) {
-         //    const uploadedAvatarUrl = await handleAvatarUpload(selectedFile);
-         //    data.profilePicture = uploadedAvatarUrl;
-         // }
-
-         console.log("Update data: ", data);
-
          await createPlaceCategory(data);
-
          toast.success("Thêm phân loại thành công!");
 
-         onChange(false);
-         //onProfileUpdate?.();
+         form.reset(); // Reset form
+         onChange(false); // Close modal
+
+         // Call the onSuccess callback if provided
+         if (onSuccess) {
+            onSuccess();
+         }
       } catch (error) {
          console.error(error);
+         toast.error(`Không thể thêm phân loại: ${error}`);
       } finally {
          setIsSubmitting(false); // Stop loading spinner
       }
    };
+
 
    return (
       <Dialog open={isOpen} onOpenChange={onChange}>

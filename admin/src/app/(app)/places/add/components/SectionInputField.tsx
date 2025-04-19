@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Section } from '@/models/places/section';
+import { SectionDTO } from '@/models/places/section';
 import { PlusIcon } from 'lucide-react';
 import SingleImageField from './SingleImageField';
 
 interface SectionInputFieldProps {
-   sections: Section[];
-   setSections: React.Dispatch<React.SetStateAction<Section[]>>;
+   sections: SectionDTO[];
+   setSections: React.Dispatch<React.SetStateAction<SectionDTO[]>>;
    setSectionImages: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
@@ -42,7 +42,7 @@ const SectionInputField: React.FC<SectionInputFieldProps> = (
       setSelectedImages(selectedImages.filter((_, i) => i !== index));
    };
 
-   const handleSectionChange = (index: number, field: keyof Section, value: string) => {
+   const handleSectionChange = (index: number, field: keyof SectionDTO, value: string) => {
       const newSections = [...sections];
       (newSections[index][field] as typeof value) = value;
       setSections(newSections);
