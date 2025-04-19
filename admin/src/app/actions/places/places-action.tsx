@@ -1,5 +1,5 @@
 import client from "@/services/client";
-import { AddPlacePayload, Place } from "@/types/place";
+import { CreatePlacePayload, Place } from "@/models/places/place";
 import * as utils from "@/app/actions/utils";
 import * as cloudinaryAction from "@/app/actions/cloudinary-action";
 import { toast } from "sonner";
@@ -15,9 +15,7 @@ export const getAllPlaces = async (): Promise<Place[]> => {
          },
       }
    );
-   return {
-      ...response.data
-   };
+   return response.data
 }
 
 export const getPlaceById = async (id: string): Promise<Place> => {
@@ -31,12 +29,24 @@ export const getPlaceById = async (id: string): Promise<Place> => {
          },
       }
    );
-   return {
-      ...response.data
-   };
+   return response.data
 }
 
-export const addPlace = async (data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const getPlaceByProvinceName = async (provinceName: string): Promise<Place[]> => {
+   const token = await utils.getAuthTokenFromServerCookies();
+   const response = await client<Place[]>(`/place/search/province/${provinceName}`,
+      {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+         },
+      }
+   );
+   return response.data
+}
+
+export const addPlace = async (data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
@@ -89,7 +99,7 @@ export const addPlace = async (data: AddPlacePayload, /* dataPlaceImage: File[],
    }
 }
 
-export const addListPlace = async (data: AddPlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const addListPlace = async (data: CreatePlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
@@ -144,7 +154,7 @@ export const addListPlace = async (data: AddPlacePayload[], /* dataPlaceImage: F
 
 
 
-export const updatePlace = async (id: string, data: AddPlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const updatePlace = async (id: string, data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
 
    try {
@@ -198,27 +208,45 @@ export const deletePlace = async (id: string, callback: () => void): Promise<voi
 
    try {
       const place = await getPlaceById(id);
-      if (place.placeImages) {
-         for (let i = 0; i < place.placeImages.length; i++) {
-            try {
-               const response = await client<void>(`/cloudinary?publicId=${place.placeImages[i].imagePublicId}`,
-                  {
-                     method: 'DELETE',
-                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                     }
-                  }
-               );
-               if (response.error) {
-                  throw new Error();
-               }
-            }
-            catch (error) {
-               toast.error('Xóa ảnh thất bại, lỗi: ' + error);
-               throw new Error('Error deleting image');
-            }
-         }
+      if (place.coverImage) {
+         // for (let i = 0; i < place.placeImages.length; i++) {
+         //    try {
+         //       const response = await client<void>(`/cloudinary?publicId=${place.placeImages[i].imagePublicId}`,
+         //          {
+         //             method: 'DELETE',
+         //             headers: {
+         //                'Content-Type': 'application/json',
+         //                'Authorization': `Bearer ${token}`,
+         //             }
+         //          }
+         //       );
+         //       if (response.error) {
+         //          throw new Error();
+         //       }
+         //    }
+         //    catch (error) {
+         //       toast.error('Xóa ảnh thất bại, lỗi: ' + error);
+         //       throw new Error('Error deleting image');
+         //    }
+         // }
+         // try {
+         //    const response = await client<void>(`/cloudinary?publicId=${place.coverImage.imagePublicId}`,
+         //       {
+         //          method: 'DELETE',
+         //          headers: {
+         //             'Content-Type': 'application/json',
+         //             'Authorization': `Bearer ${token}`,
+         //          }
+         //       }
+         //    );
+         //    if (response.error) {
+         //       throw new Error();
+         //    }
+         // }
+         // catch (error) {
+         //    toast.error('Xóa ảnh thất bại, lỗi: ' + error);
+         //    throw new Error('Error deleting image');
+         // }
       }
       const response = await client<void>(`/place/${id}`,
          {

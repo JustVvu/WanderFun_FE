@@ -1,5 +1,3 @@
-
-
 export function parseTimeString(timeInput: string | Date): Date {
    // Convert Date to string if necessary
    const timeString = timeInput instanceof Date ? timeInput.toTimeString().split(' ')[0] : timeInput;

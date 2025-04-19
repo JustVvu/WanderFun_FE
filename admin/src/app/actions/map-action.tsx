@@ -1,4 +1,4 @@
-import { MapPlaceDetail, Prediction } from "@/types/map";
+import { MapPlaceDetail, Prediction } from "@/models/map";
 
 const apiKey = process.env.NEXT_PUBLIC_GOONG_API_KEY;
 const goongApiUrl = process.env.NEXT_PUBLIC_GOONG_API_URL;

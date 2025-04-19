@@ -1,6 +1,6 @@
 'use server';
 
-import { UserLogin } from '@/types/user';
+import { UserLogin } from '@/models/user';
 import { cookies } from 'next/headers';
 
 

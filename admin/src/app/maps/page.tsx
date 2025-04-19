@@ -7,10 +7,10 @@ import Head from "next/head";
 import AppMap from "./components/AppMap";
 import { Button } from "@/components/ui/button";
 import AppSeachBar from "../components/AppSearchBar";
-import { MapPlaceDetail } from "@/types/map";
+import { MapPlaceDetail } from "@/models/map";
 import maplibreGl from 'maplibre-gl';
 import FloatingSidebar from "./components/FloatingSidebar";
-import { Place } from "@/types/place";
+import { Place } from "@/models/places/place";
 import { getPlaceById } from "../actions/places-action";
 
 export default function MapAdd() {

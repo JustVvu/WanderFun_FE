@@ -3,40 +3,49 @@ import { Button } from "@/components/ui/button";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { PlaceDescription } from '@/types/place';
+import { SectionDTO } from '@/models/places/section';
 import { PlusIcon } from 'lucide-react';
 import SingleImageField from './SingleImageField';
 
-interface DescriptionInputFieldProps {
-   descriptions: PlaceDescription[];
-   setDescriptions: React.Dispatch<React.SetStateAction<PlaceDescription[]>>;
-   setDescriptionImages: React.Dispatch<React.SetStateAction<File[]>>;
+interface SectionInputFieldProps {
+   sections: SectionDTO[];
+   setSections: React.Dispatch<React.SetStateAction<SectionDTO[]>>;
+   setSectionImages: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
-const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
-   { descriptions, setDescriptions, setDescriptionImages },
+const SectionInputField: React.FC<SectionInputFieldProps> = (
+   { sections, setSections, setSectionImages },
 ) => {
-   const [selectedImages, setSelectedImages] = useState<(File | null)[]>(descriptions.map(() => null));
+   const [selectedImages, setSelectedImages] = useState<(File | null)[]>(sections.map(() => null));
 
    useEffect(() => {
       const images = selectedImages.filter((image): image is File => image !== null);
-      setDescriptionImages(images);
-   }, [selectedImages, setDescriptionImages]);
+      setSectionImages(images);
+   }, [selectedImages, setSectionImages]);
 
-   const addDescription = () => {
-      setDescriptions([...descriptions, { title: '', content: '', imageUrl: '', imagePublicId: '' }]);
+   const addSection = () => {
+      setSections([...sections,
+      {
+         title: '',
+         content: '',
+         image: {
+            id: 0, // Default id value
+            imageUrl: '',
+            imagePublicId: ''
+         }
+      }]);
       setSelectedImages([...selectedImages, null]);
    };
 
-   const removeDescription = (index: number) => {
-      setDescriptions(descriptions.filter((_, i) => i !== index));
+   const removeSection = (index: number) => {
+      setSections(sections.filter((_, i) => i !== index));
       setSelectedImages(selectedImages.filter((_, i) => i !== index));
    };
 
-   const handleDescriptionChange = (index: number, field: keyof PlaceDescription, value: string) => {
-      const newDescriptions = [...descriptions];
-      (newDescriptions[index][field] as typeof value) = value;
-      setDescriptions(newDescriptions);
+   const handleSectionChange = (index: number, field: keyof SectionDTO, value: string) => {
+      const newSections = [...sections];
+      (newSections[index][field] as typeof value) = value;
+      setSections(newSections);
    };
 
    const handleImageChange = (index: number, file: File | null) => {
@@ -44,27 +53,27 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
       newSelectedImages[index] = file;
       setSelectedImages(newSelectedImages);
 
-      const newDescriptions = [...descriptions];
-      setDescriptions(newDescriptions);
+      const newSections = [...sections];
+      setSections(newSections);
    };
 
    return (
       <div className="w-full px-[40px] ">
-         <Label htmlFor="description">Thông tin giới thiệu</Label>
-         {descriptions.map((description, index) => (
+         <Label htmlFor="section">Thông tin giới thiệu</Label>
+         {sections.map((section, index) => (
             <div key={index} className="flex flex-col space-y-[12px]">
                <FormFieldInput
                   name={`descriptions[${index}].title`}
                   //label="Tiêu đề"
                   placeholder="Nhập tiêu đề"
-                  value={description.title}
-                  onChange={(e) => handleDescriptionChange(index, 'title', e.target.value)}
+                  value={section.title}
+                  onChange={(e) => handleSectionChange(index, 'title', e.target.value)}
                />
                <div className='flex flex-row space-x-[12px]'>
                   <Textarea
                      placeholder="Nhập nội dung"
-                     value={description.content}
-                     onChange={(e) => handleDescriptionChange(index, 'content', e.target.value)}
+                     value={section.content}
+                     onChange={(e) => handleSectionChange(index, 'content', e.target.value)}
                      className="h-auto bg-white3 focus:bg-white focus:border-blue2 flex-grow-[3]"
                   />
                   <div className="flex-grow">
@@ -76,7 +85,7 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
                </div>
                <Button
                   variant="outline"
-                  onClick={() => removeDescription(index)}
+                  onClick={() => removeSection(index)}
                   className="place-self-end w-fit hover:bg-red-200 hover:text-red3 text-red3 border-red3"
                >
                   Xóa
@@ -85,7 +94,7 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
          ))}
          <Button
             variant="outline"
-            onClick={addDescription}
+            onClick={addSection}
             type="button"
             className="w-fit mt-4 hover:bg-blue2o hover:text-blue2 border-black2"
          >
@@ -96,4 +105,4 @@ const DescriptionInputField: React.FC<DescriptionInputFieldProps> = (
    );
 };
 
-export default DescriptionInputField;
+export default SectionInputField;
