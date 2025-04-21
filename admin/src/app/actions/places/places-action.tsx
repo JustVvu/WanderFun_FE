@@ -46,34 +46,36 @@ export const getPlaceByProvinceName = async (provinceName: string): Promise<Plac
    return response.data
 }
 
-export const addPlace = async (data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const addPlace = async (data: CreatePlacePayload, dataPlaceImage: File | null, dataSectionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
-   //console.log("dataDescriptionImage: ", dataDescriptionImage);
+   //console.log("dataSectionImage: ", dataSectionImage);
    try {
-      // if (dataPlaceImage.length > 0) {
-      //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
-      //    data.placeImages = uploadResult.map((result) => ({
-      //       imageUrl: result.secure_url,
-      //       imagePublicId: result.public_id
-      //    }));
-      //    data.coverImageUrl = data.placeImages[0].imageUrl;
-      //    data.coverImagePublicId = data.placeImages[0].imagePublicId;
-      //    console.log(data);
-      // }
-      // if (dataDescriptionImage.length > 0) {
-      //    for (let index = 0; index < (data.description?.length || 0); index++) {
-      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
-      //       if (data.description && data.description[index]) {
-      //          data.description[index] = {
-      //             ...data.description[index],
-      //             imageUrl: uploadResult[0].secure_url,
-      //             imagePublicId: uploadResult[0].public_id
-      //          };
-      //       }
-      //    }
-      // }
+      if (dataPlaceImage) {
+         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
+         if (data.coverImage) {
+            data.coverImage.imagePublicId = uploadResult?.public_id;
+            data.coverImage.imageUrl = uploadResult?.secure_url;
+         }
+
+         console.log(data);
+      }
+      if (dataSectionImage.length > 0) {
+         for (let index = 0; index < (data.placeDetail?.sectionList?.length || 0); index++) {
+            const uploadResult = await cloudinaryAction.UploadImages(dataSectionImage, data.name + "/sections");
+            if (data.placeDetail?.sectionList && data.placeDetail.sectionList[index]) {
+               data.placeDetail.sectionList[index] = {
+                  ...data.placeDetail.sectionList[index],
+                  image: {
+                     ...data.placeDetail.sectionList[index].image,
+                     imagePublicId: uploadResult[index].public_id,
+                     imageUrl: uploadResult[index].secure_url,
+                  },
+               };
+            }
+         }
+      }
       const response = await client<void>('/place',
          {
             method: 'POST',
@@ -99,11 +101,11 @@ export const addPlace = async (data: CreatePlacePayload, /* dataPlaceImage: File
    }
 }
 
-export const addListPlace = async (data: CreatePlacePayload[], /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const addListPlace = async (data: CreatePlacePayload[], /*dataPlaceImage: File | null, dataSectionImage: File[]*/): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    //console.log("data: ", data);
    //console.log("dataPlaceImage: ", dataPlaceImage);
-   //console.log("dataDescriptionImage: ", dataDescriptionImage);
+   //console.log("dataSectionImage: ", dataSectionImage);
    try {
       // if (dataPlaceImage.length > 0) {
       //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
@@ -115,12 +117,12 @@ export const addListPlace = async (data: CreatePlacePayload[], /* dataPlaceImage
       //    data.coverImagePublicId = data.placeImages[0].imagePublicId;
       //    console.log(data);
       // }
-      // if (dataDescriptionImage.length > 0) {
-      //    for (let index = 0; index < (data.description?.length || 0); index++) {
-      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/descriptions");
-      //       if (data.description && data.description[index]) {
-      //          data.description[index] = {
-      //             ...data.description[index],
+      // if (dataSectionImage.length > 0) {
+      //    for (let index = 0; index < (data.section?.length || 0); index++) {
+      //       const uploadResult = await cloudinaryAction.UploadImage(dataSectionImage, data.name + "/sections");
+      //       if (data.section && data.section[index]) {
+      //          data.section[index] = {
+      //             ...data.section[index],
       //             imageUrl: uploadResult[0].secure_url,
       //             imagePublicId: uploadResult[0].public_id
       //          };
@@ -154,30 +156,34 @@ export const addListPlace = async (data: CreatePlacePayload[], /* dataPlaceImage
 
 
 
-export const updatePlace = async (id: string, data: CreatePlacePayload, /* dataPlaceImage: File[], dataDescriptionImage: File[] */): Promise<void> => {
+export const updatePlace = async (id: string, data: CreatePlacePayload, dataPlaceImage: File | null, dataSectionImage: File[]): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
 
    try {
-      // if (dataPlaceImage.length > 0) {
+      if (dataPlaceImage) {
+         const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name + "/images");
+         if (data.coverImage) {
+            data.coverImage.imagePublicId = uploadResult?.public_id;
+            data.coverImage.imageUrl = uploadResult?.secure_url;
+         }
+      }
 
-      //    const uploadResult = await cloudinaryAction.UploadImage(dataPlaceImage, data.name);
-      //    data.placeImages = uploadResult.map((result) => ({
-      //       imageUrl: result.secure_url,
-      //       imagePublicId: result.public_id
-      //    }));
-      // }
-      // if (dataDescriptionImage.length > 0) {
-      //    for (let index = 0; index < (data.description?.length || 0); index++) {
-      //       const uploadResult = await cloudinaryAction.UploadImage(dataDescriptionImage, data.name + "/description");
-      //       if (data.description && data.description[index]) {
-      //          data.description[index] = {
-      //             ...data.description[index],
-      //             imageUrl: uploadResult[0].secure_url,
-      //             imagePublicId: uploadResult[0].public_id
-      //          };
-      //       };
-      //    }
-      // }
+      if (dataSectionImage.length > 0) {
+         for (let index = 0; index < (data.placeDetail?.sectionList?.length || 0); index++) {
+            const uploadResult = await cloudinaryAction.UploadImages(dataSectionImage, data.name + "/sections");
+            if (data.placeDetail?.sectionList && data.placeDetail.sectionList[index]) {
+               data.placeDetail.sectionList[index] = {
+                  ...data.placeDetail.sectionList[index],
+                  image: {
+                     ...data.placeDetail.sectionList[index].image,
+                     imagePublicId: uploadResult[index].public_id,
+                     imageUrl: uploadResult[index].secure_url,
+                  },
+               };
+            }
+         }
+      }
+
       console.log("Data before API calling: ", data);
       const response = await client<void>(`/place/${id}`,
          {
@@ -189,6 +195,7 @@ export const updatePlace = async (id: string, data: CreatePlacePayload, /* dataP
             body: JSON.stringify(data),
          }
       );
+
       if (response.error == false) {
          toast.success('Cập nhật địa điểm thành công');
       }
@@ -199,7 +206,8 @@ export const updatePlace = async (id: string, data: CreatePlacePayload, /* dataP
       return response.data;
    }
    catch (error) {
-      console.error('', error);
+      console.error('Error updating place:', error);
+      toast.error(`Cập nhật địa điểm thất bại: ${error}`);
    }
 }
 

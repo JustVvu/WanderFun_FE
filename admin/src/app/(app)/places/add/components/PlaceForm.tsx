@@ -60,7 +60,7 @@ export default function PlaceForm({
    const [sections, setSections] = useState<SectionDTO[]>([
       { title: '', content: '', image: { id: 0, imageUrl: '', imagePublicId: '' } },
    ]);
-   const [sectionImages, setSectionImages] = useState<File>();
+   const [sectionImages, setSectionImages] = useState<File[]>([]);
    const [isModalOpen, setModalOpen] = useState(false);
 
    const form = useForm<PlaceFormValues>({
@@ -91,7 +91,7 @@ export default function PlaceForm({
                   imageUrl: fetchedData.coverImage?.imageUrl,
                   imagePublicId: fetchedData.coverImage?.imagePublicId,
                },
-               categoryId: fetchedData.category.name.toString(),
+               categoryId: fetchedData.category.id.toString(),
                placeDetail: {
                   ...(fetchedData.placeDetail || {}),
                   checkInPoint: fetchedData.placeDetail?.checkInPoint.toString(),
@@ -163,7 +163,7 @@ export default function PlaceForm({
             await placeAction.updatePlace(placeId, payload);
             toast.success('Cập nhật địa điểm thành công');
          } else {
-            await placeAction.addPlace(payload);
+            await placeAction.addPlace(payload, selectedImage, sectionImages);
             toast.success('Thêm địa điểm thành công');
          }
 

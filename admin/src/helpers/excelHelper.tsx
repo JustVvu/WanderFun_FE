@@ -1,5 +1,5 @@
 // helpers/excelReaderHelper.ts
-import { getDistrictByNameAndProvinceCode, getProvinceByName } from '@/app/actions/addresses/address-action';
+import { getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode } from '@/app/actions/addresses/address-action';
 import { CreatePlacePayload } from '@/models/places/place';
 import * as XLSX from 'xlsx';
 
@@ -79,9 +79,11 @@ export const excelImportHelper = async (
          // Extract province and district names from the Excel data
          const provinceName = String(item.province ?? '');
          const districtName = String(item.district ?? '');
+         const wardName = String(item.ward ?? '');
 
          let provinceCode = String(item.provinceCode ?? '');
          let districtCode = String(item.districtCode ?? '');
+         let wardCode = String(item.wardCode ?? '');
 
          // If provinceCode is missing but we have provinceName, fetch the province code
          if (!provinceCode && provinceName) {
@@ -99,6 +101,15 @@ export const excelImportHelper = async (
                districtCode = district.code;
             } catch (error) {
                console.error(`Failed to fetch district code for "${districtName}" in province "${provinceCode}":`, error);
+            }
+         }
+
+         if (!wardCode && wardName && districtCode) {
+            try {
+               const ward = await getWardByNameAndDistrictCode(wardName, districtCode);
+               wardCode = ward.code;
+            } catch (error) {
+               console.error(`Failed to fetch ward code for "${wardName}" in district "${districtCode}":`, error);
             }
          }
 

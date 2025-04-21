@@ -27,7 +27,33 @@ function normalizedPath(path: string): string {
   return path.replace(/\s/g, '').replace(/_/g, '').toLowerCase();
 }
 
-export async function UploadImage(imageFiles: File[], path: string): Promise<CloudinaryResponse[]> {
+export async function UploadImage(imageFile: File, path: string): Promise<CloudinaryResponse | null> {
+  path = normalizedPath(path);
+
+  const formData = new FormData();
+  formData.append('file', imageFile);
+  formData.append('upload_preset', 'unsigned_preset');
+  formData.append('folder', `/wanderfun/places/${path}`);
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+    return data;
+  }
+  catch (error) {
+    toast.error('Error uploading image: ' + error);
+    return null;
+  }
+}
+
+export async function UploadImages(imageFiles: File[], path: string): Promise<CloudinaryResponse[]> {
   const responses: CloudinaryResponse[] = [];
 
   path = normalizedPath(path);
