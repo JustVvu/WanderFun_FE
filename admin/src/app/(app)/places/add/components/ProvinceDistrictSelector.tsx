@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Control } from "react-hook-form";
+import { Control, Path, useWatch } from "react-hook-form";
 import { FormFieldCombobox } from "@/app/components/FormFieldComboBox";
 import { toast } from "sonner";
 import { getAllProvinces, getDistrictsByProvinceCode, getWardsByDistrictCode } from "@/app/actions/addresses/address-action";
@@ -13,9 +13,9 @@ import { PlaceFormValues } from "./PlaceFormSchema";
 
 interface ProvinceDistrictSelectorProps {
    control: Control<PlaceFormValues>;
-   provinceCodeName: string;
-   districtCodeName: string;
-   wardCodeName: string;
+   provinceCodeName: Path<PlaceFormValues>;
+   districtCodeName: Path<PlaceFormValues>;
+   wardCodeName: Path<PlaceFormValues>;
 }
 
 export default function ProvinceDistrictSelector({
@@ -27,60 +27,38 @@ export default function ProvinceDistrictSelector({
    const [provinces, setProvinces] = useState<Province[]>([]);
    const [districts, setDistricts] = useState<District[]>([]);
    const [wards, setWards] = useState<Ward[]>([]);
-   const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>("");
-   const [selectedDistrictCode, setSelectedDistrictCode] = useState<string>("");
+
+   const provinceCode = useWatch({ control, name: provinceCodeName }) as string;
+   const districtCode = useWatch({ control, name: districtCodeName }) as string;
 
    // Load all provinces
    useEffect(() => {
-      const fetchProvinces = async () => {
-         try {
-            const data = await getAllProvinces();
-            setProvinces(data || []);
-         } catch (error) {
-            toast.error(`Không thể tải danh sách tỉnh/thành phố (${error})`);
-         }
-      };
-
-      fetchProvinces();
+      getAllProvinces()
+         .then((data) => setProvinces(data || []))
+         .catch((e) => toast.error(`Không thể tải tỉnh/thành phố (${e})`));
    }, []);
 
    // Load districts when province changes
    useEffect(() => {
-      if (!selectedProvinceCode) {
+      if (!provinceCode) {
          setDistricts([]);
          return;
       }
-
-      const fetchDistricts = async () => {
-         try {
-            const data = await getDistrictsByProvinceCode(selectedProvinceCode);
-            setDistricts(data || []);
-         } catch (error) {
-            toast.error(`Không thể tải danh sách quận/huyện (${error})`);
-         }
-      };
-
-      fetchDistricts();
-   }, [selectedProvinceCode]);
+      getDistrictsByProvinceCode(provinceCode)
+         .then((data) => setDistricts(data || []))
+         .catch((e) => toast.error(`Không thể tải quận/huyện (${e})`));
+   }, [provinceCode]);
 
    //Load wards when district changes
    useEffect(() => {
-      if (!selectedDistrictCode) {
+      if (!districtCode) {
          setWards([]);
          return;
       }
-
-      const fetchWards = async () => {
-         try {
-            const data = await getWardsByDistrictCode(selectedDistrictCode);
-            setWards(data || []);
-         } catch (error) {
-            toast.error(`Không thể tải danh sách phường/xã (${error})`);
-         }
-      };
-
-      fetchWards();
-   }, [selectedDistrictCode]);
+      getWardsByDistrictCode(districtCode)
+         .then((data) => setWards(data || []))
+         .catch((e) => toast.error(`Không thể tải phường/xã (${e})`));
+   }, [districtCode]);
 
    return (
       <div className="grid grid-cols-3 gap-[100px]">
@@ -93,9 +71,6 @@ export default function ProvinceDistrictSelector({
                value: province.code,
             }))}
             placeholder="Chọn tỉnh/thành phố"
-            onChange={(value) => {
-               setSelectedProvinceCode(value);
-            }}
          />
 
          <FormFieldCombobox
@@ -107,10 +82,7 @@ export default function ProvinceDistrictSelector({
                value: district.code,
             }))}
             placeholder="Chọn quận/huyện"
-            disabled={!selectedProvinceCode}
-            onChange={(value) => {
-               setSelectedDistrictCode(value);
-            }}
+            disabled={!provinceCode}
          />
 
          <FormFieldCombobox
@@ -122,7 +94,7 @@ export default function ProvinceDistrictSelector({
                value: ward.code,
             }))}
             placeholder="Chọn phường/xã"
-            disabled={!selectedDistrictCode}
+            disabled={!districtCode}
          />
       </div>
    );

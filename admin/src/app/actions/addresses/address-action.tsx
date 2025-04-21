@@ -81,3 +81,18 @@ export const getWardsByDistrictCode = async (districtCode: string): Promise<Ward
 
    return response.data
 }
+
+export const getWardByNameAndDistrictCode = async (name: string, districtCode: string): Promise<Ward> => {
+   const token = await getAuthTokenFromServerCookies();
+   const response = await client<Ward>(`address/ward/${name}/${districtCode}`,
+      {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+         },
+      }
+   );
+
+   return response.data
+}

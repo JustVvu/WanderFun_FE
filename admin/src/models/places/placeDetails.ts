@@ -21,7 +21,6 @@ export interface PlaceDetail {
 
 export interface PlaceDetailDTO {
    id?: number;
-   placeId?: number;
    description?: string;
    checkInPoint?: number;
    checkInRangeMeter?: number;
