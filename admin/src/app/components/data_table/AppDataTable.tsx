@@ -38,13 +38,6 @@ export function AppDataTable<TData, TValue>({
     filterCritia,
     filterPlaceholder
 }: DataTableProps<TData, TValue>) {
-
-    console.log('AppDataTable Props:', {
-        columnsCount: columns.length,
-        dataCount: data.length,
-        sampleData: data || {},
-    });
-
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])

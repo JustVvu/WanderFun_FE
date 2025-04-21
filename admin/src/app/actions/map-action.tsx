@@ -83,7 +83,7 @@ const autoCompleteCache = new Map<string, Prediction | null>();
 export async function fetchLatLngFromList(
    queries: string[]
 ): Promise<MapPlaceDetail[]> {
-   const DELAY_MS = 200; // Increase delay (e.g., 1 second) to reduce rate limit issues
+   const DELAY_MS = 500; // Increase delay (e.g., 1 second) to reduce rate limit issues
    const placeDetailResults: MapPlaceDetail[] = [];
 
    // Helper function to fetch a single autocomplete result with caching

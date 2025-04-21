@@ -32,7 +32,7 @@ import {
 import * as placeAction from '@/app/actions/places/places-action';
 import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action";
 import { parseTimeString } from "@/helpers/convertHelper";
-import { Section, SectionDTO } from "@/models/places/section";
+import { SectionDTO } from "@/models/places/section";
 import { Image } from "@/models/images/image";
 
 interface PlaceFormProps {
@@ -54,9 +54,9 @@ export default function PlaceForm({
 }: PlaceFormProps) {
    const { setLoadingState } = useLoading();
    const router = useRouter();
-   const [title, setTitle] = useState(isUpdate ? "Chỉnh sửa địa điểm du lịch" : "Thêm địa điểm du lịch");
+   const title = isUpdate ? "Chỉnh sửa địa điểm du lịch" : "Thêm địa điểm du lịch";
    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-   const [updateImages, setUpdateImages] = useState<Image>();
+   const [updateImageUrl] = useState<Image>();
    const [sections, setSections] = useState<SectionDTO[]>([
       { title: '', content: '', image: { id: 0, imageUrl: '', imagePublicId: '' } },
    ]);
@@ -68,65 +68,53 @@ export default function PlaceForm({
       defaultValues: defaultFormValues,
    });
 
+   const { reset } = form;
+
    // Load place data for update
    useEffect(() => {
-      if (isUpdate && placeId) {
-         const fetchData = async () => {
-            try {
-               setLoadingState(true);
-               const fetchedData = await placeAction.getPlaceById(placeId);
-
-               if (fetchedData) {
-                  form.reset({
-                     name: fetchedData.name,
-                     categoryId: fetchedData.category.id.toString(),
-                     address: {
-                        provinceCode: fetchedData.address.province.code || "",
-                        districtCode: fetchedData.address.district.code || "",
-                        wardCode: fetchedData.address.ward.code || "",
-                        street: fetchedData.address.street || "",
-                     },
-                     longitude: fetchedData.longitude.toString(),
-                     latitude: fetchedData.latitude.toString(),
-                     coverImage: {
-                        imageUrl: fetchedData.coverImage?.imageUrl || "",
-                        imagePublicId: fetchedData.coverImage?.imagePublicId || "",
-                     },
-                     placeDetail: {
-                        description: fetchedData.placeDetail.description || "",
-                        checkInPoint: fetchedData.placeDetail.checkInPoint?.toString() || "",
-                        checkInRangeMeter: fetchedData.placeDetail.checkInRangeMeter.toString() || "",
-                        timeOpen: fetchedData.placeDetail.timeOpen ? parseTimeString(fetchedData.placeDetail.timeOpen) : new Date(new Date().setHours(0, 0, 0, 0)),
-                        timeClose: fetchedData.placeDetail.timeClose ? parseTimeString(fetchedData.placeDetail.timeClose) : new Date(new Date().setHours(0, 0, 0, 0)),
-                        isClosed: fetchedData.placeDetail.isClosed || false,
-                        bestTimeToVisit: fetchedData.placeDetail.bestTimeToVisit || "",
-                        priceRangeTop: fetchedData.placeDetail.priceRangeTop?.toString() || "",
-                        priceRangeBottom: fetchedData.placeDetail.priceRangeBottom?.toString() || "",
-                        isVerified: fetchedData.placeDetail.isVerified || false,
-                        alternativeName: fetchedData.placeDetail.alternativeName || "",
-                        operator: fetchedData.placeDetail.operator || "",
-                        url: fetchedData.placeDetail.url || "",
-                        sectionList: fetchedData.placeDetail.sectionList?.map(sect => ({
-                           title: sect.title || "",
-                           content: sect.content || "",
-                           image: {
-                              imageUrl: sect.image?.imageUrl || "",
-                              imagePublicId: sect.image?.imagePublicId || "",
-                           }
-                        })) || [],
-                     }
-                  });
+      if (!isUpdate || !placeId) return;
+      const fetchPlaceData = async () => {
+         try {
+            setLoadingState(true);
+            const fetchedData = await placeAction.getPlaceById(placeId);
+            reset({
+               name: fetchedData.name,
+               longitude: fetchedData.longitude.toString(),
+               latitude: fetchedData.latitude.toString(),
+               address: {
+                  provinceCode: fetchedData.address.province.code,
+                  districtCode: fetchedData.address.district.code,
+                  wardCode: fetchedData.address.ward?.code,
+                  street: fetchedData.address.street?.toString(),
+               },
+               coverImage: {
+                  imageUrl: fetchedData.coverImage?.imageUrl,
+                  imagePublicId: fetchedData.coverImage?.imagePublicId,
+               },
+               categoryId: fetchedData.category.name.toString(),
+               placeDetail: {
+                  ...(fetchedData.placeDetail || {}),
+                  checkInPoint: fetchedData.placeDetail?.checkInPoint.toString(),
+                  checkInRangeMeter: fetchedData.placeDetail?.checkInRangeMeter.toString(),
+                  timeOpen: fetchedData.placeDetail?.timeOpen
+                     ? parseTimeString(fetchedData.placeDetail.timeOpen)
+                     : new Date(new Date().setHours(0, 0, 0, 0)),
+                  timeClose: fetchedData.placeDetail?.timeClose
+                     ? parseTimeString(fetchedData.placeDetail.timeClose)
+                     : new Date(new Date().setHours(0, 0, 0, 0)),
+                  priceRangeTop: fetchedData.placeDetail?.priceRangeTop.toString(),
+                  priceRangeBottom: fetchedData.placeDetail?.priceRangeBottom.toString(),
                }
-            } catch (error) {
-               toast.error(`Không thể tải thông tin địa điểm (${error})`);
-            } finally {
-               setLoadingState(false);
-            }
-         };
-
-         fetchData();
-      }
-   }, [isUpdate, placeId, form, setLoadingState]);
+            });
+            setSections(fetchedData.placeDetail?.sectionList || []);
+         } catch (error) {
+            toast.error(`Không thể tải thông tin địa điểm (${error})`);
+         } finally {
+            setLoadingState(false);
+         }
+      };
+      fetchPlaceData();
+   }, [isUpdate, placeId, reset]);
 
    // Load coordinates data
    useEffect(() => {
@@ -318,7 +306,7 @@ export default function PlaceForm({
                      />
 
                      {/* Opening Hours */}
-                     <div className="flex flex-row grid-cols-subgrid col-span-3 justify-between">
+                     <div className="flex flex-row grid-cols-subgrid col-span-1 justify-between">
                         <FormField
                            control={form.control}
                            name="placeDetail.isClosed"
@@ -401,11 +389,11 @@ export default function PlaceForm({
                   />
 
                   {/* Cover Images */}
-                  <div className="w-full px-[40px] place-content-center bg-red-300">
+                  <div className="w-full px-[40px]">
                      <AddImageField
                         selectedImage={selectedImage}
                         setSelectedImage={setSelectedImage}
-                        updateImageUrl={updateImages?.imageUrl}
+                        updateImageUrl={updateImageUrl?.imageUrl}
                         label="Ảnh bìa của địa điểm"
                      />
                   </div>

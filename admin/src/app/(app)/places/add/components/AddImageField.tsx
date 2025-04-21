@@ -38,11 +38,11 @@ export default function AddImageField({
    };
 
    return (
-      <div className="w-full px-[40px] bg-blue-300">
+      <div className="w-full items-center">
          <Label htmlFor="image">{label}</Label>
          <div
             {...getRootProps()}
-            className={`w-[1600px] w-min-[400px] h-[900px] py-[12px] rounded-lg border-[2px] border-dashed border-black1 cursor-pointer }`}
+            className={`w-[800px] w-min-[400px] h-[450px] py-[12px] rounded-lg border-[2px] border-dashed border-black1 cursor-pointer }`}
          >
             <input {...getInputProps()} />
 
