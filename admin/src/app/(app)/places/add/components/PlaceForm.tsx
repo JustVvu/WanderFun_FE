@@ -34,6 +34,7 @@ import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action";
 import { parseTimeString } from "@/helpers/convertHelper";
 import { SectionDTO } from "@/models/places/section";
 import { Textarea } from "@/components/ui/textarea";
+import { getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode } from "@/app/actions/addresses/address-action";
 
 interface PlaceFormProps {
    isUpdate?: boolean;
@@ -122,10 +123,17 @@ export default function PlaceForm({
          const fetchGeocodeData = async () => {
             try {
                setLoadingState(true);
-               await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
-                  form.setValue('longitude', lng);
-                  form.setValue('latitude', lat);
-                  form.setValue('address.street', result[0]?.formatted_address || '');
+               form.setValue('longitude', lng);
+               form.setValue('latitude', lat);
+               await fetchDataPlaceDetailByCoordinates(lat, lng, async (result) => {
+                  const province = await getProvinceByName(result[0]?.compound?.province);
+                  form.setValue('address.provinceCode', province.code);
+
+                  const district = await getDistrictByNameAndProvinceCode(result[0]?.compound?.district, province.code);
+                  form.setValue('address.districtCode', district.code);
+
+                  const ward = await getWardByNameAndDistrictCode(result[0]?.compound?.commune, district.code);
+                  form.setValue('address.wardCode', ward.code);
                });
             } catch (error) {
                toast.error(`Không thể lấy thông tin địa chỉ từ tọa độ (${error})`);
@@ -136,7 +144,7 @@ export default function PlaceForm({
 
          fetchGeocodeData();
       }
-   }, [lat, lng, form, setLoadingState]);
+   }, [lat, lng, form]);
 
    useEffect(() => {
       const mappedSections = sections.map(sect => ({
@@ -400,6 +408,7 @@ export default function PlaceForm({
                                  <Textarea
                                     placeholder="Nhập nội dung"
                                     {...field}
+                                    value={field.value ?? ""}
                                     className="h-min-[100px] bg-white3 focus:bg-white focus:border-blue2 flex-grow-[3]"
                                  />
                               </FormControl>

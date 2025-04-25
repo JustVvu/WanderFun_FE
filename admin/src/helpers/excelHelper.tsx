@@ -79,11 +79,11 @@ export const excelImportHelper = async (
          // Extract province and district names from the Excel data
          const provinceName = String(item.province ?? '');
          const districtName = String(item.district ?? '');
-         const wardName = String(item.ward ?? '');
+         //const wardName = String(item.ward ?? '');
 
          let provinceCode = String(item.provinceCode ?? '');
          let districtCode = String(item.districtCode ?? '');
-         let wardCode = String(item.wardCode ?? '');
+         //let wardCode = String(item.wardCode ?? '');
 
          // If provinceCode is missing but we have provinceName, fetch the province code
          if (!provinceCode && provinceName) {
@@ -104,14 +104,14 @@ export const excelImportHelper = async (
             }
          }
 
-         if (!wardCode && wardName && districtCode) {
-            try {
-               const ward = await getWardByNameAndDistrictCode(wardName, districtCode);
-               wardCode = ward.code;
-            } catch (error) {
-               console.error(`Failed to fetch ward code for "${wardName}" in district "${districtCode}":`, error);
-            }
-         }
+         // if (!wardCode && wardName && districtCode) {
+         //    try {
+         //       const ward = await getWardByNameAndDistrictCode(wardName, districtCode);
+         //       wardCode = ward.code;
+         //    } catch (error) {
+         //       console.error(`Failed to fetch ward code for "${wardName}" in district "${districtCode}":`, error);
+         //    }
+         // }
 
          // Create the place payload with resolved codes
          const placePayload: CreatePlacePayload = {
@@ -119,8 +119,8 @@ export const excelImportHelper = async (
             address: {
                provinceCode,
                districtCode,
-               wardCode: String(item.wardCode ?? ''),
-               street: String(item.street ?? ''),
+               //wardCode: String(item.wardCode ?? ''),
+               //street: String(item.street ?? ''),
             },
             categoryId: String(item.categoryId ?? ''),
             longitude: String(item.longitude ?? ''),

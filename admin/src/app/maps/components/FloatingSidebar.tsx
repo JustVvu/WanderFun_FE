@@ -13,7 +13,6 @@ import Image from "next/image";
 import { Place } from "@/models/places/place";
 import placeholderImage from "@/app/assets/banner.png";
 import { Label } from "@/components/ui/label";
-import { PlaceImagesCarousel } from "./PlaceImagesCarousel";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
@@ -69,20 +68,20 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                                     {place.name}
                                  </Label>
                                  <Label className="text-sm text-black4">
-                                    Địa chỉ: {place.address.ward.fullName}, {place.address.district.fullName}, {place.address.province.fullName}
+                                    Địa chỉ: {place.address.ward?.fullName}, {place.address.district?.fullName}, {place.address.province?.fullName}
                                  </Label>
                                  <Label className="text-sm text-black4">
                                     Loại hình: {place.category.name}
                                  </Label>
-                                 {/* <Label className="text-sm text-black4">
+                                 <Label className="text-sm text-black4">
                                     Thời gian hoạt động:
-                                    {place.openAllDay ? " Hoạt động cả ngày" : (place.timeOpen && place.timeClose ? ` ${place.timeOpen.toString()} - ${place.timeClose.toString()}` : "")}
+                                    {(place.placeDetail.timeOpen && place.placeDetail.timeClose ? ` ${place.placeDetail.timeOpen.toString()} - ${place.placeDetail.timeClose.toString()}` : "")}
                                  </Label>
                                  <Label className="text-sm text-black4">
-                                    Tình trạng: {place.closing
-                                       ? <a className="text-red4">Đang đóng cửa</a>
+                                    Tình trạng: {place.placeDetail.isClosed
+                                       ? <a className="text-red4">Đã đóng cửa</a>
                                        : <a className="text-blue2">Đang hoạt động</a>}
-                                 </Label> */}
+                                 </Label>
                                  <div className="grid grid-cols-4 justify-between space-x-2">
                                     <Label className="col-span-2 text-sm text-black4">
                                        Kinh độ: {place.longitude}
@@ -91,17 +90,17 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                                        Vĩ độ: {place.latitude}
                                     </Label>
                                  </div>
-                                 {/* <div className="grid grid-cols-5 justify-between space-x-2">
+                                 <div className="grid grid-cols-5 justify-between space-x-2">
                                     <Label className="col-span-3 text-sm text-black4">
-                                       Khoảng cách Check-in: {place.checkInRange} (m),
+                                       Khoảng cách Check-in: {place.placeDetail.checkInRangeMeter} (m),
                                     </Label>
                                     <Label className="col-span-2 text-sm text-black4">
-                                       Điểm Check-in: {place.checkInRange}
+                                       Điểm Check-in: {place.placeDetail.checkInRangeMeter}
                                     </Label>
                                  </div>
                                  <Label className="text-sm text-black4">
-                                    Link website: <a href={place.link} target="_blank" rel="noopener noreferrer" className="text-blue2 underline">{place.link}</a>
-                                 </Label> */}
+                                    Link website: <a href={place.placeDetail.url} target="_blank" rel="noopener noreferrer" className="text-blue2 underline">{place.placeDetail.url}</a>
+                                 </Label>
                               </SidebarGroupContent>
                            </CollapsibleContent>
                         </SidebarGroup>
@@ -124,27 +123,33 @@ export default function FloatingSidebar({ place, isOpen, setIsOpen }: FloatingSi
                            </SidebarGroupLabel>
                            <CollapsibleContent>
                               <SidebarGroupContent className="px-2 self-center w-full space-y-[40px]">
-                                 {/* {place.description.map((desc, index) => (
-                                    <div key={index} className="flex flex-col px-2 w-full h-fit">
-                                       <Label className="text-lg font-semibold text-black4">
-                                          {desc.title}
-                                       </Label>
-                                       <Label className="text-sm text-black4">
-                                          {desc.content}
-                                       </Label>
-                                       {desc.imageUrl && (
-                                          <div className="flex w-[100px] h-[100px] relative justify-center ">
-                                             <Image
-                                                src={desc.imageUrl}
-                                                alt="Description image"
-                                                className="rounded-lg object-cover"
-                                                quality={100}
-                                                fill
-                                             />
-                                          </div>
-                                       )}
-                                    </div>
-                                 ))} */}
+                                 {place.placeDetail.sectionList && place.placeDetail.sectionList.length > 0 ? (
+                                    place.placeDetail.sectionList.map((sect, index) => (
+                                       <div key={index} className="flex flex-col px-2 w-full h-fit">
+                                          <Label className="text-lg font-semibold text-black4">
+                                             {sect.title}
+                                          </Label>
+                                          <Label className="text-sm text-black4">
+                                             {sect.content}
+                                          </Label>
+                                          {sect.image.imageUrl && (
+                                             <div className="flex w-[100px] h-[100px] relative justify-center ">
+                                                <Image
+                                                   src={sect.image.imageUrl}
+                                                   alt="Description image"
+                                                   className="rounded-lg object-cover"
+                                                   quality={100}
+                                                   fill
+                                                />
+                                             </div>
+                                          )}
+                                       </div>
+                                    ))
+                                 ) : (
+                                    <Label className="text-sm text-black4">
+                                       Chưa có mô tả chi tiết cho địa điểm này.
+                                    </Label>
+                                 )}
                               </SidebarGroupContent>
                            </CollapsibleContent>
                         </SidebarGroup>
