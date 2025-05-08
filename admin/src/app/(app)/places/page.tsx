@@ -43,7 +43,6 @@ export default function Place() {
             setLoadingState(true)
             const rawData = await readExcelFile(file);
             const jsonData = convertExcelArrayToJSON(rawData);
-            //const payload = adminExcelImportHelper(jsonData);
             const payload = await excelImportHelper(jsonData);
             console.log('Payload:', payload);
             placeAction.addListPlace(payload)
@@ -63,58 +62,61 @@ export default function Place() {
         }
     };
 
-    // const handleDataImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-    //     console.log('Uploading file:', file.name);
+    /*
+    const handleDataImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        console.log('Uploading file:', file.name);
 
-    //     try {
-    //         // Read the Excel file to get the raw data
-    //         const rawData = await readExcelFile(file);
-    //         const jsonData = convertExcelArrayToJSON(rawData);
-    //         //console.log('JSON Data:', jsonData);
-    //         const payload = adminExcelImportHelper(jsonData);
-    //         console.log('Payload:', payload);
-    //         placeAction.addListPlace(payload)
-    //             .then(() => {
-    //                 toast.success('Thêm địa điểm thành công!');
-    //                 getData();
-    //             })
-    //             .catch((error) => {
-    //                 console.error('Error adding place:', error);
-    //                 toast.error(`Error adding place: ${String(error)}`);
-    //             })
+        try {
+            // Read the Excel file to get the raw data
+            const rawData = await readExcelFile(file);
+            const jsonData = convertExcelArrayToJSON(rawData);
+            //console.log('JSON Data:', jsonData);
+            const payload = adminExcelImportHelper(jsonData);
+            console.log('Payload:', payload);
+            placeAction.addListPlace(payload)
+                .then(() => {
+                    toast.success('Thêm địa điểm thành công!');
+                    getData();
+                })
+                .catch((error) => {
+                    console.error('Error adding place:', error);
+                    toast.error(`Error adding place: ${String(error)}`);
+                })
 
-    //         // })
-    //     } catch (err) {
-    //         //console.error('Error processing Excel file:', err);
-    //         toast.error(`Error processing Excel file: ${String(err)}`);
-    //     }
-    // };
+            // })
+        } catch (err) {
+            //console.error('Error processing Excel file:', err);
+            toast.error(`Error processing Excel file: ${String(err)}`);
+        }
+    };
+    
 
-    // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-    //     console.log('Uploading file:', file.name);
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        console.log('Uploading file:', file.name);
 
-    //     try {
-    //         // Read the Excel file to get the raw data
-    //         const rawData = await readExcelFile(file);
-    //         // Process the raw data to merge column 2 and column 4 from each row
-    //         const processedData = processExcelDataByColumnNames(rawData, ["Province"]);
-    //         const fetchExcelData = await fetchLatLngFromList(processedData);
-    //         console.log('Fetched Excel results:', fetchExcelData);
-    //         const exportData = fetchExcelData.map((result) => ({
-    //             Latitude: result.geometry.location.lat,
-    //             Longitude: result.geometry.location.lng,
-    //         }));
+   try {
+            // Read the Excel file to get the raw data
+            const rawData = await readExcelFile(file);
+            // Process the raw data to merge column 2 and column 4 from each row
+            const processedData = processExcelDataByColumnNames(rawData, ["Province"]);
+            const fetchExcelData = await fetchLatLngFromList(processedData);
+            console.log('Fetched Excel results:', fetchExcelData);
+            const exportData = fetchExcelData.map((result) => ({
+                Latitude: result.geometry.location.lat,
+                Longitude: result.geometry.location.lng,
+            }));
 
-    //         exportDataToExcel(exportData, 'exported_place_results.xlsx');
-    //     } catch (err) {
-    //         //console.error('Error processing Excel file:', err);
-    //         toast.error(`Error processing Excel file: ${String(err)}`);
-    //     }
-    // };
+            exportDataToExcel(exportData, 'exported_place_results.xlsx');
+        } catch (err) {
+            //console.error('Error processing Excel file:', err);
+            toast.error(`Error processing Excel file: ${String(err)}`);
+        }
+    }; 
+    */
 
     return (
         <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
