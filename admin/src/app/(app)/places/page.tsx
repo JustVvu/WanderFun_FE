@@ -8,7 +8,7 @@ import { useColumns } from "./columns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { Place } from "@/models/places/place"
-import * as placeAction from '@/app/actions/places/places-action'
+import * as placeAction from '@/app/services/places/placesServices'
 import { Input } from "@/components/ui/input"
 import { convertExcelArrayToJSON, readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
 import { toast } from "sonner"

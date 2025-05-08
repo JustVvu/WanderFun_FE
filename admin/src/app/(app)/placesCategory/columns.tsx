@@ -13,19 +13,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColumnHeader"
 
-import { Place } from "@/models/places/place"
+import { PlaceCategory } from "@/models/places/placeCategory"
 import { useRouter } from "next/navigation"
-import { deletePlace } from "@/app/services/places/placesServices"
+import { deletePlaceCategory } from "@/app/services/places/placeCategoriesServices"
 import { useLoading } from "@/contexts/LoadingContext"
 
-export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
+export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] {
    const router = useRouter();
    const { setLoadingState } = useLoading();
 
-   const handleDeletePlace = async (placeId: number) => {
+   const handleDeletePlaceCategory = async (placeCategoryId: number) => {
       try {
          setLoadingState(true);
-         await deletePlace(placeId.toString(), refetchData);
+         await deletePlaceCategory(placeCategoryId.toString(), refetchData);
       }
       catch (err) {
          console.log(err);
@@ -71,64 +71,18 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          enableHiding: false,
       },
       {
-         id: "address",
+         accessorKey: "nameEn",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-[200px]" column={column} title="Địa chỉ" />
+            <DataTableColumnHeader className="w-[200px]" column={column} title="Tên địa điểm" />
          ),
-         cell: ({ row }) => {
-            const place = row.original;
-            // Format address if available
-            const address = place.address ?
-               `${place.address.district.name || ''}, ${place.address.province.name || ''}`.trim() :
-               '';
-            return <div className="w-[200px] truncate">{address}</div>;
-         },
-         enableSorting: true,
-         enableHiding: false,
-      },
-      {
-         id: "category",
-         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Phân loại" />
-         ),
-         cell: ({ row }) => {
-            const place = row.original;
-            return <div className="w-[200px]">{place.category?.name || ''}</div>;
-         },
-         enableSorting: true,
-         enableHiding: false,
-      },
-      {
-         accessorKey: "rating",
-         header: ({ column }) => (
-            <DataTableColumnHeader className="w-[100px] " column={column} title="Điểm đánh giá" />
-         ),
-         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("rating")}</div>,
-         enableSorting: true,
-         enableHiding: false,
-      },
-      {
-         accessorKey: "totalRating",
-         header: ({ column }) => (
-            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt đánh giá" />
-         ),
-         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalRating")}</div>,
-         enableSorting: true,
-         enableHiding: false,
-      },
-      {
-         accessorKey: "totalFeedback",
-         header: ({ column }) => (
-            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt nhận xét" />
-         ),
-         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalFeedback")}</div>,
+         cell: ({ row }) => <div className="w-[200px] truncate ">{row.getValue("nameEn")}</div>,
          enableSorting: true,
          enableHiding: false,
       },
       {
          id: "actions",
          cell: ({ row }) => {
-            const place = row.original
+            const placeCategory = row.original
             return (
                <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -140,7 +94,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
                   <DropdownMenuContent align="end">
                      <DropdownMenuItem
                         onClick={() => {
-                           router.push(`/places/add?id=${place.id}`);
+                           router.push(`/placeCategorys/add?id=${placeCategory.id}`);
                         }}
                      >
                         Chỉnh sửa địa điểm
@@ -148,7 +102,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
                      <DropdownMenuSeparator />
                      <DropdownMenuItem
                         onClick={() => {
-                           handleDeletePlace(place.id);
+                           handleDeletePlaceCategory(placeCategory.id);
                         }}
                      >
                         Xóa địa điểm

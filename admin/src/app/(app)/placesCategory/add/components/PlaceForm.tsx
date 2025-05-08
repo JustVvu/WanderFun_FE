@@ -28,7 +28,7 @@ import {
    PlaceFormValues,
    defaultFormValues,
    mapFormValuesToApiPayload
-} from "../components/PlaceFormSchema";
+} from "./PlaceFormSchema";
 import * as placeAction from '@/app/services/places/placesServices';
 import { fetchDataPlaceDetailByCoordinates } from "@/app/services/mapServices";
 import { parseTimeString } from "@/helpers/convertHelper";
