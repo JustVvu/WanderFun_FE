@@ -47,26 +47,26 @@ export const convertExcelArrayToJSON = (data: unknown[][]): Record<string, unkno
    });
 };
 
-export const adminExcelImportHelper = (
-   items: Record<string, unknown>[]
-): CreatePlacePayload[] => {
-   return items.map((item) => ({
-      name: String(item.name ?? ''),
-      address: {
-         provinceCode: String(item.provinceCode ?? ''),
-         districtCode: String(item.districtCode ?? ''),
-         wardCode: String(item.wardCode ?? ''),
-         street: String(item.street ?? ''),
-      },
-      categoryId: String(item.categoryId ?? ''),
-      longitude: String(item.longitude ?? ''),
-      latitude: String(item.latitude ?? ''),
-      coverImage: {
-         imageUrl: String(item.imageUrl ?? ''),
-         imagePublicId: String(item.imagePublicId ?? ''),
-      },
-   }));
-};
+// export const adminExcelImportHelper = (
+//    items: Record<string, unknown>[]
+// ): CreatePlacePayload[] => {
+//    return items.map((item) => ({
+//       name: String(item.name ?? ''),
+//       address: {
+//          provinceCode: String(item.provinceCode ?? ''),
+//          districtCode: String(item.districtCode ?? ''),
+//          wardCode: String(item.wardCode ?? ''),
+//          street: String(item.street ?? ''),
+//       },
+//       categoryId: String(item.categoryId ?? ''),
+//       longitude: String(item.longitude ?? ''),
+//       latitude: String(item.latitude ?? ''),
+//       coverImage: {
+//          imageUrl: String(item.imageUrl ?? ''),
+//          imagePublicId: String(item.imagePublicId ?? ''),
+//       },
+//    }));
+// };
 
 export const excelImportHelper = async (
    items: Record<string, unknown>[]
@@ -81,11 +81,11 @@ export const excelImportHelper = async (
          const districtName = String(item.district ?? '');
          const wardName = String(item.ward ?? '');
 
+         /*
          let provinceCode = String(item.provinceCode ?? '');
          let districtCode = String(item.districtCode ?? '');
          let wardCode = String(item.wardCode ?? '');
 
-         // If provinceCode is missing but we have provinceName, fetch the province code
          if (!provinceCode && provinceName) {
             try {
                const province = await getProvinceByName(provinceName);
@@ -112,14 +112,15 @@ export const excelImportHelper = async (
                console.error(`Failed to fetch ward code for "${wardName}" in district "${districtCode}":`, error);
             }
          }
+         */
 
          // Create the place payload with resolved codes
          const placePayload: CreatePlacePayload = {
             name: String(item.name ?? ''),
             address: {
-               provinceCode,
-               districtCode,
-               wardCode: String(item.wardCode ?? ''),
+               provinceName,
+               districtName,
+               wardName,
                street: String(item.street ?? ''),
             },
             categoryId: String(item.categoryId ?? ''),
