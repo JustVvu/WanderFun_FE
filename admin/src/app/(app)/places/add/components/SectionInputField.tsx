@@ -11,10 +11,11 @@ interface SectionInputFieldProps {
    sections: SectionDTO[];
    setSections: React.Dispatch<React.SetStateAction<SectionDTO[]>>;
    setSectionImages: React.Dispatch<React.SetStateAction<File[]>>;
+   label?: string;
 }
 
 const SectionInputField: React.FC<SectionInputFieldProps> = (
-   { sections, setSections, setSectionImages },
+   { sections, setSections, setSectionImages, label = 'Thông tin mô tả thêm' },
 ) => {
    const [selectedImages, setSelectedImages] = useState<(File | null)[]>(sections.map(() => null));
 
@@ -53,13 +54,22 @@ const SectionInputField: React.FC<SectionInputFieldProps> = (
       newSelectedImages[index] = file;
       setSelectedImages(newSelectedImages);
 
-      const newSections = [...sections];
-      setSections(newSections);
+      // If we're removing an image but there's an existing image in the section
+      if (file === null && sections[index].image?.imageUrl) {
+         // Clear the existing image reference in the section
+         const newSections = [...sections];
+         newSections[index].image = {
+            id: 0,
+            imageUrl: '',
+            imagePublicId: ''
+         };
+         setSections(newSections);
+      }
    };
 
    return (
       <div className="w-full px-[40px] ">
-         <Label htmlFor="section">Thông tin giới thiệu</Label>
+         <Label htmlFor="section" className="mr-3">{label}</Label>
          {sections.map((section, index) => (
             <div key={index} className="flex flex-col space-y-[12px]">
                <FormFieldInput
@@ -80,6 +90,7 @@ const SectionInputField: React.FC<SectionInputFieldProps> = (
                      <SingleImageField
                         selectedImage={selectedImages[index]}
                         setSelectedImage={(file) => handleImageChange(index, file)}
+                        updateImage={section.image?.imageUrl || ''}
                      />
                   </div>
                </div>

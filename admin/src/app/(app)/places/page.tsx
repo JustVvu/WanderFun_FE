@@ -12,12 +12,14 @@ import * as placeAction from '@/app/actions/places/places-action'
 import { Input } from "@/components/ui/input"
 import { convertExcelArrayToJSON, readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
 import { toast } from "sonner"
+import { useLoading } from "@/contexts/LoadingContext"
 
 
 export default function Place() {
 
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { setLoadingState } = useLoading()
 
     const [data, setData] = useState<Place[]>([]);
 
@@ -38,6 +40,7 @@ export default function Place() {
         console.log('Uploading file:', file.name);
 
         try {
+            setLoadingState(true)
             const rawData = await readExcelFile(file);
             const jsonData = convertExcelArrayToJSON(rawData);
             const payload = await excelImportHelper(jsonData);
@@ -54,6 +57,8 @@ export default function Place() {
         } catch (err) {
             //console.error('Error processing Excel file:', err);
             toast.error(`Error processing Excel file: ${String(err)}`);
+        } finally {
+            setLoadingState(false)
         }
     };
 

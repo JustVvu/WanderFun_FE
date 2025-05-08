@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
@@ -9,6 +9,7 @@ interface AddImageFieldProps {
    setSelectedImage: React.Dispatch<React.SetStateAction<File | null>>;
    updateImageUrl?: string;
    label?: string;
+   onExistingImageDelete?: () => void; // New callback prop
 }
 
 export default function AddImageField({
@@ -16,12 +17,21 @@ export default function AddImageField({
    setSelectedImage,
    updateImageUrl,
    label = "Chọn hình ảnh",
+   onExistingImageDelete,
 }: AddImageFieldProps) {
+
+   const [showExistingImage, setShowExistingImage] = useState<boolean>(!!updateImageUrl);
+
+   // Update showExistingImage when updateImageUrl prop changes
+   useEffect(() => {
+      setShowExistingImage(!!updateImageUrl);
+   }, [updateImageUrl]);
 
    const onDrop = useCallback((acceptedFiles: File[]) => {
       // Handle the uploaded file here (just take the first one)
       if (acceptedFiles.length > 0) {
          setSelectedImage(acceptedFiles[0]);
+         setShowExistingImage(false);
       }
    }, [setSelectedImage]);
 
@@ -36,6 +46,15 @@ export default function AddImageField({
    const handleRemoveImage = () => {
       setSelectedImage(null);
    };
+
+   const handleRemoveExistingImage = () => {
+      setShowExistingImage(false);
+      // Notify parent component that existing image is deleted
+      if (onExistingImageDelete) {
+         onExistingImageDelete();
+      }
+   };
+
 
    return (
       <div className="w-full items-center">
@@ -52,7 +71,7 @@ export default function AddImageField({
                </div>
             ) : (
                <div className="h-full flex flex-row px-[12px] items-center">
-                  {updateImageUrl && !selectedImage && (
+                  {updateImageUrl && showExistingImage && !selectedImage && (
                      <div
                         className="relative w-full h-full flex-grow"
                         onClick={(event) => event.stopPropagation()}
@@ -63,6 +82,10 @@ export default function AddImageField({
                            className="rounded-lg object-cover"
                            fill
                            sizes="(max-width: 600px) 100vw, 50vw"
+                        />
+                        <X
+                           onClick={handleRemoveExistingImage}
+                           className="absolute top-2 right-2 size-[20px] bg-white bg-opacity-70 rounded-xl text-red4 cursor-pointer"
                         />
                      </div>
                   )}

@@ -1,4 +1,4 @@
-import { PlaceCategory, PlaceCategoryPayload } from "@/models/places/placeCategory";
+import { PlaceCategory, PlaceCategoryCreatePayload } from "@/models/places/placeCategory";
 import * as utils from "@/app/actions/utils";
 import client from "@/services/client";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ export const getAllPlaceCategories = async (): Promise<PlaceCategory[]> => {
    return response.data;
 }
 
-export const createPlaceCategory = async (data: PlaceCategoryPayload): Promise<void> => {
+export const createPlaceCategory = async (data: PlaceCategoryCreatePayload): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    const response = await client<void>('/place/categories',
       {
@@ -31,10 +31,10 @@ export const createPlaceCategory = async (data: PlaceCategoryPayload): Promise<v
    );
    console.log(response);
    if (response.error == false) {
-      toast.success('Thêm địa điểm thành công');
+      toast.success('Thêm phân loại địa điểm thành công');
    }
    else {
-      toast.error('Thêm địa điểm thất bại, lỗi: ' + response.message);
+      toast.error('Thêm phân loại địa điểm thất bại, lỗi: ' + response.message);
       throw new Error('Error adding place');
    }
    return response.data;

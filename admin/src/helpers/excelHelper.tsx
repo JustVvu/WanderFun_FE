@@ -95,14 +95,14 @@ export const excelImportHelper = async (
             }
          }
 
-         if (!districtCode && districtName && provinceCode) {
-            try {
-               const district = await getDistrictByNameAndProvinceCode(districtName, provinceCode);
-               districtCode = district.code;
-            } catch (error) {
-               console.error(`Failed to fetch district code for "${districtName}" in province "${provinceCode}":`, error);
-            }
-         }
+if (!districtCode && districtName && provinceCode) {
+   try {
+      const district = await getDistrictByNameAndProvinceCode(districtName, provinceCode);
+      districtCode = district.code;
+   } catch (error) {
+      console.error(`Failed to fetch district code for "${districtName}" in province "${provinceCode}":`, error);
+   }
+}
 
          if (!wardCode && wardName && districtCode) {
             try {

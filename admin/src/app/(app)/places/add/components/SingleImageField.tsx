@@ -56,6 +56,7 @@ export default function SingleImageField({ selectedImage, setSelectedImage, upda
                            src={updateImage}
                            alt="Updated image"
                            className="rounded-lg object-cover"
+                           fill
                            sizes="(max-width: 600px) 100vw, 50vw"
                         />
                         <X
