@@ -17,6 +17,20 @@ export const getAllPlaceCategories = async (): Promise<PlaceCategory[]> => {
    return response.data;
 }
 
+export const getPlaceCategoryById = async (placeCategoryId: string): Promise<PlaceCategory> => {
+   const token = await utils.getAuthTokenFromServerCookies();
+   const response = await client<PlaceCategory>(`/place/categories/${placeCategoryId}`,
+      {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+         },
+      }
+   );
+   return response.data;
+}
+
 export const createPlaceCategory = async (data: PlaceCategoryCreatePayload): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    const response = await client<void>('/place/categories',
@@ -59,6 +73,29 @@ export const updatePlaceCategory = async (placeCategoryId: string, data: PlaceCa
    else {
       toast.error('Cập nhật phân loại địa điểm thất bại, lỗi: ' + response.message);
       throw new Error('Error adding place');
+   }
+   return response.data;
+}
+
+export const deletePlaceCategory = async (placeCategoryId: string, callback: () => void): Promise<void> => {
+   const token = await utils.getAuthTokenFromServerCookies();
+   const response = await client<void>(`/place/categories/${placeCategoryId}`,
+      {
+         method: 'DELETE',
+         headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+         },
+      }
+   );
+   console.log(response);
+   if (response.error == false) {
+      toast.success('Xóa phân loại thành công');
+      callback();
+   }
+   else {
+      toast.error('Xóa phân loại thất bại, lỗi: ' + response.message);
+      throw new Error('Error deleting place');
    }
    return response.data;
 }

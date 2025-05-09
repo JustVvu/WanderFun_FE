@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColumnHeader"
 
-import { PlaceCategory } from "@/models/places/placeCategory"
 import { useRouter } from "next/navigation"
 import { deletePlaceCategory } from "@/app/services/places/placeCategoriesServices"
 import { useLoading } from "@/contexts/LoadingContext"
+import { PlaceCategory } from "@/models/places/placeCategory"
 
 export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] {
    const router = useRouter();
@@ -97,7 +97,7 @@ export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] 
                            router.push(`/placeCategorys/add?id=${placeCategory.id}`);
                         }}
                      >
-                        Chỉnh sửa địa điểm
+                        Chỉnh sửa phân loại
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
                      <DropdownMenuItem
@@ -105,7 +105,7 @@ export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] 
                            handleDeletePlaceCategory(placeCategory.id);
                         }}
                      >
-                        Xóa địa điểm
+                        Xóa phân loại
                      </DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>

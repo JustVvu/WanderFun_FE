@@ -55,9 +55,11 @@ export default function AppSearchBar({ onPlaceDetailFetched }: AppSearchBarProps
       //console.log("Selected:", prediction);
       setQuery(prediction.description);
       setPredictions([]);
-      mapAction.fetchDataPlaceDetail(prediction.place_id, (result) => {
+      mapAction.fetchDataPlaceDetail(prediction.place_id).then((result) => {
          onPlaceDetailFetched(result);
-      })
+      }).catch((error) => {
+         console.error("Error fetching place details:", error);
+      });
    };
 
    return (

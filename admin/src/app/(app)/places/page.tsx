@@ -4,15 +4,18 @@ import { MapPinPlus, MapPinned, FileSpreadsheet } from "lucide-react"
 
 import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
-import { useColumns } from "./columns"
+import { useColumns as usePlaceColumns } from "./placeColumns"
+import { useColumns as usePlaceCategoryColumns } from "./placeCategoryColumns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { Place } from "@/models/places/place"
-import * as placeAction from '@/app/services/places/placesServices'
+import * as placeServices from '@/app/services/places/placesServices'
+import * as placeCategoryServices from '@/app/services/places/placeCategoriesServices'
 import { Input } from "@/components/ui/input"
 import { convertExcelArrayToJSON, readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
 import { toast } from "sonner"
 import { useLoading } from "@/contexts/LoadingContext"
+import { PlaceCategory } from "@/models/places/placeCategory"
 
 
 export default function Place() {
@@ -21,18 +24,29 @@ export default function Place() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { setLoadingState } = useLoading()
 
-    const [data, setData] = useState<Place[]>([]);
+    const [placeData, setPlaceData] = useState<Place[]>([]);
+    const [placeCategoryData, setPlaceCategoryData] = useState<PlaceCategory[]>([]);
 
-    const getData = useCallback(async () => {
-        const fetchedData = await placeAction.getAllPlaces();
-        setData(fetchedData);
+    const getPlaceData = useCallback(async () => {
+        const fetchedPlaceData = await placeServices.getAllPlaces();
+        setPlaceData(fetchedPlaceData);
     }, []);
 
     useEffect(() => {
-        getData();
-    }, [getData]);
+        getPlaceData();
+    }, [getPlaceData]);
 
-    const columns = useColumns(getData);
+    const getPlaceCategoryData = useCallback(async () => {
+        const fetchedPlaceCategoryData = await placeCategoryServices.getAllPlaceCategories();
+        setPlaceCategoryData(fetchedPlaceCategoryData);
+    }, []);
+
+    useEffect(() => {
+        getPlaceCategoryData();
+    }, [getPlaceCategoryData]);
+
+    const placeColumns = usePlaceColumns(getPlaceData);
+    const placeCategoryColumns = usePlaceCategoryColumns(getPlaceCategoryData);
 
     const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -45,10 +59,10 @@ export default function Place() {
             const jsonData = convertExcelArrayToJSON(rawData);
             const payload = await excelImportHelper(jsonData);
             console.log('Payload:', payload);
-            placeAction.addListPlace(payload)
+            placeServices.addListPlace(payload)
                 .then(() => {
                     toast.success('Thêm địa điểm thành công!');
-                    getData();
+                    getPlaceData();
                 })
                 .catch((error) => {
                     console.error('Error adding place:', error);
@@ -62,61 +76,6 @@ export default function Place() {
         }
     };
 
-    /*
-    const handleDataImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        console.log('Uploading file:', file.name);
-
-        try {
-            // Read the Excel file to get the raw data
-            const rawData = await readExcelFile(file);
-            const jsonData = convertExcelArrayToJSON(rawData);
-            //console.log('JSON Data:', jsonData);
-            const payload = adminExcelImportHelper(jsonData);
-            console.log('Payload:', payload);
-            placeAction.addListPlace(payload)
-                .then(() => {
-                    toast.success('Thêm địa điểm thành công!');
-                    getData();
-                })
-                .catch((error) => {
-                    console.error('Error adding place:', error);
-                    toast.error(`Error adding place: ${String(error)}`);
-                })
-
-            // })
-        } catch (err) {
-            //console.error('Error processing Excel file:', err);
-            toast.error(`Error processing Excel file: ${String(err)}`);
-        }
-    };
-    
-
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        console.log('Uploading file:', file.name);
-
-   try {
-            // Read the Excel file to get the raw data
-            const rawData = await readExcelFile(file);
-            // Process the raw data to merge column 2 and column 4 from each row
-            const processedData = processExcelDataByColumnNames(rawData, ["Province"]);
-            const fetchExcelData = await fetchLatLngFromList(processedData);
-            console.log('Fetched Excel results:', fetchExcelData);
-            const exportData = fetchExcelData.map((result) => ({
-                Latitude: result.geometry.location.lat,
-                Longitude: result.geometry.location.lng,
-            }));
-
-            exportDataToExcel(exportData, 'exported_place_results.xlsx');
-        } catch (err) {
-            //console.error('Error processing Excel file:', err);
-            toast.error(`Error processing Excel file: ${String(err)}`);
-        }
-    }; 
-    */
 
     return (
         <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
@@ -153,10 +112,45 @@ export default function Place() {
             </div>
             <div >
                 <AppDataTable
-                    columns={columns}
-                    data={data}
+                    columns={placeColumns}
+                    data={placeData}
                     filterCritia='name'
                     filterPlaceholder='Tên địa diểm'
+                />
+            </div>
+
+
+            <div className='flex flex-row justify-between items-center '>
+                <h1 className='text-[24px] text-blue3 font-medium'>Quản lý phân loại địa điểm</h1>
+                <div className='flex flex-row justify-between items-center space-x-[2rem]'>
+                    <Button
+                        //onClick={() => router.push('placeCategorys/add')}
+                        className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
+                    >
+                        <MapPinPlus /> Thêm địa điểm
+                    </Button>
+
+                    {/* <Input
+                        type='file'
+                        ref={fileInputRef}
+                        accept='.xlsx, .xls, .csv'
+                        //onChange={handleExcelImport}
+                        className="hidden"
+                    />
+                    <Button
+                        //onClick={() => fileInputRef.current?.click()}
+                        className="w-fit h-fit bg-white1 text-green4 border-green4 border rounded-[8px] hover:bg-white3"
+                    >
+                        <FileSpreadsheet /> Nhập từ file Excel
+                    </Button> */}
+                </div>
+            </div>
+            <div >
+                <AppDataTable
+                    columns={placeCategoryColumns}
+                    data={placeCategoryData}
+                    filterCritia='name'
+                    filterPlaceholder='Tên phân loại'
                 />
             </div>
         </div>
