@@ -64,7 +64,7 @@ export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] 
       {
          accessorKey: "name",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-[200px]" column={column} title="Tên địa điểm" />
+            <DataTableColumnHeader className="w-[200px]" column={column} title="Tên tiếng Việt" />
          ),
          cell: ({ row }) => <div className="w-[200px] truncate ">{row.getValue("name")}</div>,
          enableSorting: true,
@@ -73,7 +73,7 @@ export function useColumns(refetchData: () => void): ColumnDef<PlaceCategory>[] 
       {
          accessorKey: "nameEn",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-[200px]" column={column} title="Tên địa điểm" />
+            <DataTableColumnHeader className="w-[200px]" column={column} title="Tên tiếng Anh" />
          ),
          cell: ({ row }) => <div className="w-[200px] truncate ">{row.getValue("nameEn")}</div>,
          enableSorting: true,

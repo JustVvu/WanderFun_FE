@@ -83,9 +83,9 @@ export default function PlaceForm({
                longitude: fetchedData.longitude.toString(),
                latitude: fetchedData.latitude.toString(),
                address: {
-                  provinceCode: fetchedData.address.province.code,
-                  districtCode: fetchedData.address.district.code,
-                  wardCode: fetchedData.address.ward?.code,
+                  provinceName: fetchedData.address.province.fullName,
+                  districtName: fetchedData.address.district.fullName,
+                  wardName: fetchedData.address.ward?.fullName,
                   street: fetchedData.address.street?.toString(),
                },
                coverImage: {
@@ -127,13 +127,13 @@ export default function PlaceForm({
                form.setValue('latitude', lat);
                await fetchDataPlaceDetailByCoordinates(lat, lng, async (result) => {
                   const province = await getProvinceByName(result[0]?.compound?.province);
-                  form.setValue('address.provinceCode', province.code);
+                  form.setValue('address.provinceName', province.fullName);
 
-                  const district = await getDistrictByNameAndProvinceCode(result[0]?.compound?.district, province.code);
-                  form.setValue('address.districtCode', district.code);
+                  const district = await getDistrictByNameAndProvinceCode(result[0]?.compound?.district, province.fullName);
+                  form.setValue('address.districtName', district.fullName);
 
-                  const ward = await getWardByNameAndDistrictCode(result[0]?.compound?.commune, district.code);
-                  form.setValue('address.wardCode', ward.code);
+                  const ward = await getWardByNameAndDistrictCode(result[0]?.compound?.commune, district.fullName);
+                  form.setValue('address.wardName', ward.fullName);
                });
             } catch (error) {
                toast.error(`Không thể lấy thông tin địa chỉ từ tọa độ (${error})`);
@@ -245,9 +245,9 @@ export default function PlaceForm({
                      <div className="col-span-3">
                         <ProvinceDistrictSelector
                            control={form.control}
-                           provinceCodeName="address.provinceCode"
-                           districtCodeName="address.districtCode"
-                           wardCodeName="address.wardCode"
+                           provinceCodeName="address.provinceName"
+                           districtCodeName="address.districtName"
+                           wardCodeName="address.wardName"
                         />
                      </div>
 

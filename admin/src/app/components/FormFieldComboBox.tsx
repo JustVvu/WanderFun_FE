@@ -4,7 +4,7 @@
 import { useState, FC } from "react";
 
 import { Control, Controller } from "react-hook-form";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,6 +98,12 @@ export const FormFieldCombobox: FC<FormFieldComboboxProps> = ({
                                           option.value === field.value ? "opacity-100" : "opacity-0"
                                        )}
                                     />
+                                    <Button
+                                       variant={"ghost"}
+                                       size={"icon"}
+                                    >
+                                       <Pencil className="h-4 w-4" />
+                                    </Button>
                                  </CommandItem>
                               ))}
                            </CommandGroup>

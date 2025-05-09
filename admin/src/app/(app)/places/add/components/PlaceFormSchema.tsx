@@ -8,9 +8,9 @@ export const placeFormSchema = z.object({
 
    // Address information
    address: z.object({
-      provinceCode: z.string(),
-      districtCode: z.string(),
-      wardCode: z.string().optional().nullable(),
+      provinceName: z.string(),
+      districtName: z.string(),
+      wardName: z.string().optional().nullable(),
       street: z.string().optional().nullable(),
    }),
 
@@ -62,9 +62,9 @@ export const defaultFormValues: PlaceFormValues = {
    name: "",
    categoryId: "",
    address: {
-      provinceCode: "",
-      districtCode: "",
-      wardCode: "",
+      provinceName: "",
+      districtName: "",
+      wardName: "",
       street: "",
    },
    longitude: "",
@@ -105,9 +105,9 @@ export const mapFormValuesToApiPayload = (values: PlaceFormValues) => {
    return {
       ...values,
       address: {
-         provinceCode: values.address.provinceCode,
-         districtCode: values.address.districtCode,
-         wardCode: values.address.wardCode || undefined,
+         provinceName: values.address.provinceName,
+         districtName: values.address.districtName,
+         wardName: values.address.wardName || undefined,
          street: values.address.street || undefined,
       },
       placeDetail: {

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export const getAllPlaceCategories = async (): Promise<PlaceCategory[]> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   const response = await client<PlaceCategory[]>('/place/categories',
+   const response = await client<PlaceCategory[]>('/category',
       {
          method: 'GET',
          headers: {
@@ -19,7 +19,7 @@ export const getAllPlaceCategories = async (): Promise<PlaceCategory[]> => {
 
 export const getPlaceCategoryById = async (placeCategoryId: string): Promise<PlaceCategory> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   const response = await client<PlaceCategory>(`/place/categories/${placeCategoryId}`,
+   const response = await client<PlaceCategory>(`/category/${placeCategoryId}`,
       {
          method: 'GET',
          headers: {
@@ -33,7 +33,7 @@ export const getPlaceCategoryById = async (placeCategoryId: string): Promise<Pla
 
 export const createPlaceCategory = async (data: PlaceCategoryCreatePayload): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   const response = await client<void>('/place/categories',
+   const response = await client<void>('/category',
       {
          method: 'POST',
          headers: {
@@ -56,7 +56,7 @@ export const createPlaceCategory = async (data: PlaceCategoryCreatePayload): Pro
 
 export const updatePlaceCategory = async (placeCategoryId: string, data: PlaceCategoryCreatePayload): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   const response = await client<void>(`/place/categories/${placeCategoryId}`,
+   const response = await client<void>(`/category/${placeCategoryId}`,
       {
          method: 'PUT',
          headers: {
@@ -79,7 +79,7 @@ export const updatePlaceCategory = async (placeCategoryId: string, data: PlaceCa
 
 export const deletePlaceCategory = async (placeCategoryId: string, callback: () => void): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
-   const response = await client<void>(`/place/categories/${placeCategoryId}`,
+   const response = await client<void>(`/category/${placeCategoryId}`,
       {
          method: 'DELETE',
          headers: {
