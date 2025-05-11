@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Control, Path, useWatch, useFormContext } from "react-hook-form";
-import { FormFieldCombobox } from "@/app/components/FormFieldComboBox";
+import { FormFieldComboBox } from "@/app/components/FormFieldComboBox";
 import { toast } from "sonner";
 import {
    getAllProvinces,
@@ -73,7 +73,7 @@ export default function ProvinceDistrictSelector({
 
    return (
       <div className="grid grid-cols-3 gap-[100px]">
-         <FormFieldCombobox
+         <FormFieldComboBox
             control={control}
             name={provinceCodeName}
             label="Tỉnh/Thành phố"
@@ -81,7 +81,7 @@ export default function ProvinceDistrictSelector({
             placeholder="Chọn tỉnh/thành phố"
          />
 
-         <FormFieldCombobox
+         <FormFieldComboBox
             control={control}
             name={districtCodeName}
             label="Quận/Huyện"
@@ -90,7 +90,7 @@ export default function ProvinceDistrictSelector({
             disabled={!provinceCode}
          />
 
-         <FormFieldCombobox
+         <FormFieldComboBox
             control={control}
             name={wardCodeName}
             label="Phường/Xã"

@@ -11,8 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
+import { CategoryComboBox } from "./CategoryComboBox";
 import { ChevronLeft, PlusCircle } from "lucide-react";
-import { FormFieldCombobox } from "@/app/components/FormFieldComboBox";
 import { Switch } from "@/components/ui/switch";
 import { useLoading } from "@/contexts/LoadingContext";
 
@@ -42,7 +42,7 @@ interface PlaceFormProps {
    lat?: string;
    lng?: string;
    categoryList: PlaceCategory[];
-   onCategoryCreate?: () => Promise<void>;
+   onCategoryChange?: () => Promise<void>;
 }
 
 export default function PlaceForm({
@@ -51,7 +51,7 @@ export default function PlaceForm({
    lat,
    lng,
    categoryList,
-   onCategoryCreate
+   onCategoryChange
 }: PlaceFormProps) {
    const { setLoadingState } = useLoading();
    const router = useRouter();
@@ -186,8 +186,8 @@ export default function PlaceForm({
 
    const handleCategoryCreate = async () => {
       setModalOpen(false);
-      if (onCategoryCreate) {
-         await onCategoryCreate();
+      if (onCategoryChange) {
+         await onCategoryChange();
       }
    };
 
@@ -271,7 +271,7 @@ export default function PlaceForm({
                      {/* Category */}
                      <div className="flex flex-row justify-between space-x-3">
                         <div className="flex-1">
-                           <FormFieldCombobox
+                           <CategoryComboBox
                               control={form.control}
                               name="categoryId"
                               label="Phân loại địa điểm"
@@ -280,6 +280,7 @@ export default function PlaceForm({
                                  value: category.id.toString(),
                               }))}
                               placeholder="Loại địa điểm"
+                              onCategoryChange={onCategoryChange}
                            />
                         </div>
                         <Button

@@ -1,22 +1,18 @@
 'use client'
 
-import { MapPinPlus, MapPinned, FileSpreadsheet, CirclePlus } from "lucide-react"
+import { MapPinPlus, MapPinned, FileSpreadsheet } from "lucide-react"
 
 import { Button } from '@/components/ui/button'
 import { AppDataTable } from '../../components/data_table/AppDataTable'
 import { useColumns as usePlaceColumns } from "./placeColumns"
-import { useColumns as usePlaceCategoryColumns } from "./placeCategoryColumns"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { Place } from "@/models/places/place"
 import * as placeServices from '@/app/services/places/placesServices'
-import * as placeCategoryServices from '@/app/services/places/placeCategoriesServices'
 import { Input } from "@/components/ui/input"
 import { convertExcelArrayToJSON, readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
 import { toast } from "sonner"
 import { useLoading } from "@/contexts/LoadingContext"
-import { PlaceCategory } from "@/models/places/placeCategory"
-import CreateCategoryModal from "./add/components/CreateCategoryModal"
 
 
 export default function Place() {
@@ -26,8 +22,6 @@ export default function Place() {
     const { setLoadingState } = useLoading()
 
     const [placeData, setPlaceData] = useState<Place[]>([]);
-    const [placeCategoryData, setPlaceCategoryData] = useState<PlaceCategory[]>([]);
-    const [isModalOpen, setModalOpen] = useState(false);
 
     const getPlaceData = useCallback(async () => {
         const fetchedPlaceData = await placeServices.getAllPlaces();
@@ -38,17 +32,7 @@ export default function Place() {
         getPlaceData();
     }, [getPlaceData]);
 
-    const getPlaceCategoryData = useCallback(async () => {
-        const fetchedPlaceCategoryData = await placeCategoryServices.getAllPlaceCategories();
-        setPlaceCategoryData(fetchedPlaceCategoryData);
-    }, []);
-
-    useEffect(() => {
-        getPlaceCategoryData();
-    }, [getPlaceCategoryData]);
-
     const placeColumns = usePlaceColumns(getPlaceData);
-    const placeCategoryColumns = usePlaceCategoryColumns(getPlaceCategoryData);
 
     const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -78,93 +62,46 @@ export default function Place() {
         }
     };
 
-    const handleCategoryCreate = async () => {
-        setModalOpen(false);
-    };
-
     return (
-        <div>
-            <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
-                <div className='flex flex-row justify-between items-center '>
-                    <h1 className='text-[24px] text-blue3 font-medium'>Quản lý địa điểm du lịch</h1>
-                    <div className='flex flex-row justify-between items-center space-x-[2rem]'>
-                        <Button
-                            onClick={() => router.push('maps')}
-                            className="w-fit h-fit bg-white1 text-blue2 border-blue2 border rounded-[8px] hover:bg-white3"
-                        >
-                            <MapPinned /> Xem trên bản đồ
-                        </Button>
-                        <Button
-                            onClick={() => router.push('places/add')}
-                            className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
-                        >
-                            <MapPinPlus /> Thêm địa điểm
-                        </Button>
+        <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
+            <div className='flex flex-row justify-between items-center '>
+                <h1 className='text-[24px] text-blue3 font-medium'>Quản lý địa điểm du lịch</h1>
+                <div className='flex flex-row justify-between items-center space-x-[2rem]'>
+                    <Button
+                        onClick={() => router.push('maps')}
+                        className="w-fit h-fit bg-white1 text-blue2 border-blue2 border rounded-[8px] hover:bg-white3"
+                    >
+                        <MapPinned /> Xem trên bản đồ
+                    </Button>
+                    <Button
+                        onClick={() => router.push('places/add')}
+                        className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
+                    >
+                        <MapPinPlus /> Thêm địa điểm
+                    </Button>
 
-                        <Input
-                            type='file'
-                            ref={fileInputRef}
-                            accept='.xlsx, .xls, .csv'
-                            onChange={handleExcelImport}
-                            className="hidden"
-                        />
-                        <Button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-fit h-fit bg-white1 text-green4 border-green4 border rounded-[8px] hover:bg-white3"
-                        >
-                            <FileSpreadsheet /> Nhập từ file Excel
-                        </Button>
-                    </div>
-                </div>
-                <div >
-                    <AppDataTable
-                        columns={placeColumns}
-                        data={placeData}
-                        filterCritia='name'
-                        filterPlaceholder='Tên địa diểm'
-                    />
-                </div>
-            </div>
-
-            <div className='flex flex-col m-[24px] p-[20px] rounded-2xl bg-white'>
-                <div className='flex flex-row justify-between items-center '>
-                    <h1 className='text-[24px] text-blue3 font-medium'>Quản lý phân loại địa điểm</h1>
-                    <div className='flex flex-row justify-between items-center space-x-[2rem]'>
-                        <Button
-                            onClick={() => setModalOpen(true)}
-                            className="w-fit h-fit bg-blue2 text-white1 border rounded-[8px] hover:bg-blue3"
-                        >
-                            <CirclePlus /> Thêm phân loại
-                        </Button>
-                        <CreateCategoryModal
-                            isOpen={isModalOpen}
-                            onChange={setModalOpen}
-                            onSuccess={handleCategoryCreate}
-                        />
-
-                        {/* <Input
+                    <Input
                         type='file'
                         ref={fileInputRef}
                         accept='.xlsx, .xls, .csv'
-                        //onChange={handleExcelImport}
+                        onChange={handleExcelImport}
                         className="hidden"
                     />
                     <Button
-                        //onClick={() => fileInputRef.current?.click()}
+                        onClick={() => fileInputRef.current?.click()}
                         className="w-fit h-fit bg-white1 text-green4 border-green4 border rounded-[8px] hover:bg-white3"
                     >
                         <FileSpreadsheet /> Nhập từ file Excel
-                    </Button> */}
-                    </div>
+                    </Button>
                 </div>
-                <div >
-                    <AppDataTable
-                        columns={placeCategoryColumns}
-                        data={placeCategoryData}
-                        filterCritia='name'
-                        filterPlaceholder='Tên phân loại'
-                    />
-                </div>
+            </div>
+            <div >
+                <AppDataTable
+                    columns={placeColumns}
+                    data={placeData}
+                    filterCritia='name'
+                    filterPlaceholder='Tên địa diểm'
+                />
             </div>
         </div>
     )

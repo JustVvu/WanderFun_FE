@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { useForm } from "react-hook-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -19,15 +19,14 @@ import { Form } from "@/components/ui/form"
 import { FormFieldInput } from "@/app/components/FormFieldInput"
 import { Loader2 } from "lucide-react"
 import { PlaceCategoryCreatePayload } from "@/models/places/placeCategory"
-import { createPlaceCategory } from "@/app/services/places/placeCategoriesServices"
+import * as placeCategoryServices from "@/app/services/places/placeCategoriesServices"
 import { Separator } from "@/components/ui/separator"
-
 
 interface CreateCategoryModalProps {
    isOpen: boolean;
    onChange: (open: boolean) => void;
-   onModalSubmit?: () => void;
-   onSuccess?: () => void; // Callback for successful creation
+   onSuccess?: () => void;
+   editCategoryId?: string; // Null means Create mode, otherwise Edit mode.
 }
 
 const formSchema = z.object({
@@ -44,6 +43,7 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
    isOpen,
    onChange,
    onSuccess,
+   editCategoryId,
 }) => {
    const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -55,26 +55,51 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
       },
    });
 
-   const onSubmit = async (data: PlaceCategoryCreatePayload) => {
-      setIsSubmitting(true); // Start loading spinner
+   const loadCategoryData = async (id: string) => {
       try {
-         await createPlaceCategory(data);
-         toast.success("Thêm phân loại thành công!");
-
-         form.reset(); // Reset form
-         onChange(false); // Close modal
-
-         // Call the onSuccess callback if provided
-         if (onSuccess) {
-            onSuccess();
-         }
+         const data = await placeCategoryServices.getPlaceCategoryById(id);
+         form.reset({
+            name: data.name,
+            nameEn: data.nameEn,
+         });
       } catch (error) {
          console.error(error);
-         toast.error(`Không thể thêm phân loại: ${error}`);
+         toast.error("Không thể tải dữ liệu phân loại.");
+      };
+   }
+
+   useEffect(() => {
+      if (editCategoryId && isOpen) {
+         loadCategoryData(editCategoryId);
+      } else {
+         form.reset({ name: "", nameEn: "" });
+      }
+   }, [editCategoryId, isOpen, form]);
+
+   const onSubmit = async (data: PlaceCategoryCreatePayload) => {
+      setIsSubmitting(true);
+      try {
+         if (editCategoryId) {
+            await placeCategoryServices.updatePlaceCategory(editCategoryId, data);
+            toast.success("Cập nhật phân loại thành công!");
+         } else {
+            await placeCategoryServices.createPlaceCategory(data);
+            toast.success("Thêm phân loại thành công!");
+         }
+
+         form.reset();
+         onChange(false);
+
+         if (onSuccess) onSuccess();
+      } catch (error) {
+         console.error(error);
+         toast.error(`Đã xảy ra lỗi: ${error}`);
       } finally {
-         setIsSubmitting(false); // Stop loading spinner
+         setIsSubmitting(false);
       }
    };
+
+   const isEditMode = Boolean(editCategoryId);
 
 
    return (
@@ -83,9 +108,13 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
             <DialogHeader
                className="space-y-2 bottom-2 border-b-2 pb-3"
             >
-               <DialogTitle>Thêm phân loại địa điểm</DialogTitle>
+               <DialogTitle>
+                  {isEditMode ? "Chỉnh sửa phân loại" : "Thêm phân loại địa điểm"}
+               </DialogTitle>
                <DialogDescription>
-                  Tạo thêm phân loại cho địa điểm của bạn.
+                  {isEditMode
+                     ? "Chỉnh sửa thông tin phân loại địa điểm."
+                     : "Tạo thêm phân loại cho địa điểm của bạn."}
                </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -115,7 +144,7 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
                      variant="default"
                      type="button"  // Change to button type
                      className="w-1/3 rounded-xl py-6 text-md font-semibold self-center
-      bg-blue2 hover:bg-blue3"
+                              bg-blue2 hover:bg-blue3"
                      disabled={isSubmitting}
                      onClick={(e) => {
                         e.preventDefault();
@@ -127,7 +156,7 @@ const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({
                      {isSubmitting ? (
                         <Loader2 className="animate-spin mr-2" />
                      ) : (
-                        "Tạo mới"
+                        "Lưu thông tin"
                      )}
                   </Button>
                </form>

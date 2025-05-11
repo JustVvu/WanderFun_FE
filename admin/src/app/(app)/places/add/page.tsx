@@ -31,7 +31,7 @@ export default function AddPlace() {
    }, []);
 
    // Refresh category list after new category is created
-   const handleCategoryCreated = async () => {
+   const handleCategoryChange = async () => {
       try {
          const fetchedCategories = await getAllPlaceCategories();
          setCategoryList(fetchedCategories);
@@ -47,7 +47,7 @@ export default function AddPlace() {
          lat={lat || undefined}
          lng={lng || undefined}
          categoryList={categoryList}
-         onCategoryCreate={handleCategoryCreated}
+         onCategoryChange={handleCategoryChange}
       />
    );
 }

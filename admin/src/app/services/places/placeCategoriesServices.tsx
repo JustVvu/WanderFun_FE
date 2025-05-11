@@ -77,7 +77,7 @@ export const updatePlaceCategory = async (placeCategoryId: string, data: PlaceCa
    return response.data;
 }
 
-export const deletePlaceCategory = async (placeCategoryId: string, callback: () => void): Promise<void> => {
+export const deletePlaceCategory = async (placeCategoryId: string, callback?: () => void): Promise<void> => {
    const token = await utils.getAuthTokenFromServerCookies();
    const response = await client<void>(`/category/${placeCategoryId}`,
       {
@@ -91,7 +91,9 @@ export const deletePlaceCategory = async (placeCategoryId: string, callback: () 
    console.log(response);
    if (response.error == false) {
       toast.success('Xóa phân loại thành công');
-      callback();
+      if (callback) {
+         callback();
+      }
    }
    else {
       toast.error('Xóa phân loại thất bại, lỗi: ' + response.message);
