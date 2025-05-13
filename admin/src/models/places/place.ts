@@ -20,9 +20,9 @@ export interface Place {
 export interface CreatePlacePayload {
    name: string;
    address: {
-      provinceCode: string;
-      districtCode: string;
-      wardCode?: string;
+      provinceName: string;
+      districtName: string;
+      wardName?: string;
       street?: string;
    };
    categoryId: string;

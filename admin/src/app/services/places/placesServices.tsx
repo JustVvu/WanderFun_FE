@@ -1,7 +1,7 @@
 import client from "@/services/client";
 import { CreatePlacePayload, Place } from "@/models/places/place";
-import * as utils from "@/app/actions/utils";
-import * as cloudinaryAction from "@/app/actions/cloudinary-action";
+import * as utils from "@/app/services/utils";
+import * as cloudinaryAction from "@/app/services/cloudinaryServices";
 import { toast } from "sonner";
 
 export const getAllPlaces = async (): Promise<Place[]> => {

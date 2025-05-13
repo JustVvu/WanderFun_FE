@@ -8,10 +8,10 @@ export const placeFormSchema = z.object({
 
    // Address information
    address: z.object({
-      provinceCode: z.string(),
-      districtCode: z.string(),
-      wardCode: z.string().optional(),
-      street: z.string().optional(),
+      provinceName: z.string(),
+      districtName: z.string(),
+      wardName: z.string().optional().nullable(),
+      street: z.string().optional().nullable(),
    }),
 
    // Coordinates
@@ -26,19 +26,19 @@ export const placeFormSchema = z.object({
 
    // Place details
    placeDetail: z.object({
-      description: z.string().optional(),
+      description: z.string().optional().nullable(),
       checkInPoint: z.string().min(1, "Điểm số Check-in không được để trống"),
       checkInRangeMeter: z.string().min(1, "Khoảng cách Check-in không được để trống"),
       timeOpen: z.date(),
       timeClose: z.date(),
       isClosed: z.boolean(),
-      bestTimeToVisit: z.string().optional(),
-      priceRangeTop: z.string().optional(),
-      priceRangeBottom: z.string().optional(),
+      bestTimeToVisit: z.string().optional().nullable(),
+      priceRangeTop: z.string().optional().nullable(),
+      priceRangeBottom: z.string().optional().nullable(),
       isVerified: z.boolean().default(false).optional(),
-      alternativeName: z.string().optional(),
-      operator: z.string().optional(),
-      url: z.string().optional(),
+      alternativeName: z.string().optional().nullable(),
+      operator: z.string().optional().nullable(),
+      url: z.string().optional().nullable(),
 
       // Sections
       sectionList: z.array(
@@ -62,9 +62,9 @@ export const defaultFormValues: PlaceFormValues = {
    name: "",
    categoryId: "",
    address: {
-      provinceCode: "",
-      districtCode: "",
-      wardCode: "",
+      provinceName: "",
+      districtName: "",
+      wardName: "",
       street: "",
    },
    longitude: "",
@@ -104,8 +104,15 @@ export const defaultFormValues: PlaceFormValues = {
 export const mapFormValuesToApiPayload = (values: PlaceFormValues) => {
    return {
       ...values,
+      address: {
+         provinceName: values.address.provinceName,
+         districtName: values.address.districtName,
+         wardName: values.address.wardName || undefined,
+         street: values.address.street || undefined,
+      },
       placeDetail: {
          ...values.placeDetail,
+         description: values.placeDetail.description || undefined,
          checkInPoint: parseInt(values.placeDetail.checkInPoint),
          checkInRangeMeter: parseFloat(values.placeDetail.checkInRangeMeter),
          timeOpen: values.placeDetail.timeOpen.toLocaleTimeString(
@@ -116,6 +123,10 @@ export const mapFormValuesToApiPayload = (values: PlaceFormValues) => {
          ),
          priceRangeTop: values.placeDetail.priceRangeTop ? parseInt(values.placeDetail.priceRangeTop) : undefined,
          priceRangeBottom: values.placeDetail.priceRangeBottom ? parseInt(values.placeDetail.priceRangeBottom) : undefined,
+         bestTimeToVisit: values.placeDetail.bestTimeToVisit || undefined,
+         alternativeName: values.placeDetail.alternativeName || undefined,
+         operator: values.placeDetail.operator || undefined,
+         url: values.placeDetail.url || undefined,
       }
    };
 };

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import * as mapAction from "../actions/map-action";
+import * as mapAction from "../services/mapServices";
 import { MapPlaceDetail, Prediction } from "@/models/map";
 
 interface AppSearchBarProps {
@@ -55,9 +55,11 @@ export default function AppSearchBar({ onPlaceDetailFetched }: AppSearchBarProps
       //console.log("Selected:", prediction);
       setQuery(prediction.description);
       setPredictions([]);
-      mapAction.fetchDataPlaceDetail(prediction.place_id, (result) => {
+      mapAction.fetchDataPlaceDetail(prediction.place_id).then((result) => {
          onPlaceDetailFetched(result);
-      })
+      }).catch((error) => {
+         console.error("Error fetching place details:", error);
+      });
    };
 
    return (

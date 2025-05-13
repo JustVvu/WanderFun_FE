@@ -7,12 +7,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FormFieldInput } from "@/app/components/FormFieldInput";
+import { CategoryComboBox } from "./CategoryComboBox";
 import { ChevronLeft, PlusCircle } from "lucide-react";
-import { FormFieldCombobox } from "@/app/components/FormFieldComboBox";
 import { Switch } from "@/components/ui/switch";
 import { useLoading } from "@/contexts/LoadingContext";
 
@@ -29,11 +29,12 @@ import {
    defaultFormValues,
    mapFormValuesToApiPayload
 } from "../components/PlaceFormSchema";
-import * as placeAction from '@/app/actions/places/places-action';
-import { fetchDataPlaceDetailByCoordinates } from "@/app/actions/map-action";
+import * as placeAction from '@/app/services/places/placesServices';
+import { fetchDataPlaceDetailByCoordinates } from "@/app/services/mapServices";
 import { parseTimeString } from "@/helpers/convertHelper";
 import { SectionDTO } from "@/models/places/section";
-import { Image } from "@/models/images/image";
+import { Textarea } from "@/components/ui/textarea";
+import { getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode } from "@/app/services/addresses/addressServices";
 
 interface PlaceFormProps {
    isUpdate?: boolean;
@@ -41,7 +42,7 @@ interface PlaceFormProps {
    lat?: string;
    lng?: string;
    categoryList: PlaceCategory[];
-   onCategoryCreate?: () => Promise<void>;
+   onCategoryChange?: () => Promise<void>;
 }
 
 export default function PlaceForm({
@@ -50,13 +51,13 @@ export default function PlaceForm({
    lat,
    lng,
    categoryList,
-   onCategoryCreate
+   onCategoryChange
 }: PlaceFormProps) {
    const { setLoadingState } = useLoading();
    const router = useRouter();
    const title = isUpdate ? "Chỉnh sửa địa điểm du lịch" : "Thêm địa điểm du lịch";
-   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-   const [updateImageUrl] = useState<Image>();
+   const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null);
+   const [coverImageDeleted, setCoverImageDeleted] = useState<boolean>(false);
    const [sections, setSections] = useState<SectionDTO[]>([
       { title: '', content: '', image: { id: 0, imageUrl: '', imagePublicId: '' } },
    ]);
@@ -82,9 +83,9 @@ export default function PlaceForm({
                longitude: fetchedData.longitude.toString(),
                latitude: fetchedData.latitude.toString(),
                address: {
-                  provinceCode: fetchedData.address.province.code,
-                  districtCode: fetchedData.address.district.code,
-                  wardCode: fetchedData.address.ward?.code,
+                  provinceName: fetchedData.address.province.fullName,
+                  districtName: fetchedData.address.district.fullName,
+                  wardName: fetchedData.address.ward?.fullName,
                   street: fetchedData.address.street?.toString(),
                },
                coverImage: {
@@ -122,10 +123,17 @@ export default function PlaceForm({
          const fetchGeocodeData = async () => {
             try {
                setLoadingState(true);
-               await fetchDataPlaceDetailByCoordinates(lat, lng, (result) => {
-                  form.setValue('longitude', lng);
-                  form.setValue('latitude', lat);
-                  form.setValue('address.street', result[0]?.formatted_address || '');
+               form.setValue('longitude', lng);
+               form.setValue('latitude', lat);
+               await fetchDataPlaceDetailByCoordinates(lat, lng, async (result) => {
+                  const province = await getProvinceByName(result[0]?.compound?.province);
+                  form.setValue('address.provinceName', province.fullName);
+
+                  const district = await getDistrictByNameAndProvinceCode(result[0]?.compound?.district, province.fullName);
+                  form.setValue('address.districtName', district.fullName);
+
+                  const ward = await getWardByNameAndDistrictCode(result[0]?.compound?.commune, district.fullName);
+                  form.setValue('address.wardName', ward.fullName);
                });
             } catch (error) {
                toast.error(`Không thể lấy thông tin địa chỉ từ tọa độ (${error})`);
@@ -136,7 +144,7 @@ export default function PlaceForm({
 
          fetchGeocodeData();
       }
-   }, [lat, lng, form, setLoadingState]);
+   }, [lat, lng, form]);
 
    useEffect(() => {
       const mappedSections = sections.map(sect => ({
@@ -160,10 +168,10 @@ export default function PlaceForm({
          console.log("Sent payload: ", payload);
 
          if (isUpdate && placeId) {
-            await placeAction.updatePlace(placeId, payload);
+            await placeAction.updatePlace(placeId, payload, selectedCoverImage, sectionImages);
             toast.success('Cập nhật địa điểm thành công');
          } else {
-            await placeAction.addPlace(payload, selectedImage, sectionImages);
+            await placeAction.addPlace(payload, selectedCoverImage, sectionImages);
             toast.success('Thêm địa điểm thành công');
          }
 
@@ -178,8 +186,8 @@ export default function PlaceForm({
 
    const handleCategoryCreate = async () => {
       setModalOpen(false);
-      if (onCategoryCreate) {
-         await onCategoryCreate();
+      if (onCategoryChange) {
+         await onCategoryChange();
       }
    };
 
@@ -237,9 +245,9 @@ export default function PlaceForm({
                      <div className="col-span-3">
                         <ProvinceDistrictSelector
                            control={form.control}
-                           provinceCodeName="address.provinceCode"
-                           districtCodeName="address.districtCode"
-                           wardCodeName="address.wardCode"
+                           provinceCodeName="address.provinceName"
+                           districtCodeName="address.districtName"
+                           wardCodeName="address.wardName"
                         />
                      </div>
 
@@ -263,7 +271,7 @@ export default function PlaceForm({
                      {/* Category */}
                      <div className="flex flex-row justify-between space-x-3">
                         <div className="flex-1">
-                           <FormFieldCombobox
+                           <CategoryComboBox
                               control={form.control}
                               name="categoryId"
                               label="Phân loại địa điểm"
@@ -272,6 +280,7 @@ export default function PlaceForm({
                                  value: category.id.toString(),
                               }))}
                               placeholder="Loại địa điểm"
+                              onCategoryChange={onCategoryChange}
                            />
                         </div>
                         <Button
@@ -279,7 +288,7 @@ export default function PlaceForm({
                            type="button"
                            variant="outline"
                            size="icon"
-                           className="flex-2 self-end mb-1 shadow-none text-blue2 border-none hover:bg-blue2 hover:text-white hover:border-none"
+                           className="h-[40px] w-[40px] flex-2 self-center shadow-none text-blue2 border-blue2 hover:bg-blue2 hover:text-white hover:border-none"
                         >
                            <PlusCircle />
                         </Button>
@@ -291,22 +300,24 @@ export default function PlaceForm({
                      </div>
 
                      {/* Check-in settings */}
-                     <FormFieldInput
-                        control={form.control}
-                        name="placeDetail.checkInRangeMeter"
-                        label="Khoảng cách Check-in (m)"
-                        placeholder="Nhập khoảng cách check-in"
-                     />
+                     <div className="grid grid-cols-2 gap-4 col-span-1">
+                        <FormFieldInput
+                           control={form.control}
+                           name="placeDetail.checkInRangeMeter"
+                           label="Khoảng cách Check-in (m)"
+                           placeholder="Nhập khoảng cách check-in"
+                        />
 
-                     <FormFieldInput
-                        control={form.control}
-                        name="placeDetail.checkInPoint"
-                        label="Điểm số Check-in"
-                        placeholder="Nhập điểm check-in"
-                     />
+                        <FormFieldInput
+                           control={form.control}
+                           name="placeDetail.checkInPoint"
+                           label="Điểm số Check-in"
+                           placeholder="Nhập điểm check-in"
+                        />
+                     </div>
 
                      {/* Opening Hours */}
-                     <div className="flex flex-row grid-cols-subgrid col-span-1 justify-between">
+                     <div className="grid grid-cols-3 gap-4 col-span-1">
                         <FormField
                            control={form.control}
                            name="placeDetail.isClosed"
@@ -320,6 +331,7 @@ export default function PlaceForm({
                                        onCheckedChange={field.onChange}
                                     />
                                  </FormControl>
+                                 <FormMessage />
                               </FormItem>
                            )}
                         />
@@ -336,6 +348,7 @@ export default function PlaceForm({
                                        date={field.value}
                                     />
                                  </FormControl>
+                                 <FormMessage />
                               </FormItem>
                            )}
                         />
@@ -352,25 +365,28 @@ export default function PlaceForm({
                                        date={field.value}
                                     />
                                  </FormControl>
+                                 <FormMessage />
                               </FormItem>
                            )}
                         />
                      </div>
 
                      {/* Price Range */}
-                     <FormFieldInput
-                        control={form.control}
-                        name="placeDetail.priceRangeBottom"
-                        label="Giá thấp nhất (VND)"
-                        placeholder="Nhập giá thấp nhất"
-                     />
+                     <div className="grid grid-cols-2 gap-4 col-span-1">
+                        <FormFieldInput
+                           control={form.control}
+                           name="placeDetail.priceRangeBottom"
+                           label="Giá thấp nhất (VND)"
+                           placeholder="Nhập giá thấp nhất"
+                        />
 
-                     <FormFieldInput
-                        control={form.control}
-                        name="placeDetail.priceRangeTop"
-                        label="Giá cao nhất (VND)"
-                        placeholder="Nhập giá cao nhất"
-                     />
+                        <FormFieldInput
+                           control={form.control}
+                           name="placeDetail.priceRangeTop"
+                           label="Giá cao nhất (VND)"
+                           placeholder="Nhập giá cao nhất"
+                        />
+                     </div>
 
                      {/* Website */}
                      <FormFieldInput
@@ -379,6 +395,28 @@ export default function PlaceForm({
                         label="Đường dẫn đến trang địa điểm"
                         placeholder="Nhập URL"
                      />
+
+                     <FormField
+                        control={form.control}
+                        name="placeDetail.description"
+                        render={({ field }) => (
+                           <FormItem className=" col-span-3 grid-cols-subgrid">
+                              <div className="flex flex-col justify-between focus-within:text-blue2">
+                                 <FormLabel>Giới thiệu địa điểm</FormLabel>
+
+                              </div>
+                              <FormControl className="w-full h-[100px] border-none bg-white3 focus:bg-white">
+                                 <Textarea
+                                    placeholder="Nhập nội dung"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    className="h-min-[100px] bg-white3 focus:bg-white focus:border-blue2 flex-grow-[3]"
+                                 />
+                              </FormControl>
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
                   </div>
 
                   {/* Description Sections */}
@@ -386,15 +424,22 @@ export default function PlaceForm({
                      sections={sections}
                      setSections={setSections}
                      setSectionImages={setSectionImages}
+                     label="Mô tả thêm về địa điểm"
                   />
 
                   {/* Cover Images */}
                   <div className="w-full px-[40px]">
                      <AddImageField
-                        selectedImage={selectedImage}
-                        setSelectedImage={setSelectedImage}
-                        updateImageUrl={updateImageUrl?.imageUrl}
+                        selectedImage={selectedCoverImage}
+                        setSelectedImage={setSelectedCoverImage}
+                        updateImageUrl={coverImageDeleted ? undefined : form.getValues().coverImage?.imageUrl}
                         label="Ảnh bìa của địa điểm"
+                        onExistingImageDelete={() => {
+                           setCoverImageDeleted(true);
+                           // Clear the image data in the form
+                           form.setValue('coverImage.imageUrl', '');
+                           form.setValue('coverImage.imagePublicId', '');
+                        }}
                      />
                   </div>
 

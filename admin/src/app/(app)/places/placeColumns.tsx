@@ -15,7 +15,7 @@ import { DataTableColumnHeader } from "@/app/components/data_table/DataTableColu
 
 import { Place } from "@/models/places/place"
 import { useRouter } from "next/navigation"
-import { deletePlace } from "@/app/actions/places/places-action"
+import { deletePlace } from "@/app/services/places/placesServices"
 import { useLoading } from "@/contexts/LoadingContext"
 
 export function useColumns(refetchData: () => void): ColumnDef<Place>[] {

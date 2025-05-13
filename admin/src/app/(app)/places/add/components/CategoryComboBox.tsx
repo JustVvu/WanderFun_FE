@@ -4,7 +4,7 @@
 import { useState, FC } from "react";
 
 import { Control, Controller } from "react-hook-form";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +22,11 @@ import {
    FormMessage,
 } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useLoading } from "@/contexts/LoadingContext";
+import * as placeCategoriesServices from "@/app/services/places/placeCategoriesServices";
+import CreateCategoryModal from "./CreateCategoryModal";
 
-interface FormFieldComboBoxProps {
+interface CategoryComboBoxProps {
    control: Control<any>;
    name: string;
    label: string;
@@ -31,9 +34,10 @@ interface FormFieldComboBoxProps {
    placeholder?: string;
    disabled?: boolean;
    onChange?: (value: string) => void;
+   onCategoryChange?: () => void;
 }
 
-export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
+export const CategoryComboBox: FC<CategoryComboBoxProps> = ({
    control,
    name,
    label,
@@ -41,9 +45,30 @@ export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
    placeholder = "Select an option",
    disabled,
    onChange,
+   onCategoryChange,
 }) => {
 
+   const { setLoadingState } = useLoading()
    const [open, setOpen] = useState(false)
+   const [isModalOpen, setModalOpen] = useState(false);
+   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
+
+   const handleDeleteCategory = async (categoryId: string) => {
+      try {
+         setLoadingState(true);
+         await placeCategoriesServices.deletePlaceCategory(categoryId);
+         if (onCategoryChange) onCategoryChange(); // Notify parent to reload data
+      } catch (err) {
+         console.log(err);
+      } finally {
+         setLoadingState(false);
+      }
+   };
+
+   const handleUpdateCategory = (categoryId: string) => {
+      setEditCategoryId(categoryId);
+      setModalOpen(true);
+   };
 
    return (
       <Controller
@@ -61,7 +86,7 @@ export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
                            role="combobox"
                            aria-expanded={open}
                            className={cn(
-                              "w-auto h-[40px] justify-between border-none bg-white3 hover:bg-blue2o hover:text-blue1",
+                              "w-auto h-[40px] justify-between border-none bg-white3 hover:bg-blue2o hover:text-blue2",
                               !field.value && "text-muted-foreground"
                            )}
                         >
@@ -87,9 +112,10 @@ export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
                                        if (onChange) {
                                           onChange(option.value);
                                        }
+                                       console.log("Selected value:", option);
                                        setOpen(false);
                                     }}
-                                    className={cn("data-[selected=true]:bg-blue2o data-[selected=true]:text-blue2")}
+                                    className={cn("data-[selected=true]:bg-blue2o data-[selected=true]:text-blue1")}
                                  >
                                     {option.label}
                                     <Check
@@ -98,6 +124,31 @@ export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
                                           option.value === field.value ? "opacity-100" : "opacity-0"
                                        )}
                                     />
+                                    <div className="flex items-center"
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          //e.preventDefault(); // This is the missing part to prevent onSelect!
+                                       }}
+                                    >
+                                       <Button
+                                          onClick={() => handleUpdateCategory(option.value)}
+                                          variant={"ghost"}
+                                          size={"icon"}
+                                          className="text-orange5 hover:text-orange2 hover:bg-transparent"
+                                       >
+                                          <Pencil className="h-4 w-4" />
+                                       </Button>
+                                       <Button
+                                          onClick={() => {
+                                             handleDeleteCategory(option.value);
+                                          }}
+                                          variant={"ghost"}
+                                          size={"icon"}
+                                          className="text-red4 hover:text-red2 hover:bg-transparent"
+                                       >
+                                          <Trash2 className="h-4 w-4" />
+                                       </Button>
+                                    </div>
                                  </CommandItem>
                               ))}
                            </CommandGroup>
@@ -106,6 +157,19 @@ export const FormFieldComboBox: FC<FormFieldComboBoxProps> = ({
                   </PopoverContent>
                </Popover>
                <FormMessage />
+               <CreateCategoryModal
+                  isOpen={isModalOpen}
+                  onChange={(open) => {
+                     setModalOpen(open);
+                     if (!open) setEditCategoryId(null); // Reset after closing
+                  }}
+                  onSuccess={() => {
+                     if (onCategoryChange) onCategoryChange(); // Refresh category list after update
+                     setModalOpen(false);
+                     setEditCategoryId(null);
+                  }}
+                  editCategoryId={editCategoryId || undefined}
+               />
             </FormItem>
          )}
       />

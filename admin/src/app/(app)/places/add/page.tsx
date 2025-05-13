@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { PlaceCategory } from "@/models/places/placeCategory";
 import PlaceForm from "./components/PlaceForm";
-import { getAllPlaceCategories } from "@/app/actions/places/place-categories-action";
+import { getAllPlaceCategories } from "@/app/services/places/placeCategoriesServices";
 
 export default function AddPlace() {
    const searchParams = useSearchParams();
@@ -31,7 +31,7 @@ export default function AddPlace() {
    }, []);
 
    // Refresh category list after new category is created
-   const handleCategoryCreated = async () => {
+   const handleCategoryChange = async () => {
       try {
          const fetchedCategories = await getAllPlaceCategories();
          setCategoryList(fetchedCategories);
@@ -47,7 +47,7 @@ export default function AddPlace() {
          lat={lat || undefined}
          lng={lng || undefined}
          categoryList={categoryList}
-         onCategoryCreate={handleCategoryCreated}
+         onCategoryChange={handleCategoryChange}
       />
    );
 }
