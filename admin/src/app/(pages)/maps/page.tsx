@@ -12,7 +12,6 @@ import PlaceDetailSidebar from "./components/PlaceDetailSidebar";
 import { Place } from "@/models/places/place";
 import { getPlaceById, getPlaceByProvinceName } from "@/app/services/places/placesServices";
 import AppSearchBar from "@/app/components/AppSearchBar";
-import AppMapAlter from "./components/AppMapAlter";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
@@ -91,7 +90,7 @@ export default function MapAdd() {
                   Thêm địa điểm
                </Button>
             </div>
-            <AppMapAlter
+            <AppMap
                placeSearchResult={placeSearchResult}
                onMarkerClick={handleMarkerClick}
                handlePlaceMarkerClick={handlePlaceMarkerClick}

@@ -40,11 +40,11 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                   className="bg-white w-[500px] shadow-lg rounded-r-lg"
                >
                   <SidebarHeader className="h-2/5">
-                     <div className="flex flex-col items-center w-full h-full relative">
+                     <div className="relative flex flex-col items-center w-full h-full">
                         <Image
                            src={place.coverImage.imageUrl ? place.coverImage.imageUrl : placeholderImage}
                            alt="Place image"
-                           className="rounded-lg object-cover"
+                           className="object-cover rounded-lg"
                            quality={100}
                            fill
                         />
@@ -54,14 +54,14 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                      <Collapsible defaultOpen className="group/collapsible">
                         <SidebarGroup>
                            <SidebarGroupLabel asChild>
-                              <CollapsibleTrigger className="hover:bg-blue2o px-0 font-semibold flex">
+                              <CollapsibleTrigger className="flex px-0 font-semibold hover:bg-blue2o">
                                  <Label className="text-[20px] text-blue2" >Thông tin chi tiết</Label>
                                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                               </CollapsibleTrigger>
                            </SidebarGroupLabel>
                            <CollapsibleContent>
                               <SidebarGroupContent
-                                 className="flex flex-col px-2 self-center w-full space-y-2"
+                                 className="flex flex-col self-center w-full px-2 space-y-2"
                               >
                                  <Label className="text-lg font-semibold text-black4">
                                     {place.name}
@@ -81,7 +81,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                        ? <a className="text-red4">Đã đóng cửa</a>
                                        : <a className="text-blue2">Đang hoạt động</a>}
                                  </Label>
-                                 <div className="grid grid-cols-4 justify-between space-x-2">
+                                 <div className="grid justify-between grid-cols-4 space-x-2">
                                     <Label className="col-span-2 text-sm text-black4">
                                        Kinh độ: {place.longitude}
                                     </Label>
@@ -89,7 +89,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                        Vĩ độ: {place.latitude}
                                     </Label>
                                  </div>
-                                 <div className="grid grid-cols-5 justify-between space-x-2">
+                                 <div className="grid justify-between grid-cols-5 space-x-2">
                                     <Label className="col-span-3 text-sm text-black4">
                                        Khoảng cách Check-in: {place.placeDetail.checkInRangeMeter} (m),
                                     </Label>
@@ -98,7 +98,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                     </Label>
                                  </div>
                                  <Label className="text-sm text-black4">
-                                    Link website: <a href={place.placeDetail.url} target="_blank" rel="noopener noreferrer" className="text-blue2 underline">{place.placeDetail.url}</a>
+                                    Link website: <a href={place.placeDetail.url} target="_blank" rel="noopener noreferrer" className="underline text-blue2">{place.placeDetail.url}</a>
                                  </Label>
                               </SidebarGroupContent>
                            </CollapsibleContent>
@@ -115,7 +115,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                      <Collapsible defaultOpen className="group/collapsible">
                         <SidebarGroup>
                            <SidebarGroupLabel asChild>
-                              <CollapsibleTrigger className="hover:bg-blue2o px-0 font-semibold flex">
+                              <CollapsibleTrigger className="flex px-0 font-semibold hover:bg-blue2o">
                                  <Label className=" text-[20px] text-blue2" >Mô tả địa điểm</Label>
                                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                               </CollapsibleTrigger>
@@ -124,7 +124,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                               <SidebarGroupContent className="px-2 self-center w-full space-y-[40px]">
                                  {place.placeDetail.sectionList && place.placeDetail.sectionList.length > 0 ? (
                                     place.placeDetail.sectionList.map((sect, index) => (
-                                       <div key={index} className="flex flex-col px-2 w-full h-fit">
+                                       <div key={index} className="flex flex-col w-full px-2 h-fit">
                                           <Label className="text-lg font-semibold text-black4">
                                              {sect.title}
                                           </Label>
@@ -136,7 +136,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                                 <Image
                                                    src={sect.image.imageUrl}
                                                    alt="Description image"
-                                                   className="rounded-lg object-cover"
+                                                   className="object-cover rounded-lg"
                                                    quality={100}
                                                    fill
                                                 />

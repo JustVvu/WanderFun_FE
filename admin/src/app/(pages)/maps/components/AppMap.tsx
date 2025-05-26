@@ -2,157 +2,271 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import maplibreGl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPlaceDetail } from '@/models/map';
-import * as placeAction from '@/app/services/places/placesServices';
 import { Place } from '@/models/places/place';
 import placeHolderImage from '@/app/assets/banner.png';
 
 const goongApiKey = process.env.NEXT_PUBLIC_GOONG_MAP_KEY;
 const mapStyleUrl = `https://tiles.goong.io/assets/goong_map_web.json?api_key=${goongApiKey}`;
-const defaultCenter: [number, number] = [106.802366, 10.870161];
+const defaultCenter: [number, number] = [105, 16];
 
 interface AppMapProps {
-  mapPlaceDetail?: MapPlaceDetail;
+  placeSearchResult?: MapPlaceDetail;
   onMarkerClick?: (lngLat: maplibreGl.LngLat) => void;
   handlePlaceMarkerClick?: (placeId: string) => void;
+  onProvinceSelected?: (provinceName: string) => void;
+  provincePlaces?: Place[];
 }
 
+export default function AppMap({
+  placeSearchResult,
+  onMarkerClick,
+  handlePlaceMarkerClick,
+  onProvinceSelected,
+  provincePlaces = []
+}: AppMapProps) {
 
-export default function AppMap({ mapPlaceDetail, onMarkerClick, handlePlaceMarkerClick }: AppMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibreGl.Map | null>(null);
+  const [selectedProvinceName, setSelectedProvinceName] = useState<string | null>(null);
+  const selectedProvinceRef = useRef<string | null>(null);
+
   const currentMarkerRef = useRef<maplibreGl.Marker | null>(null);
   const placeDetailMarkerRef = useRef<maplibreGl.Marker | null>(null);
-  const mapRef = useRef<maplibreGl.Map | null>(null);
-  const [places, setPlaces] = useState<Place[]>([]);
+  const placeMarkersRef = useRef<maplibreGl.Marker[]>([]);
 
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      const fetchedPlaces = await placeAction.getAllPlaces();
-      setPlaces(fetchedPlaces);
-    };
+  const handleMapClick = useCallback((e: maplibreGl.MapMouseEvent) => {
+    if ((e.originalEvent.target as HTMLElement).tagName === "IMG") return;
 
-    fetchPlaces();
-  }, []);
+    placeDetailMarkerRef.current?.remove();
+    placeDetailMarkerRef.current = null;
 
-  const handleNewMarkerClick = useCallback((lngLat: maplibreGl.LngLat) => {
-    console.log("New marker clicked at:", lngLat);
-    if (onMarkerClick) {
-      onMarkerClick(lngLat);
-    }
+    currentMarkerRef.current?.remove();
+
+    currentMarkerRef.current = new maplibreGl.Marker({ color: '#FF0000' })
+      .setLngLat(e.lngLat)
+      .addTo(mapRef.current!);
+
+    onMarkerClick?.(e.lngLat);
   }, [onMarkerClick]);
 
-  useEffect(() => {
-    if (mapContainerRef.current) {
-      const newMap = new maplibreGl.Map({
-        container: mapContainerRef.current,
-        style: mapStyleUrl,
-        center: mapPlaceDetail
-          ? [mapPlaceDetail.geometry.location.lng, mapPlaceDetail.geometry.location.lat]
-          : defaultCenter,
-        //center: defaultCenter,
-        zoom: 12,
+  const addVietnamGeoJsonLayer = (map: maplibreGl.Map) => {
+    if (map.getSource('vietnam-provinces')) {
+      ['vietnam-provinces-fill', 'vietnam-provinces-outline'].forEach((id) => {
+        if (map.getLayer(id)) map.removeLayer(id);
       });
+      map.removeSource('vietnam-provinces');
+    }
 
-      newMap.on('load', () => {
-        newMap.addSource('vietnam-provinces', {
-          type: 'geojson',
-          //data: '/geo/vietnam_provinces_border.geojson',
-          data: '/geo/Provinces.geojson'
-        });
+    map.addSource('vietnam-provinces', {
+      type: 'geojson',
+      data: '/geo/VietnamBorderVietnamese.geojson',
+    });
 
-        newMap.addLayer({
-          id: 'vietnam-provinces-fill',
-          type: 'fill',
-          source: 'vietnam-provinces',
-          paint: {
-            'fill-color': '#088',
-            'fill-opacity': 0.2
-          }
-        });
+    // Fill layer
+    map.addLayer({
+      id: 'vietnam-provinces-fill',
+      type: 'fill',
+      source: 'vietnam-provinces',
+      paint: {
+        'fill-color': '#088',
+        'fill-opacity': 0.2,
+      },
+    });
 
-        newMap.addLayer({
-          id: 'vietnam-provinces-outline',
-          type: 'line',
-          source: 'vietnam-provinces',
-          paint: {
-            'line-color': '#000',
-            'line-width': 1
-          }
-        });
-      });
+    // Outline layer
+    map.addLayer({
+      id: 'vietnam-provinces-outline',
+      type: 'line',
+      source: 'vietnam-provinces',
+      paint: {
+        'line-color': '#000',
+        'line-width': 1,
+      },
+    });
 
-      newMap.addControl(new maplibreGl.NavigationControl(), 'bottom-right');
+    map.on('mouseenter', 'vietnam-provinces-fill', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'vietnam-provinces-fill', () => {
+      map.getCanvas().style.cursor = '';
+    });
 
-      mapRef.current = newMap;
+    map.on('click', 'vietnam-provinces-fill', (e) => {
+      if ((e.originalEvent.target as HTMLElement).tagName === "IMG") return;
+      const feature = e.features?.[0];
+      if (!feature) return;
 
-      if (mapPlaceDetail) {
-        placeDetailMarkerRef.current = new maplibreGl.Marker()
-          .setLngLat([mapPlaceDetail.geometry.location.lng, mapPlaceDetail.geometry.location.lat])
-          .addTo(newMap);
+      const provinceName = feature.properties?.Name || '';
+
+      if (provinceName === selectedProvinceRef.current) {
+        return;
       }
 
-      newMap.on('click', (e) => {
+      selectedProvinceRef.current = provinceName;
+      setSelectedProvinceName(provinceName);
 
-        if (placeDetailMarkerRef.current) {
-          placeDetailMarkerRef.current.remove();
-          placeDetailMarkerRef.current = null; // Reset placeDetail marker ref
+      const geometry = feature.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
+      const bounds = new maplibreGl.LngLatBounds();
+
+      if (geometry.type === 'Polygon') {
+        geometry.coordinates.forEach((ring) => {
+          ring.forEach((coord) => bounds.extend(coord as [number, number]));
+        });
+      } else if (geometry.type === 'MultiPolygon') {
+        geometry.coordinates.forEach((polygon) => {
+          polygon[0].forEach((coord) => bounds.extend(coord as [number, number]));
+        });
+      }
+
+      if (!bounds.isEmpty()) {
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+
+        const width = Math.abs(ne.lng - sw.lng);
+        const height = Math.abs(ne.lat - sw.lat);
+
+        const minExtent = 0.5; // khoảng cách tối thiểu (đơn vị độ)
+
+        const expandedBounds = new maplibreGl.LngLatBounds(sw, ne);
+
+        if (width < minExtent || height < minExtent) {
+          expandedBounds.extend([sw.lng - minExtent, sw.lat - minExtent]);
+          expandedBounds.extend([ne.lng + minExtent, ne.lat + minExtent]);
         }
 
-        if (currentMarkerRef.current) {
-          currentMarkerRef.current.remove();
-        }
-        const newMarker = new maplibreGl.Marker({ color: '#FF0000' })
-          .setLngLat(e.lngLat)
-          .addTo(newMap);
-        currentMarkerRef.current = newMarker;
+        map.fitBounds(expandedBounds, {
+          padding: 40,
+          duration: 1000,
+          maxZoom: 8.5,
+        });
+      }
 
-        handleNewMarkerClick(e.lngLat);
+      onProvinceSelected?.(provinceName);
+    });
+  };
+
+  const addPlaceMarkers = (map: maplibreGl.Map, places: Place[]) => {
+    // Clear old markers
+    placeMarkersRef.current.forEach((marker) => marker.remove());
+    placeMarkersRef.current = [];
+
+    places.forEach((place) => {
+      const [lng, lat] = [parseFloat(place.longitude), parseFloat(place.latitude)];
+
+      const markerImg = document.createElement("img");
+      markerImg.src = place.coverImage.imageUrl || placeHolderImage.src;
+      Object.assign(markerImg.style, {
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        borderColor: "blue",
+        cursor: "pointer",
       });
 
-      return () => {
-        newMap.remove();
-      };
-    }
-  }, [mapPlaceDetail]);
+      const marker = new maplibreGl.Marker({ element: markerImg })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+      markerImg.addEventListener('click', () => {
+        handlePlaceMarkerClick?.(place.id.toString());
+      });
+
+      placeMarkersRef.current.push(marker);
+    });
+  };
 
   useEffect(() => {
-    if (mapRef.current && places.length > 0) {
-      places.forEach((place: Place) => {
-        const longitude = parseFloat(place.longitude);
-        const latitude = parseFloat(place.latitude);
+    if (!mapContainerRef.current || mapRef.current) return;
 
-        const customMarker = document.createElement("img");
-        customMarker.src = place.coverImage.imageUrl || placeHolderImage.src;
-        customMarker.style.width = "40px";
-        customMarker.style.height = "40px";
-        customMarker.style.borderRadius = "50%";
-        customMarker.style.borderColor = "blue"
-        customMarker.style.cursor = "pointer";
+    const map = new maplibreGl.Map({
+      container: mapContainerRef.current,
+      style: mapStyleUrl,
+      center: placeSearchResult
+        ? [placeSearchResult.geometry.location.lng, placeSearchResult.geometry.location.lat]
+        : defaultCenter,
+      zoom: placeSearchResult ? 12 : 6,
+    });
 
-        const popup = new maplibreGl.Popup({ offset: 25 })
-          .setHTML(`
-            <div class="bg-white shadow-lg rounded-xl max-w-xs ">
-              <h3 class="text-lg font-bold text-blue-600">${place.name}</h3>
-              <p class="text-sm text-gray-700">${place.longitude}</p>
-              <p class="text-sm text-gray-700">${place.latitude}</p>
-            </div>
-          `);
+    map.addControl(new maplibreGl.NavigationControl(), 'bottom-right');
 
-        if (mapRef.current) {
-          const marker = new maplibreGl.Marker({ element: customMarker })
-            .setLngLat([longitude, latitude])
-            .addTo(mapRef.current);
-          marker.setPopup(popup);
+    map.on('load', () => {
+      mapRef.current = map;
+      addVietnamGeoJsonLayer(map);
+    });
 
-          customMarker.addEventListener('click', () => {
-            if (handlePlaceMarkerClick) {
-              handlePlaceMarkerClick(place.id.toString());
-            }
-          });
-        }
+    map.on('click', handleMapClick);
+
+    return () => map.remove();
+  }, []);
+
+  useEffect(() => {
+    if (mapRef.current && placeSearchResult) {
+      const { lng, lat } = placeSearchResult.geometry.location;
+
+      placeDetailMarkerRef.current?.remove();
+
+      placeDetailMarkerRef.current = new maplibreGl.Marker()
+        .setLngLat([lng, lat])
+        .addTo(mapRef.current);
+
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 14,
+        speed: 1.4,
+        curve: 1.5,
+        easing: (t) => t,
+        essential: true,
       });
     }
-  }, [places, handlePlaceMarkerClick]);
+  }, [placeSearchResult]);
+
+  // Vẽ marker từ place sau khi fetch xong
+  useEffect(() => {
+    if (mapRef.current) {
+      addPlaceMarkers(mapRef.current, provincePlaces);
+    }
+  }, [provincePlaces]);
+
+  useEffect(() => {
+    if (!mapRef.current || !selectedProvinceName) return;
+
+    const map = mapRef.current;
+
+    // Remove old layer + source if they exist
+    if (map.getLayer('vietnam-provinces-selected')) {
+      map.removeLayer('vietnam-provinces-selected');
+    }
+    if (map.getSource('vietnam-provinces-selected')) {
+      map.removeSource('vietnam-provinces-selected');
+    }
+
+    // Fetch and filter GeoJSON to get selected province only
+    fetch('/geo/VietnamBorderVietnamese.geojson')
+      .then(res => res.json())
+      .then(data => {
+        const filtered = {
+          ...data,
+          features: data.features.filter(
+            (f: GeoJSON.Feature) => f.properties?.Name === selectedProvinceName
+          ),
+        };
+
+        map.addSource('vietnam-provinces-selected', {
+          type: 'geojson',
+          data: filtered,
+        });
+
+        map.addLayer({
+          id: 'vietnam-provinces-selected',
+          type: 'line',
+          source: 'vietnam-provinces-selected',
+          paint: {
+            'line-color': '#AE2029',
+            'line-width': 3,
+          },
+        });
+      });
+  }, [selectedProvinceName]);
 
   return <div ref={mapContainerRef} className='w-full h-full' />;
-};
-
+}
