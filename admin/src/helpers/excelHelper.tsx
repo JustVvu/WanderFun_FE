@@ -1,5 +1,4 @@
 // helpers/excelReaderHelper.ts
-import { getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode } from '@/app/services/addresses/addressServices';
 import { CreatePlacePayload } from '@/models/places/place';
 import * as XLSX from 'xlsx';
 
@@ -130,6 +129,21 @@ if (!districtCode && districtName && provinceCode) {
                imageUrl: String(item.imageUrl ?? ''),
                imagePublicId: String(item.imagePublicId ?? ''),
             },
+            placeDetail: {
+               description: String(item.description ?? ''),
+               checkInPoint: Number(item.checkPoint ?? 0),
+               checkInRangeMeter: Number(item.checkRange ?? 0),
+               timeOpen: String(item.openTime ?? ''),
+               timeClose: String(item.closeTime ?? ''),
+               isClosed: Boolean(item.isClosed ?? false),
+               priceRangeTop: Number(item.priceTop ?? 0),
+               priceRangeBottom: Number(item.priceBottom ?? 0),
+               bestTimeToVisit: String(item.bestTime ?? ''),
+               isVerified: Boolean(item.isVerified ?? false),
+               alternativeName: String(item.altName ?? ''),
+               operator: String(item.operator ?? ''),
+               url: String(item.url ?? ''),
+            }
          };
 
          results.push(placePayload);
