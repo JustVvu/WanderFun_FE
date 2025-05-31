@@ -42,6 +42,7 @@ export default function Place() {
         try {
             setLoadingState(true)
             const rawData = await readExcelFile(file);
+            console.log('Raw data from Excel:', rawData);
             const jsonData = convertExcelArrayToJSON(rawData);
             const payload = await excelImportHelper(jsonData);
             console.log('Payload:', payload);

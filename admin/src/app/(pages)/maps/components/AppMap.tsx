@@ -211,8 +211,8 @@ export default function AppMap({
 
       mapRef.current.flyTo({
         center: [lng, lat],
-        zoom: 14,
-        speed: 1.4,
+        zoom: 12,
+        speed: 2.4,
         curve: 1.5,
         easing: (t) => t,
         essential: true,
