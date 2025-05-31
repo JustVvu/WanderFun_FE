@@ -38,18 +38,18 @@ export default function Place() {
         const file = e.target.files?.[0];
         if (!file) return;
         console.log('Uploading file:', file.name);
-
         try {
             setLoadingState(true)
             const rawData = await readExcelFile(file);
-            console.log('Raw data from Excel:', rawData);
+            //console.log('Raw data from Excel:', rawData);
             const jsonData = convertExcelArrayToJSON(rawData);
             const payload = await excelImportHelper(jsonData);
-            console.log('Payload:', payload);
-            placeServices.addListPlace(payload)
+            //console.log('Payload:', payload);
+            await placeServices.addListPlace(payload)
                 .then(() => {
                     toast.success('Thêm địa điểm thành công!');
                     getPlaceData();
+                    setLoadingState(false)
                 })
                 .catch((error) => {
                     console.error('Error adding place:', error);
