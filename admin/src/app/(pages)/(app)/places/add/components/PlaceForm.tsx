@@ -78,14 +78,15 @@ export default function PlaceForm({
          try {
             setLoadingState(true);
             const fetchedData = await placeAction.getPlaceById(placeId);
+            console.log("Fetched place data: ", fetchedData);
             reset({
                name: fetchedData.name,
                longitude: fetchedData.longitude.toString(),
                latitude: fetchedData.latitude.toString(),
                address: {
-                  provinceName: fetchedData.address.province.fullName,
-                  districtName: fetchedData.address.district.fullName,
-                  wardName: fetchedData.address.ward?.fullName,
+                  provinceName: fetchedData.address.province?.code,
+                  districtName: fetchedData.address.district?.code,
+                  wardName: fetchedData.address.ward?.code,
                   street: fetchedData.address.street?.toString(),
                },
                coverImage: {
