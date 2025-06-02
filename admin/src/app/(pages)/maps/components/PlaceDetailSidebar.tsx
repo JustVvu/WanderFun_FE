@@ -94,7 +94,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                        Khoảng cách Check-in: {place.placeDetail.checkInRangeMeter} (m),
                                     </Label>
                                     <Label className="col-span-2 text-sm text-black4">
-                                       Điểm Check-in: {place.placeDetail.checkInRangeMeter}
+                                       Điểm Check-in: {place.placeDetail.checkInPoint}
                                     </Label>
                                  </div>
                                  <Label className="text-sm text-black4">
@@ -104,14 +104,14 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                            </CollapsibleContent>
                         </SidebarGroup>
                      </Collapsible>
-                     <SidebarGroup>
+                     {/* <SidebarGroup>
                         <SidebarGroupLabel className="px-0">
                            <Label className="text-[20px] text-blue2" >Hình ảnh địa điểm</Label>
                         </SidebarGroupLabel>
                         <SidebarGroupContent>
-                           {/* {place.placeImages && <PlaceImagesCarousel placeImages={place.placeImages} />} */}
+                           {/* {place.placeImages && <PlaceImagesCarousel placeImages={place.placeImages} />} *}
                         </SidebarGroupContent>
-                     </SidebarGroup>
+                     </SidebarGroup> */}
                      <Collapsible defaultOpen className="group/collapsible">
                         <SidebarGroup>
                            <SidebarGroupLabel asChild>
@@ -146,7 +146,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                     ))
                                  ) : (
                                     <Label className="text-sm text-black4">
-                                       Chưa có mô tả chi tiết cho địa điểm này.
+                                       {place.placeDetail.description || "Chưa có mô tả cho địa điểm này."}
                                     </Label>
                                  )}
                               </SidebarGroupContent>

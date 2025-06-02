@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Control, Path, useWatch, useFormContext } from "react-hook-form";
 import { FormFieldComboBox } from "@/app/components/FormFieldComboBox";
 import { toast } from "sonner";
@@ -38,6 +38,10 @@ export default function ProvinceDistrictSelector({
    const provinceCode = useWatch({ control, name: provinceCodeName }) as string;
    const districtCode = useWatch({ control, name: districtCodeName }) as string;
 
+   // Track previous values
+   const prevProvinceCode = useRef<string>();
+   const prevDistrictCode = useRef<string>();
+
    // load all provinces once
    useEffect(() => {
       getAllProvinces()
@@ -47,22 +51,28 @@ export default function ProvinceDistrictSelector({
 
    // whenever provinceCode changes: clear district & ward, then reload districts
    useEffect(() => {
-      setValue(districtCodeName, "");  // remove old district
-      setValue(wardCodeName, "");      // remove old ward
-      setDistricts([]);
-      setWards([]);
+      if (provinceCode && prevProvinceCode.current && provinceCode !== prevProvinceCode.current) {
+         setValue(districtCodeName, "");
+         setValue(wardCodeName, "");
+         setDistricts([]);
+         setWards([]);
+      }
+      prevProvinceCode.current = provinceCode;
 
       if (!provinceCode) return;
 
       getDistrictsByProvinceCode(provinceCode)
          .then((data) => setDistricts(data || []))
          .catch((e) => toast.error(`Không thể tải quận/huyện (${e})`));
-   }, [provinceCode, districtCodeName, provinceCodeName, wardCodeName, setValue]);
+   }, [provinceCode, districtCodeName, wardCodeName, setValue]);
 
    // whenever districtCode changes: clear ward, then reload wards
    useEffect(() => {
-      setValue(wardCodeName, "");  // remove old ward
-      setWards([]);
+      if (districtCode && prevDistrictCode.current && districtCode !== prevDistrictCode.current) {
+         setValue(wardCodeName, "");
+         setWards([]);
+      }
+      prevDistrictCode.current = districtCode;
 
       if (!districtCode) return;
 
@@ -94,7 +104,7 @@ export default function ProvinceDistrictSelector({
             control={control}
             name={wardCodeName}
             label="Phường/Xã"
-            options={wards.map((w) => ({ label: w.name, value: w.code }))}
+            options={wards.map((w) => ({ label: w.fullName, value: w.code }))}
             placeholder="Chọn phường/xã"
             disabled={!districtCode}
          />

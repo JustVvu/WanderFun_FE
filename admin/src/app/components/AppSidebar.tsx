@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { Trophy, Home, MapIcon, User, LogOut, } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext"
 import logo from '@/app/assets/Logo.svg'
 
@@ -21,6 +21,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
+import { useLoading } from "@/contexts/LoadingContext";
 
 // Menu items.
 const menuItems = [
@@ -42,19 +43,21 @@ const menuItems = [
         icon: MapIcon,
         isSelect: false,
     },
-    {
-        title: "Bảng xếp hạng",
-        url: "/leaderboard",
-        icon: Trophy,
-        isSelect: false,
-    },
+    // {
+    //     title: "Bảng xếp hạng",
+    //     url: "/leaderboard",
+    //     icon: Trophy,
+    //     isSelect: false,
+    // },
 ]
 
 export function AppSidebar() {
 
+    const { setLoadingState } = useLoading()
     const pathname = usePathname()
     const { logout } = useUser()
     const [selectedTab, setSelectedTab] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         const name = menuItems.find((item) => item.url === pathname)?.title;
@@ -64,6 +67,12 @@ export function AppSidebar() {
             setSelectedTab("Trang chủ");
         }
     }, [pathname]);
+
+    const handleNavigate = (url: string, title: string) => {
+        setLoadingState(true);
+        setSelectedTab(title);
+        router.push(url);
+    };
 
     const handleLogut = () => {
         logout()
@@ -105,9 +114,7 @@ export function AppSidebar() {
                                         >
                                             <Link
                                                 key={index}
-                                                onClick={() => {
-                                                    setSelectedTab(item.title);
-                                                }}
+                                                onClick={() => handleNavigate(item.url, item.title)}
                                                 href={item.url}>
                                                 <item.icon style={{ width: '20px', height: '20px' }} />
                                                 <span>{item.title}</span>

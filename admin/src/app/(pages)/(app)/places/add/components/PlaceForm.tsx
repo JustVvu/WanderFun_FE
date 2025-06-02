@@ -1,40 +1,40 @@
 // app/places/components/PlaceForm.tsx
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { ChevronLeft, PlusCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FormFieldInput } from "@/app/components/FormFieldInput";
-import { CategoryComboBox } from "./CategoryComboBox";
-import { ChevronLeft, PlusCircle } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { useLoading } from "@/contexts/LoadingContext";
-
-import AddImageField from "./AddImageField";
-import { TimePicker } from "./TimePicker/TimePicker";
-import SectionInputField from "./SectionInputField";
-import CreateCategoryModal from "./CreateCategoryModal";
-import ProvinceDistrictSelector from "./ProvinceDistrictSelector";
-
-import { PlaceCategory } from "@/models/places/placeCategory";
+import { FormFieldInput } from '@/app/components/FormFieldInput';
 import {
-   placeFormSchema,
-   PlaceFormValues,
-   defaultFormValues,
-   mapFormValuesToApiPayload
-} from "./PlaceFormSchema";
+   getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode
+} from '@/app/services/addresses/addressServices';
+import { fetchDataPlaceDetailByCoordinates } from '@/app/services/mapServices';
 import * as placeAction from '@/app/services/places/placesServices';
-import { fetchDataPlaceDetailByCoordinates } from "@/app/services/mapServices";
-import { parseTimeString } from "@/helpers/convertHelper";
-import { SectionDTO } from "@/models/places/section";
-import { Textarea } from "@/components/ui/textarea";
-import { getDistrictByNameAndProvinceCode, getProvinceByName, getWardByNameAndDistrictCode } from "@/app/services/addresses/addressServices";
+import { Button } from '@/components/ui/button';
+import {
+   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
+} from '@/components/ui/form';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { useLoading } from '@/contexts/LoadingContext';
+import { parseTimeString } from '@/helpers/convertHelper';
+import { PlaceCategory } from '@/models/places/placeCategory';
+import { SectionDTO } from '@/models/places/section';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import AddImageField from './AddImageField';
+import { CategoryComboBox } from './CategoryComboBox';
+import CreateCategoryModal from './CreateCategoryModal';
+import {
+   defaultFormValues, mapFormValuesToApiPayload, placeFormSchema, PlaceFormValues
+} from './PlaceFormSchema';
+import ProvinceDistrictSelector from './ProvinceDistrictSelector';
+import SectionInputField from './SectionInputField';
+import { TimePicker } from './TimePicker/TimePicker';
 
 interface PlaceFormProps {
    isUpdate?: boolean;
@@ -78,14 +78,15 @@ export default function PlaceForm({
          try {
             setLoadingState(true);
             const fetchedData = await placeAction.getPlaceById(placeId);
+            console.log("Fetched place data: ", fetchedData);
             reset({
                name: fetchedData.name,
                longitude: fetchedData.longitude.toString(),
                latitude: fetchedData.latitude.toString(),
                address: {
-                  provinceName: fetchedData.address.province.fullName,
-                  districtName: fetchedData.address.district.fullName,
-                  wardName: fetchedData.address.ward?.fullName,
+                  provinceName: fetchedData.address.province?.code,
+                  districtName: fetchedData.address.district?.code,
+                  wardName: fetchedData.address.ward?.code,
                   street: fetchedData.address.street?.toString(),
                },
                coverImage: {

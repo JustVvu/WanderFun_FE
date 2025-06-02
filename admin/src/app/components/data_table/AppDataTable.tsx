@@ -101,9 +101,9 @@ export function AppDataTable<TData, TValue>({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                    className="odd:bg-blue1o even:bg-green2o
-                                    odd:hover:bg-blue_selected even:hover:bg-green_selected
-                                    data-[state=selected]:odd:bg-blue_selected data-[state=selected]:even:bg-green_selected"
+                                    className="odd:bg-cyan-200 even:bg-green-200
+                                    odd:hover:bg-cyan-500 even:hover:bg-green-400
+                                    data-[state=selected]:odd:bg-cyan-500 data-[state=selected]:even:bg-green-400"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>

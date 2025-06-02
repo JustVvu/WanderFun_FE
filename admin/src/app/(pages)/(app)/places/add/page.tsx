@@ -1,12 +1,14 @@
 // app/places/add/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
-import { PlaceCategory } from "@/models/places/placeCategory";
-import PlaceForm from "./components/PlaceForm";
-import { getAllPlaceCategories } from "@/app/services/places/placeCategoriesServices";
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+import { getAllPlaceCategories } from '@/app/services/places/placeCategoriesServices';
+import { PlaceCategory } from '@/models/places/placeCategory';
+
+import PlaceForm from './components/PlaceForm';
 
 export default function AddPlace() {
    const searchParams = useSearchParams();

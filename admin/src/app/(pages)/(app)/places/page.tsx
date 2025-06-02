@@ -1,20 +1,20 @@
 'use client'
 
-import { MapPinPlus, MapPinned, FileSpreadsheet } from "lucide-react"
+import { FileSpreadsheet, MapPinned, MapPinPlus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button'
-import { AppDataTable } from '../../../components/data_table/AppDataTable'
-import { useColumns as usePlaceColumns } from "./placeColumns"
-import { useRouter } from "next/navigation"
-import { useState, useEffect, useCallback, useRef } from "react"
+import * as placeServices from '@/app/services/places/placesServices';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useLoading } from '@/contexts/LoadingContext';
+import { convertExcelArrayToJSON, excelImportHelper, readExcelFile } from '@/helpers/excelHelper';
+
+import { AppDataTable } from '../../../components/data_table/AppDataTable';
+import { useColumns as usePlaceColumns } from './placeColumns';
+
 import type { Place } from "@/models/places/place"
-import * as placeServices from '@/app/services/places/placesServices'
-import { Input } from "@/components/ui/input"
-import { convertExcelArrayToJSON, readExcelFile, excelImportHelper } from "@/helpers/excelHelper"
-import { toast } from "sonner"
-import { useLoading } from "@/contexts/LoadingContext"
-
-
 export default function Place() {
 
     const router = useRouter();
@@ -38,17 +38,18 @@ export default function Place() {
         const file = e.target.files?.[0];
         if (!file) return;
         console.log('Uploading file:', file.name);
-
         try {
             setLoadingState(true)
             const rawData = await readExcelFile(file);
+            //console.log('Raw data from Excel:', rawData);
             const jsonData = convertExcelArrayToJSON(rawData);
             const payload = await excelImportHelper(jsonData);
-            console.log('Payload:', payload);
-            placeServices.addListPlace(payload)
+            //console.log('Payload:', payload);
+            await placeServices.addListPlace(payload)
                 .then(() => {
                     toast.success('Thêm địa điểm thành công!');
                     getPlaceData();
+                    setLoadingState(false)
                 })
                 .catch((error) => {
                     console.error('Error adding place:', error);
