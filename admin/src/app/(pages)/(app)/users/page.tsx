@@ -1,20 +1,20 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 
-import { AppDataTable } from '../../../components/data_table/AppDataTable'
-import { useColumns } from "./columns"
-import type { User } from '@/models/user';
-import { getAllUsers } from '@/app/services/usersServices';
+import { AppDataTable } from '@/app/components/data_table/AppDataTable';
+import { getAllUserAccounts } from '@/app/services/usersServices';
+import { Account } from '@/models/users/account';
 
+import { useColumns } from './userColumns';
 
-export default function User() {
+export default function AccountPage() {
 
-    const [data, setData] = useState<User[]>([]);
+    const [data, setData] = useState<Account[]>([]);
 
     const getData = useCallback(async () => {
-        const fetchedData = await getAllUsers();
-        console.log(fetchedData);
+        const fetchedData = await getAllUserAccounts();
+        //console.log(fetchedData);
         setData(fetchedData);
     }, []);
 
@@ -34,8 +34,8 @@ export default function User() {
                 <AppDataTable
                     columns={columns}
                     data={data}
-                    filterCritia='firstName'
-                    filterPlaceholder='Tên người dùng'
+                    filterCritia='email'
+                    filterPlaceholder='Email người dùng'
                 />
             </div>
         </div>

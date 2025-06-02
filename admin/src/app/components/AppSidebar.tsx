@@ -43,12 +43,12 @@ const menuItems = [
         icon: MapIcon,
         isSelect: false,
     },
-    {
-        title: "Bảng xếp hạng",
-        url: "/leaderboard",
-        icon: Trophy,
-        isSelect: false,
-    },
+    // {
+    //     title: "Bảng xếp hạng",
+    //     url: "/leaderboard",
+    //     icon: Trophy,
+    //     isSelect: false,
+    // },
 ]
 
 export function AppSidebar() {
