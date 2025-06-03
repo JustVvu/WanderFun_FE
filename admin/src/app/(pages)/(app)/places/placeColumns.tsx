@@ -1,12 +1,10 @@
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
+import { AppConfirmDialog } from '@/app/components/AppConfirmDialog';
 import { DataTableColumnHeader } from '@/app/components/data_table/DataTableColumnHeader';
 import { deletePlace } from '@/app/services/places/placesServices';
-import {
-   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -19,11 +17,14 @@ import { ColumnDef } from '@tanstack/react-table';
 export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
    const router = useRouter();
    const { setLoadingState } = useLoading();
+   const [openDialog, setOpenDialog] = useState(false);
+   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
 
-   const handleDeletePlace = async (placeId: number) => {
+   const handleDeletePlace = async () => {
+      if (!selectedPlace) return;
       try {
          setLoadingState(true);
-         await deletePlace(placeId.toString(), refetchData);
+         await deletePlace(selectedPlace.id.toString(), refetchData);
       }
       catch (err) {
          console.log(err);
@@ -128,7 +129,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          cell: ({ row }) => {
             const place = row.original
             return (
-               <AlertDialog>
+               <>
                   <DropdownMenu>
                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
@@ -139,44 +140,34 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
                      <DropdownMenuContent align="end">
                         <DropdownMenuItem
                            onClick={() => {
-                              router.push(`/places/add?id=${place.id}`);
+                              router.push(`/places/${place.id}/edit`);
                            }}
                         >
                            Chỉnh sửa địa điểm
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <AlertDialogTrigger asChild>
-                           <DropdownMenuItem>
-                              Xóa địa điểm
-                           </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                     </DropdownMenuContent>
-                  </DropdownMenu>
-                  <AlertDialogContent>
-                     <AlertDialogHeader>
-                        <AlertDialogTitle className='text-lg font-semibold text-gray-900'>
-                           Xác nhận xóa địa điểm
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className='text-sm text-gray-600'>
-                           Bạn có chắc chắn muốn xóa địa điểm <span className='font-semibold'>{place.name}</span> không?
-                           Hành động này sẽ không thể hoàn tác.
-                        </AlertDialogDescription>
-                     </AlertDialogHeader>
-                     <AlertDialogFooter>
-                        <AlertDialogCancel className='bg-gray-200 hover:bg-gray-300 text-gray-800'>
-                           Hủy
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                           className='bg-red-600 hover:bg-red-700 text-white'
+                        <DropdownMenuItem
+                           className="cursor-pointer"
                            onClick={() => {
-                              handleDeletePlace(place.id);
+                              setSelectedPlace(place);
+                              setOpenDialog(true);
                            }}
                         >
-                           Xác nhận
-                        </AlertDialogAction>
-                     </AlertDialogFooter>
-                  </AlertDialogContent>
-               </AlertDialog>
+                           Xóa địa điểm
+                        </DropdownMenuItem>
+                     </DropdownMenuContent>
+                  </DropdownMenu>
+
+
+                  <AppConfirmDialog
+                     open={openDialog}
+                     setOpen={setOpenDialog}
+                     title="Xác nhận xóa địa điểm?"
+                     description="Bạn có chắc chắn muốn xóa địa điểm này? Hành động này không thể hoàn tác."
+                     onConfirm={handleDeletePlace}
+
+                  />
+               </>
             )
          },
       },
