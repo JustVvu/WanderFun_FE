@@ -100,10 +100,10 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
       {
          accessorKey: "rating",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-[100px] " column={column} title="Điểm đánh giá" />
+            <DataTableColumnHeader className="w-fit" column={column} title="Điểm đánh giá" />
          ),
          cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("rating")}</div>,
-         enableSorting: true,
+         enableSorting: false,
          enableHiding: false,
       },
       {
@@ -112,7 +112,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
             <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt đánh giá" />
          ),
          cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalRating")}</div>,
-         enableSorting: true,
+         enableSorting: false,
          enableHiding: false,
       },
       {
@@ -121,7 +121,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
             <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt nhận xét" />
          ),
          cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalFeedback")}</div>,
-         enableSorting: true,
+         enableSorting: false,
          enableHiding: false,
       },
       {
@@ -140,7 +140,15 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
                      <DropdownMenuContent align="end">
                         <DropdownMenuItem
                            onClick={() => {
-                              router.push(`/places/${place.id}/edit`);
+                              router.push(`/places/detail?id=${place.id}`);
+                           }}
+                        >
+                           Xem chi tiết địa điểm
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                           onClick={() => {
+                              router.push(`/places/add?id=${place.id}`);
                            }}
                         >
                            Chỉnh sửa địa điểm

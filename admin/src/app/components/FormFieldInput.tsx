@@ -30,8 +30,13 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
             control={control}
             name={name}
             render={({ field, fieldState: { error } }) => (
-               <FormItem className="flex flex-col justify-between focus-within:text-blue2">
-                  <FormLabel>{label}</FormLabel>
+               <FormItem className="flex flex-col focus-within:text-blue2">
+                  <FormLabel
+                     className={`truncate 
+                     ${error ? "text-red-500" : "text-gray-700"}`}
+                  >
+                     {label}
+                  </FormLabel>
                   <FormControl
                      className="w-auto h-[40px] border-none bg-white3
                         focus:bg-white"
@@ -45,9 +50,11 @@ export const FormFieldInput: React.FC<FormFieldInputProps> = ({
                      />
                   </FormControl>
                   <FormMessage
-                     className={`${error ? "text-red-500" : "text-transparent"}`}
+                     className={` ml-2
+                        ${error ? "text-red-500" : "invisible"}`
+                     }
                   >
-                     {error?.message || "placeholder"}
+                     {error?.message}
                   </FormMessage>
                </FormItem>
             )}
