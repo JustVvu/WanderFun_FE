@@ -8,6 +8,8 @@ import {
    getAllProvinces,
    getDistrictsByProvinceCode,
    getWardsByDistrictCode,
+   getProvinceByName,
+   getDistrictByNameAndProvinceCode,
 } from "@/app/services/addresses/addressServices";
 import { Province } from "@/models/addresses/province";
 import { District } from "@/models/addresses/district";
@@ -16,97 +18,157 @@ import { PlaceFormValues } from "./PlaceFormSchema";
 
 interface ProvinceDistrictSelectorProps {
    control: Control<PlaceFormValues>;
-   provinceCodeName: Path<PlaceFormValues>;
-   districtCodeName: Path<PlaceFormValues>;
-   wardCodeName: Path<PlaceFormValues>;
+   provinceNameField: Path<PlaceFormValues>;
+   districtNameField: Path<PlaceFormValues>;
+   wardNameField: Path<PlaceFormValues>;
 }
 
 export default function ProvinceDistrictSelector({
    control,
-   provinceCodeName,
-   districtCodeName,
-   wardCodeName,
+   provinceNameField,
+   districtNameField,
+   wardNameField,
 }: ProvinceDistrictSelectorProps) {
-   // grab setValue from the same RHF context as your <Form>
    const { setValue } = useFormContext<PlaceFormValues>();
 
    const [provinces, setProvinces] = useState<Province[]>([]);
    const [districts, setDistricts] = useState<District[]>([]);
    const [wards, setWards] = useState<Ward[]>([]);
+   const [initialized, setInitialized] = useState(false);
 
-   // watch the field values
-   const provinceCode = useWatch({ control, name: provinceCodeName }) as string;
-   const districtCode = useWatch({ control, name: districtCodeName }) as string;
+   const provinceName = useWatch({ control, name: provinceNameField }) as string;
+   const districtName = useWatch({ control, name: districtNameField }) as string;
 
-   // Track previous values
-   const prevProvinceCode = useRef<string>();
-   const prevDistrictCode = useRef<string>();
+   const prevProvinceName = useRef<string>();
+   const prevDistrictName = useRef<string>();
 
-   // load all provinces once
+   const provinceCache = useRef<Record<string, Province>>({});
+   const districtCache = useRef<Record<string, District>>({});
+
+   // Load all provinces once
    useEffect(() => {
       getAllProvinces()
-         .then((data) => setProvinces(data || []))
+         .then((data) => {
+            setProvinces(data || []);
+            data?.forEach(p => provinceCache.current[p.name] = p);
+         })
          .catch((e) => toast.error(`Không thể tải tỉnh/thành phố (${e})`));
    }, []);
 
-   // whenever provinceCode changes: clear district & ward, then reload districts
+   // Province changed => reset district & ward, then load districts
    useEffect(() => {
-      if (provinceCode && prevProvinceCode.current && provinceCode !== prevProvinceCode.current) {
-         setValue(districtCodeName, "");
-         setValue(wardCodeName, "");
-         setDistricts([]);
-         setWards([]);
-      }
-      prevProvinceCode.current = provinceCode;
+      const loadDistricts = async () => {
+         if (!provinceName) return;
 
-      if (!provinceCode) return;
+         const province = provinceCache.current[provinceName]
+            || await getProvinceByName(provinceName).then(p => {
+               if (p) provinceCache.current[provinceName] = p;
+               return p;
+            });
 
-      getDistrictsByProvinceCode(provinceCode)
-         .then((data) => setDistricts(data || []))
-         .catch((e) => toast.error(`Không thể tải quận/huyện (${e})`));
-   }, [provinceCode, districtCodeName, wardCodeName, setValue]);
+         if (!province?.code) return;
 
-   // whenever districtCode changes: clear ward, then reload wards
+         const data = await getDistrictsByProvinceCode(province.code).catch((e) => {
+            toast.error(`Không thể tải quận/huyện từ tỉnh "${provinceName}" (${e})`);
+            return [];
+         });
+
+         setDistricts(data || []);
+         data?.forEach(d => districtCache.current[`${d.name}-${province.code}`] = d);
+
+         const provinceChanged = prevProvinceName.current && prevProvinceName.current !== provinceName;
+         prevProvinceName.current = provinceName;
+
+         if (provinceChanged) {
+            setValue(districtNameField, "");
+            setValue(wardNameField, "");
+            setWards([]);
+         }
+
+         // Handle update mode (first time, ward is missing)
+         if (!initialized && districtName) {
+            const district = districtCache.current[`${districtName}-${province.code}`]
+               || await getDistrictByNameAndProvinceCode(districtName, province.code).then(d => {
+                  if (d) districtCache.current[`${districtName}-${province.code}`] = d;
+                  return d;
+               });
+
+            if (district?.code) {
+               const wardData = await getWardsByDistrictCode(district.code).catch((e) => {
+                  toast.error(`Không thể tải phường/xã từ quận "${districtName}" (${e})`);
+                  return [];
+               });
+               setWards(wardData || []);
+            }
+         }
+
+         setInitialized(true);
+      };
+
+      loadDistricts();
+   }, [provinceName]);
+
+   // District changed => reset ward, then load wards
    useEffect(() => {
-      if (districtCode && prevDistrictCode.current && districtCode !== prevDistrictCode.current) {
-         setValue(wardCodeName, "");
-         setWards([]);
-      }
-      prevDistrictCode.current = districtCode;
+      const loadWards = async () => {
+         if (!provinceName || !districtName || !initialized) return;
 
-      if (!districtCode) return;
+         const province = provinceCache.current[provinceName];
+         if (!province?.code) return;
 
-      getWardsByDistrictCode(districtCode)
-         .then((data) => setWards(data || []))
-         .catch((e) => toast.error(`Không thể tải phường/xã (${e})`));
-   }, [districtCode, wardCodeName, setValue]);
+         const district = districtCache.current[`${districtName}-${province.code}`]
+            || await getDistrictByNameAndProvinceCode(districtName, province.code).then(d => {
+               if (d) districtCache.current[`${districtName}-${province.code}`] = d;
+               return d;
+            });
+
+         if (!district?.code) return;
+
+         const districtChanged = prevDistrictName.current && prevDistrictName.current !== districtName;
+         prevDistrictName.current = districtName;
+
+         if (districtChanged) {
+            setValue(wardNameField, "");
+            setWards([]);
+         }
+
+         const wardData = await getWardsByDistrictCode(district.code).catch((e) => {
+            toast.error(`Không thể tải phường/xã từ quận "${districtName}" (${e})`);
+            return [];
+         });
+
+         setWards(wardData || []);
+      };
+
+      loadWards();
+   }, [districtName]);
 
    return (
       <div className="grid grid-cols-3 gap-[100px]">
          <FormFieldComboBox
             control={control}
-            name={provinceCodeName}
+            name={provinceNameField}
             label="Tỉnh/Thành phố"
-            options={provinces.map((p) => ({ label: p.fullName, value: p.code }))}
+            options={provinces.map((p) => ({ label: p.fullName, value: p.name }))}
             placeholder="Chọn tỉnh/thành phố"
          />
 
          <FormFieldComboBox
             control={control}
-            name={districtCodeName}
+            name={districtNameField}
             label="Quận/Huyện"
-            options={districts.map((d) => ({ label: d.fullName, value: d.code }))}
+            options={districts.map((d) => ({ label: d.fullName, value: d.name }))}
             placeholder="Chọn quận/huyện"
-            disabled={!provinceCode}
+            disabled={!provinceName}
          />
 
          <FormFieldComboBox
             control={control}
-            name={wardCodeName}
+            name={wardNameField}
             label="Phường/Xã"
-            options={wards.map((w) => ({ label: w.fullName, value: w.code }))}
+            options={wards.map((w) => ({ label: w.fullName, value: w.name }))}
             placeholder="Chọn phường/xã"
-            disabled={!districtCode}
+            disabled={!districtName}
          />
       </div>
    );

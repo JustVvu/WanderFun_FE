@@ -70,6 +70,7 @@ export default function PlaceForm({
    });
 
    const { reset } = form;
+   const { isDirty } = form.formState;
 
    // Load place data for update
    useEffect(() => {
@@ -84,9 +85,9 @@ export default function PlaceForm({
                longitude: fetchedData.longitude.toString(),
                latitude: fetchedData.latitude.toString(),
                address: {
-                  provinceName: fetchedData.address.province?.code,
-                  districtName: fetchedData.address.district?.code,
-                  wardName: fetchedData.address.ward?.code,
+                  provinceName: fetchedData.address.province?.name,
+                  districtName: fetchedData.address.district?.name,
+                  wardName: fetchedData.address.ward?.name,
                   street: fetchedData.address.street?.toString(),
                },
                coverImage: {
@@ -170,10 +171,10 @@ export default function PlaceForm({
 
          if (isUpdate && placeId) {
             await placeAction.updatePlace(placeId, payload, selectedCoverImage, sectionImages);
-            toast.success('Cập nhật địa điểm thành công');
+            //toast.success('Cập nhật địa điểm thành công');
          } else {
             await placeAction.addPlace(payload, selectedCoverImage, sectionImages);
-            toast.success('Thêm địa điểm thành công');
+            //toast.success('Thêm địa điểm thành công');
          }
 
          //router.push('/places');
@@ -212,7 +213,7 @@ export default function PlaceForm({
 
             <Form {...form}>
                <form
-                  className="flex flex-col w-full h-fit px-[40px] space-y-[24px]"
+                  className="flex flex-col w-full h-fit px-[20px] space-y-[24px]"
                   onSubmit={(e) => {
                      e.preventDefault();
                      console.log("Form data: ", form.getValues());
@@ -246,9 +247,9 @@ export default function PlaceForm({
                      <div className="col-span-3">
                         <ProvinceDistrictSelector
                            control={form.control}
-                           provinceCodeName="address.provinceName"
-                           districtCodeName="address.districtName"
-                           wardCodeName="address.wardName"
+                           provinceNameField="address.provinceName"
+                           districtNameField="address.districtName"
+                           wardNameField="address.wardName"
                         />
                      </div>
 
@@ -300,107 +301,122 @@ export default function PlaceForm({
                         />
                      </div>
 
-                     {/* Check-in settings */}
-                     <div className="grid grid-cols-2 gap-4 col-span-1">
-                        <FormFieldInput
-                           control={form.control}
-                           name="placeDetail.checkInRangeMeter"
-                           label="Khoảng cách Check-in (m)"
-                           placeholder="Nhập khoảng cách check-in"
-                        />
+                     <div className='col-span-3 grid grid-cols-4 gap-x-4 gap-y-[24px]'>
+                        {/* Check-in settings */}
+                        <div className='col-span-2 grid grid-cols-2 gap-x-4 gap-y-[24px]'>
+                           <FormFieldInput
+                              control={form.control}
+                              name="placeDetail.checkInRangeMeter"
+                              label="Khoảng cách Check-in (m)"
+                              placeholder="Nhập khoảng cách check-in"
+                           />
 
-                        <FormFieldInput
-                           control={form.control}
-                           name="placeDetail.checkInPoint"
-                           label="Điểm số Check-in"
-                           placeholder="Nhập điểm check-in"
-                        />
+                           <FormFieldInput
+                              control={form.control}
+                              name="placeDetail.checkInPoint"
+                              label="Điểm số Check-in"
+                              placeholder="Nhập điểm check-in"
+                           />
+                        </div>
+
+                        {/* Price Range */}
+                        <div className="grid grid-cols-2 gap-4 col-span-2">
+                           <FormFieldInput
+                              control={form.control}
+                              name="placeDetail.priceRangeBottom"
+                              label="Giá thấp nhất (VND)"
+                              placeholder="Nhập giá thấp nhất"
+                           />
+
+                           <FormFieldInput
+                              control={form.control}
+                              name="placeDetail.priceRangeTop"
+                              label="Giá cao nhất (VND)"
+                              placeholder="Nhập giá cao nhất"
+                           />
+                        </div>
+
+                        {/* Opening Hours */}
+                        <div className='col-span-3 grid grid-cols-3'>
+                           <FormField
+                              control={form.control}
+                              name="placeDetail.timeOpen"
+                              render={({ field, fieldState: { error } }) => (
+                                 <FormItem className="flex flex-col">
+                                    <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
+                                    <FormControl>
+                                       <TimePicker
+                                          setDate={field.onChange}
+                                          date={field.value}
+                                       />
+                                    </FormControl>
+                                    <FormMessage
+                                       className={`${error ? "text-red-500" : "invisible"}`}
+                                    >
+                                       {error?.message}
+                                    </FormMessage>
+                                 </FormItem>
+                              )}
+                           />
+
+                           <FormField
+                              control={form.control}
+                              name="placeDetail.timeClose"
+                              render={({ field, fieldState: { error } }) => (
+                                 <FormItem className="flex flex-col">
+                                    <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
+                                    <FormControl>
+                                       <TimePicker
+                                          setDate={field.onChange}
+                                          date={field.value}
+                                       />
+                                    </FormControl>
+                                    <FormMessage
+                                       className={`${error ? "text-red-500" : "invisible"}`}
+                                    >
+                                       {error?.message}
+                                    </FormMessage>
+                                 </FormItem>
+                              )}
+                           />
+                           <FormField
+                              control={form.control}
+                              name="placeDetail.isClosed"
+                              render={({ field, fieldState: { error } }) => (
+                                 <FormItem className="flex flex-col">
+                                    <FormLabel className="text-left">Đang đóng cửa</FormLabel>
+                                    <FormControl>
+                                       <Switch
+                                          className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                       />
+                                    </FormControl>
+                                    <FormMessage
+                                       className={`${error ? "text-red-500" : "invisible"}`}
+                                    >
+                                       {error?.message}
+                                    </FormMessage>
+                                 </FormItem>
+                              )}
+                           />
+                        </div>
+
+                        {/* Website */}
+                        <div className='col-span-2'>
+                           <FormFieldInput
+                              control={form.control}
+                              name="placeDetail.url"
+                              label="Đường dẫn đến trang địa điểm"
+                              placeholder="Nhập URL"
+                           />
+                        </div>
                      </div>
-
-                     {/* Opening Hours */}
-                     <div className="grid grid-cols-3 gap-4 col-span-1">
-                        <FormField
-                           control={form.control}
-                           name="placeDetail.isClosed"
-                           render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                 <FormLabel className="text-left">Đang đóng cửa</FormLabel>
-                                 <FormControl>
-                                    <Switch
-                                       className="self-baseline data-[state=checked]:bg-blue2 data-[state=unchecked]:bg-white4"
-                                       checked={field.value}
-                                       onCheckedChange={field.onChange}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-
-                        <FormField
-                           control={form.control}
-                           name="placeDetail.timeOpen"
-                           render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                 <FormLabel className="text-left">Giờ mở cửa (Giờ/Phút)</FormLabel>
-                                 <FormControl>
-                                    <TimePicker
-                                       setDate={field.onChange}
-                                       date={field.value}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-
-                        <FormField
-                           control={form.control}
-                           name="placeDetail.timeClose"
-                           render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                 <FormLabel className="text-left">Giờ đóng cửa (Giờ/Phút)</FormLabel>
-                                 <FormControl>
-                                    <TimePicker
-                                       setDate={field.onChange}
-                                       date={field.value}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-                     </div>
-
-                     {/* Price Range */}
-                     <div className="grid grid-cols-2 gap-4 col-span-1">
-                        <FormFieldInput
-                           control={form.control}
-                           name="placeDetail.priceRangeBottom"
-                           label="Giá thấp nhất (VND)"
-                           placeholder="Nhập giá thấp nhất"
-                        />
-
-                        <FormFieldInput
-                           control={form.control}
-                           name="placeDetail.priceRangeTop"
-                           label="Giá cao nhất (VND)"
-                           placeholder="Nhập giá cao nhất"
-                        />
-                     </div>
-
-                     {/* Website */}
-                     <FormFieldInput
-                        control={form.control}
-                        name="placeDetail.url"
-                        label="Đường dẫn đến trang địa điểm"
-                        placeholder="Nhập URL"
-                     />
 
                      <FormField
                         control={form.control}
                         name="placeDetail.description"
-                        render={({ field }) => (
+                        render={({ field, fieldState: { error } }) => (
                            <FormItem className=" col-span-3 grid-cols-subgrid">
                               <div className="flex flex-col justify-between focus-within:text-blue2">
                                  <FormLabel>Giới thiệu địa điểm</FormLabel>
@@ -414,7 +430,11 @@ export default function PlaceForm({
                                     className="h-min-[100px] bg-white3 focus:bg-white focus:border-blue2 flex-grow-[3]"
                                  />
                               </FormControl>
-                              <FormMessage />
+                              <FormMessage
+                                 className={`${error ? "text-red-500" : "invisible"}`}
+                              >
+                                 {error?.message}
+                              </FormMessage>
                            </FormItem>
                         )}
                      />
@@ -449,6 +469,7 @@ export default function PlaceForm({
                   <Button
                      className="h-[40px] w-fit self-center mt-[20px] bg-green3 text-white1 hover:bg-green_selected"
                      type="submit"
+                     disabled={!isDirty || form.formState.isSubmitting}
                   >
                      Lưu thông tin
                   </Button>

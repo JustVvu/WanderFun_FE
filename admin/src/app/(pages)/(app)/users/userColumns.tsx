@@ -5,10 +5,6 @@ import { toast } from 'sonner';
 
 import { DataTableColumnHeader } from '@/app/components/data_table/DataTableColumnHeader';
 import { changeAccountStatus } from '@/app/services/usersServices';
-import {
-   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -18,6 +14,8 @@ import {
 import { useLoading } from '@/contexts/LoadingContext';
 import { Account } from '@/models/users/account';
 import { ColumnDef } from '@tanstack/react-table';
+import { useState } from 'react';
+import { AppConfirmDialog } from '@/app/components/AppConfirmDialog';
 
 //import { useRouter } from "next/router"
 
@@ -25,19 +23,23 @@ import { ColumnDef } from '@tanstack/react-table';
 export function useColumns(refetchData: () => void): ColumnDef<Account>[] {
    //const router = useRouter();
    const { setLoadingState } = useLoading();
+   const [openDialog, setOpenDialog] = useState(false);
+   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
-   const handleChangeAccountStatus = async (accountId: number) => {
+   const handleChangeAccountStatus = async () => {
+      if (!selectedAccount) return;
       try {
-         setLoadingState(true)
-         console.log("Changing account status for:", accountId);
-         await changeAccountStatus(accountId)
+         setLoadingState(true);
+         await changeAccountStatus(selectedAccount.id);
+         toast.success("Đã thay đổi trạng thái tài khoản.");
       } catch (error) {
          toast.error(`Lỗi khi thay đổi trạng thái tài khoản: ${String(error)}`);
       } finally {
-         setLoadingState(false)
+         setLoadingState(false);
+         setOpenDialog(false);
          refetchData();
       }
-   }
+   };
 
 
    return [
@@ -109,7 +111,7 @@ export function useColumns(refetchData: () => void): ColumnDef<Account>[] {
          cell: ({ row }) => {
             const account = row.original
             return (
-               <AlertDialog>
+               <>
                   <DropdownMenu>
                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
@@ -118,13 +120,15 @@ export function useColumns(refetchData: () => void): ColumnDef<Account>[] {
                         </Button>
                      </DropdownMenuTrigger>
                      <DropdownMenuContent align="end">
-                        <AlertDialogTrigger asChild>
-                           <DropdownMenuItem
-                              className="cursor-pointer"
-                           >
-                              {account.active === true ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-                           </DropdownMenuItem>
-                        </AlertDialogTrigger>
+                        <DropdownMenuItem
+                           className="cursor-pointer"
+                           onClick={() => {
+                              setSelectedAccount(account);
+                              setOpenDialog(true);
+                           }}
+                        >
+                           {account.active === true ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            onClick={() => {
@@ -135,30 +139,21 @@ export function useColumns(refetchData: () => void): ColumnDef<Account>[] {
                         </DropdownMenuItem>
                      </DropdownMenuContent>
                   </DropdownMenu>
-                  <AlertDialogContent>
-                     <AlertDialogHeader>
-                        <AlertDialogTitle className='text-lg font-semibold text-gray-900'>
-                           {account.active === true ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className='text-sm text-gray-600'>
-                           Bạn có chắc chắn muốn {account.active === true ? "khóa" : "mở khóa"} tài khoản của người dùng này không?
-                        </AlertDialogDescription>
-                     </AlertDialogHeader>
-                     <AlertDialogFooter>
-                        <AlertDialogCancel className='bg-gray-200 hover:bg-gray-300 text-gray-800'>
-                           Hủy
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                           className='bg-red-600 hover:bg-red-700 text-white'
-                           onClick={() => {
-                              handleChangeAccountStatus(account.id)
-                           }}
-                        >
-                           Xác nhận
-                        </AlertDialogAction>
-                     </AlertDialogFooter>
-                  </AlertDialogContent>
-               </AlertDialog>
+
+                  <AppConfirmDialog
+                     open={openDialog}
+                     setOpen={setOpenDialog}
+                     title={selectedAccount?.active
+                        ? "Xác nhận khóa tài khoản?"
+                        : "Xác nhận mở khóa tài khoản?"
+                     }
+                     description={selectedAccount?.active
+                        ? "Bạn có chắc chắn muốn khóa tài khoản này không?"
+                        : "Bạn có chắc chắn muốn mở khóa tài khoản này không?"
+                     }
+                     onConfirm={handleChangeAccountStatus}
+                  />
+               </>
             )
          },
       },
