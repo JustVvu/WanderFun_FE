@@ -11,8 +11,8 @@ export interface Place {
    longitude: string;
    latitude: string;
    rating: string;
-   totalRating: string;
-   totalFeedback: string;
+   checkInCount: string;
+   feedbackCount: string;
    coverImage: Image;
    placeDetail: PlaceDetail;
 }

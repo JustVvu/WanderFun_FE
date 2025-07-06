@@ -107,20 +107,20 @@ export function useColumns(refetchData: () => void): ColumnDef<Place>[] {
          enableHiding: false,
       },
       {
-         accessorKey: "totalRating",
+         accessorKey: "feedbackCount",
          header: ({ column }) => (
             <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt đánh giá" />
          ),
-         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalRating")}</div>,
+         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("feedbackCount")}</div>,
          enableSorting: false,
          enableHiding: false,
       },
       {
-         accessorKey: "totalFeedback",
+         accessorKey: "checkInCount",
          header: ({ column }) => (
-            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt nhận xét" />
+            <DataTableColumnHeader className="w-[100px]" column={column} title="Lượt Check-in" />
          ),
-         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("totalFeedback")}</div>,
+         cell: ({ row }) => <div className="w-[100px] text-center">{row.getValue("checkInCount")}</div>,
          enableSorting: false,
          enableHiding: false,
       },
