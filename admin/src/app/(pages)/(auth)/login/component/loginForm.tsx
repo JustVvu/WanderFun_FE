@@ -157,7 +157,7 @@ export function LoginForm() {
                                 className="border-[2px] rounded-[3px] font-bold data-[state=checked]:border-blue1 data-[state=checked]:bg-blue1 data-[state=checked]:text-white" />
                             <label htmlFor="remember" className="text-sm font-normal">Ghi nhớ đăng nhập</label>
                         </div>
-                        <a href="#" className="text-blue2 text-sm font-normal hover:underline">Quên mật khẩu?</a>
+                        {/* <a href="#" className="text-blue2 text-sm font-normal hover:underline">Quên mật khẩu?</a> */}
                     </div>
 
                     <FormMessage className={`text-[14px] mt-[20px] select-none self-end ${loginFailed ? 'text-red5' : 'text-transparent'}`}>

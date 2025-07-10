@@ -94,11 +94,11 @@ export default function PlaceForm({
                   imageUrl: fetchedData.coverImage?.imageUrl,
                   imagePublicId: fetchedData.coverImage?.imagePublicId,
                },
+               checkInPoint: fetchedData?.checkInPoint.toString(),
+               checkInRangeMeter: fetchedData?.checkInRangeMeter.toString(),
                categoryId: fetchedData.category.id.toString(),
                placeDetail: {
                   ...(fetchedData.placeDetail || {}),
-                  checkInPoint: fetchedData.placeDetail?.checkInPoint.toString(),
-                  checkInRangeMeter: fetchedData.placeDetail?.checkInRangeMeter.toString(),
                   timeOpen: fetchedData.placeDetail?.timeOpen
                      ? parseTimeString(fetchedData.placeDetail.timeOpen)
                      : new Date(new Date().setHours(0, 0, 0, 0)),
@@ -306,14 +306,14 @@ export default function PlaceForm({
                         <div className='col-span-2 grid grid-cols-2 gap-x-4 gap-y-[24px]'>
                            <FormFieldInput
                               control={form.control}
-                              name="placeDetail.checkInRangeMeter"
+                              name="checkInRangeMeter"
                               label="Khoảng cách Check-in (m)"
                               placeholder="Nhập khoảng cách check-in"
                            />
 
                            <FormFieldInput
                               control={form.control}
-                              name="placeDetail.checkInPoint"
+                              name="checkInPoint"
                               label="Điểm số Check-in"
                               placeholder="Nhập điểm check-in"
                            />
