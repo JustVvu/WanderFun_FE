@@ -172,7 +172,7 @@ export function LoginForm() {
                 </form>
             </Form>
             <div className="justify-items-end mt-auto">
-                <p className="text-[12px] font-semibold text-black2">© DA2 - VT - 2024</p>
+                <p className="text-[12px] font-semibold text-black2">© KLTN - TAMVU - 2025</p>
             </div>
         </div>
     )
