@@ -23,12 +23,11 @@ export const placeFormSchema = z.object({
       imageUrl: z.string().optional(),
       imagePublicId: z.string().optional(),
    }),
-
+   checkInPoint: z.string().min(1, "Điểm số Check-in không được để trống"),
+   checkInRangeMeter: z.string().min(1, "Khoảng cách Check-in không được để trống"),
    // Place details
    placeDetail: z.object({
       description: z.string().optional().nullable(),
-      checkInPoint: z.string().min(1, "Điểm số Check-in không được để trống"),
-      checkInRangeMeter: z.string().min(1, "Khoảng cách Check-in không được để trống"),
       timeOpen: z.date(),
       timeClose: z.date(),
       isClosed: z.boolean(),
@@ -69,14 +68,14 @@ export const defaultFormValues: PlaceFormValues = {
    },
    longitude: "",
    latitude: "",
+   checkInPoint: "",
+   checkInRangeMeter: "",
    coverImage: {
       imageUrl: "",
       imagePublicId: "",
    },
    placeDetail: {
       description: "",
-      checkInPoint: "",
-      checkInRangeMeter: "",
       timeOpen: new Date(new Date().setHours(0, 0, 0, 0)),
       timeClose: new Date(new Date().setHours(0, 0, 0, 0)),
       isClosed: false,
@@ -110,11 +109,11 @@ export const mapFormValuesToApiPayload = (values: PlaceFormValues) => {
          wardName: values.address.wardName || undefined,
          street: values.address.street || undefined,
       },
+      checkInPoint: parseInt(values.checkInPoint),
+      checkInRangeMeter: parseFloat(values.checkInRangeMeter),
       placeDetail: {
          ...values.placeDetail,
          description: values.placeDetail.description || undefined,
-         checkInPoint: parseInt(values.placeDetail.checkInPoint),
-         checkInRangeMeter: parseFloat(values.placeDetail.checkInRangeMeter),
          timeOpen: values.placeDetail.timeOpen.toLocaleTimeString(
             'vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }
          ),

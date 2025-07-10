@@ -4,8 +4,6 @@ export interface PlaceDetail {
    id: number;
    placeId: number;
    description: string;
-   checkInPoint: number;
-   checkInRangeMeter: number;
    timeOpen: string;
    timeClose: string;
    isClosed: boolean;
@@ -22,8 +20,6 @@ export interface PlaceDetail {
 export interface PlaceDetailDTO {
    id?: number;
    description?: string;
-   checkInPoint?: number;
-   checkInRangeMeter?: number;
    timeOpen?: string;
    timeClose?: string;
    isClosed?: boolean;

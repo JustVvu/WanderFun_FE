@@ -88,10 +88,10 @@ export default function PlaceDetailPage() {
                   <strong>Giờ đóng cửa:</strong> {place?.placeDetail?.timeClose}
                </p>
                <p>
-                  <strong>Khoảng cách check-in:</strong> {place?.placeDetail?.checkInRangeMeter} m
+                  <strong>Khoảng cách check-in:</strong> {place?.checkInRangeMeter} m
                </p>
                <p>
-                  <strong>Điểm check-in:</strong> {place?.placeDetail?.checkInPoint}
+                  <strong>Điểm check-in:</strong> {place?.checkInPoint}
                </p>
                <p>
                   <strong>Giá thấp nhất:</strong> {place?.placeDetail?.priceRangeBottom} VND

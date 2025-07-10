@@ -11,6 +11,8 @@ export interface Place {
    longitude: string;
    latitude: string;
    rating: string;
+   checkInPoint: number;
+   checkInRangeMeter: number;
    checkInCount: string;
    feedbackCount: string;
    coverImage: Image;
@@ -25,6 +27,8 @@ export interface CreatePlacePayload {
       wardName?: string;
       street?: string;
    };
+   checkInPoint?: number;
+   checkInRangeMeter?: number;
    categoryId: string;
    longitude: string;
    latitude: string;

@@ -103,10 +103,10 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                  </div>
                                  <div className="grid justify-between grid-cols-5 space-x-2">
                                     <Label className="col-span-3 text-sm text-black4">
-                                       Khoảng cách Check-in: {place.placeDetail.checkInRangeMeter} (m),
+                                       Khoảng cách Check-in: {place.checkInRangeMeter} (m),
                                     </Label>
                                     <Label className="col-span-2 text-sm text-black4">
-                                       Điểm Check-in: {place.placeDetail.checkInPoint}
+                                       Điểm Check-in: {place.checkInPoint}
                                     </Label>
                                  </div>
                                  <Label className="text-sm text-black4">
@@ -143,7 +143,7 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                                           <Label className="text-sm text-black4">
                                              {sect.content}
                                           </Label>
-                                          {sect.image.imageUrl && (
+                                          {sect.image?.imageUrl && (
                                              <div className="flex w-[100px] h-[100px] relative justify-center ">
                                                 <Image
                                                    src={sect.image.imageUrl}
