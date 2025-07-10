@@ -59,8 +59,8 @@ export default function PlaceDetailPage() {
             </Button>
          </div>
 
-         <div className="grid grid-cols-2 gap-6 px-4">
-            <div className="col-span-2 w-full h-[450px] relative my-6">
+         <div className="grid grid-cols-3 gap-6 px-4 py-4">
+            <div className="col-span-3 w-full h-[450px] relative">
                <Image
                   src={place?.coverImage.imageUrl || '/placeholder-image.png'}
                   alt={"cover"}
@@ -69,13 +69,12 @@ export default function PlaceDetailPage() {
                   sizes="(max-width: 600px) 100vw, 50vw"
                />
             </div>
-
-            <div className='grid grid-cols-2 sm:grid-cols-1 gap-y-3 text-lg col-span-2 px-5'>
-               <p className='col-span-2 md:-col-span-1'>
-                  <strong>Địa chỉ: </strong>
-                  {place?.address?.street || ''}  {place?.address?.ward?.name + ", " || ''}
-                  {place?.address?.district?.name + ", " || ''} {place?.address?.province?.name || ''}
-               </p>
+            <p className='col-span-2 text-lg px-5'>
+               <strong>Địa chỉ: </strong>
+               {place?.address?.street || ''}  {place?.address?.ward?.name + ", " || ''}
+               {place?.address?.district?.name + ", " || ''} {place?.address?.province?.name || ''}
+            </p>
+            <div className='grid grid-cols-2 gap-y-3 col-span-2 text-lg px-5'>
                <p>
                   <strong>Tên gọi khác:</strong> {place?.placeDetail?.alternativeName || 'Chưa có thông tin'}
                </p>

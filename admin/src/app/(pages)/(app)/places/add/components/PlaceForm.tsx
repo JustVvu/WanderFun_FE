@@ -290,9 +290,9 @@ export default function PlaceForm({
                            type="button"
                            variant="outline"
                            size="icon"
-                           className="h-[40px] w-[40px] flex-2 self-center shadow-none text-blue2 border-blue2 hover:bg-blue2 hover:text-white hover:border-none"
+                           className="h-[40px] w-[40px] flex-2 self-center shadow-none text-blue1 border-none hover:bg-white hover:text-blue3 hover:border-none"
                         >
-                           <PlusCircle />
+                           <PlusCircle className='scale-150' />
                         </Button>
                         <CreateCategoryModal
                            isOpen={isModalOpen}

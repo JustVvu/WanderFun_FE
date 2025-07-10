@@ -15,6 +15,8 @@ import placeholderImage from "@/app/assets/banner.png";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 
 interface PlaceDetailSidebarProps {
@@ -24,6 +26,8 @@ interface PlaceDetailSidebarProps {
 }
 
 export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDetailSidebarProps) {
+   const router = useRouter();
+
    return (
       <>
          {place &&
@@ -53,6 +57,14 @@ export default function PlaceDetailSidebar({ place, isOpen, setIsOpen }: PlaceDe
                   <SidebarContent className="h-3/4 hide-scrollbar">
                      <Collapsible defaultOpen className="group/collapsible">
                         <SidebarGroup>
+                           <Button
+                              onClick={() => {
+                                 router.push(`/places/add?id=${place.id}`);
+                              }}
+                              className="w-fit h-fit bg-blue2 my-3 text-white1 border rounded-[8px] hover:bg-blue3"
+                           >
+                              Chỉnh sửa địa điểm
+                           </Button>
                            <SidebarGroupLabel asChild>
                               <CollapsibleTrigger className="flex px-0 font-semibold hover:bg-blue2o">
                                  <Label className="text-[20px] text-blue2" >Thông tin chi tiết</Label>

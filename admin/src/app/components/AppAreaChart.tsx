@@ -1,6 +1,12 @@
 "use client"
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import {
+    Area,
+    AreaChart,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+} from "recharts"
 
 import {
     Card,
@@ -9,85 +15,70 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+
 import {
-    ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
 
+import { format, parseISO } from "date-fns"
 
-const chartData = [
-    { month: "January", desktop: 186, mobile: 80 },
-    { month: "February", desktop: 305, mobile: 200 },
-    { month: "March", desktop: 237, mobile: 120 },
-    { month: "April", desktop: 73, mobile: 190 },
-    { month: "May", desktop: 209, mobile: 130 },
-    { month: "June", desktop: 214, mobile: 140 },
-]
+interface Props {
+    createdAtList: string[]
+}
 
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "hsl(var(--green1))",
-    },
-    mobile: {
-        label: "Mobile",
-        color: "hsl(var(--chart-2))",
-    },
-} satisfies ChartConfig
+function getMonthlyAccountData(createdAtList: string[]) {
+    const counts: Record<string, number> = {}
 
-export function AppAreaChart() {
+    for (const dateStr of createdAtList) {
+        if (!dateStr) continue
+        const date = parseISO(dateStr)
+        const key = format(date, 'yyyy-MM') // e.g. 2024-07
+        counts[key] = (counts[key] || 0) + 1
+    }
+
+    return Object.entries(counts)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, count]) => ({
+            month: format(parseISO(month + '-01'), 'MMMM'),
+            total: count,
+        }))
+}
+
+export function AppAreaChart({ createdAtList }: Props) {
+    const chartData = getMonthlyAccountData(createdAtList)
+
     return (
-        <Card className="w-[60%]">
+        <Card className='w-[60%]'>
             <CardHeader>
-                <CardTitle>Area Chart - Stacked</CardTitle>
-                <CardDescription>
-                    Showing total visitors for the last 6 months
-                </CardDescription>
+                <CardTitle>Biểu đồ tài khoản</CardTitle>
+                <CardDescription>Số tài khoản tạo theo tháng</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig}>
-                    <AreaChart
-                        accessibilityLayer
-                        data={chartData}
-                        margin={{
-                            right: 12,
-                        }}
-                    >
+                <ChartContainer
+                    config={{ total: { label: 'Accounts', color: 'hsl(var(--green1))' } }}
+                >
+                    <AreaChart data={chartData} margin={{ right: 12 }}>
                         <CartesianGrid vertical={false} />
                         <XAxis
-                            dataKey="month"
+                            dataKey='month'
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
                             tickFormatter={(value) => value.slice(0, 3)}
                         />
-                        <YAxis
-                            tickLine={true}
-                            axisLine={true}
-                            tickMargin={8}
-                            tickCount={5}
-                        />
+                        <YAxis tickLine axisLine tickMargin={8} tickCount={5} />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent indicator="dot" />}
+                            content={<ChartTooltipContent indicator='dot' />}
                         />
                         <Area
-                            dataKey="mobile"
-                            type="natural"
-                            fill="var(--blue3)"
+                            dataKey='total'
+                            type='natural'
+                            fill='var(--green3)'
                             fillOpacity={0.4}
-                            stroke="var(--blue3)"
-                            stackId="a"
-                        />
-                        <Area
-                            dataKey="desktop"
-                            type="natural"
-                            fill="var(--green3)"
-                            fillOpacity={0.4}
-                            stroke="var(--green3)"
-                            stackId="a"
+                            stroke='var(--green3)'
                         />
                     </AreaChart>
                 </ChartContainer>

@@ -14,6 +14,7 @@ import { getPlaceById, getPlaceByProvinceName } from "@/app/services/places/plac
 import AppSearchBar from "@/app/components/AppSearchBar";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { ChevronLeft } from "lucide-react";
 
 export default function MapAdd() {
 
@@ -65,11 +66,21 @@ export default function MapAdd() {
                isOpen={openSidebar}
                setIsOpen={setOpenSidebar}
             />
+            <div className="absolute z-30 top-3 left-4">
+               <Button
+                  variant="outline"
+                  onClick={() => router.back()}
+                  className="border-2 w-10 h-10 rounded-full"
+               >
+                  <ChevronLeft />
+               </Button>
+            </div>
 
             <div className="absolute z-10 w-2/4 max-w-xl transform -translate-x-1/2 top-4 left-1/2">
                <AppSearchBar
                   onPlaceDetailFetched={handlePlaceDetailFetched}
                />
+
             </div>
             <div className="absolute z-10 max-w-lg transform -translate-x-1/2 bottom-4 left-1/2">
                {selectedProvince && (
